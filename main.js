@@ -29,8 +29,10 @@ var helperObj =
         //Then checkCHECK() after movement! then toggle turn.
         ///at last moveUI() and the UI
         /////////// or update on click
-    }
+    },
     //three functions prototypes --implement removeFriendIntersection()
+    intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
+    difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; }
 }
 
 function Position(_x,_y) //factory for position
@@ -138,6 +140,10 @@ function king(_x, _y, c)
        //difference method is down
        this.removeFriendIntersection(); //essential call
     }
+    this.removeEnemyIntersection = function()
+    {
+
+    }
 }
 function pawn(_x, _y, c)
 {
@@ -153,7 +159,5 @@ function pawn(_x, _y, c)
         this.filterAvailables();
     }
 }
-
-
 
 
