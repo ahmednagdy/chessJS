@@ -32,7 +32,8 @@ var helperObj =
     },
     //three functions prototypes --implement removeFriendIntersection()
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
-    difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; }
+    difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; },
+    InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) }
 }
 
 function Position(_x,_y) //factory for position
@@ -125,26 +126,46 @@ function bishop(_x, _y, c)
 
 function king(_x, _y, c)
 {
+    piece.call(this,_x,_y,c);
     this.getAndFillAvailableMoves = function()
     {
-        //x++, x--, y--, y++, x + y + , x - y - , x + y - , x - y + (only one step)
-        //then filter them
-        this.removeEnemyIntersection = function() {} //To be implemeted and called
-        /* logic
-        for each enemy piece x 
+        for (var i = -1, j = 0; i <= 1 && j <= 1; i+=2)
         {
-            this.availableMoves = this.availableMoves - x.availableMoves;
-            if (x.availableMoves INCLUDES this.position) checked = true;
+            //gets  x- x+ y- y+
+            var p = Position(this.position.x + (j != 1 ? i : 0), this.position.y + (j == 1 ? i : 0));
+            if (i == 1 && j == 0)  { i = -3; j = 1; }
+            if (helperObj.InBound(p)) this.moves.push(p); 
         }
-        */
-       //difference method is down
-       this.removeFriendIntersection(); //essential call
+        for (var j = 1; j <= 4; j++) 
+        {
+            //gets  x-y- x+y+  x+y-  x-y+
+            var p = Position(this.position.x + (j == 1 ? 1 : (j == 2 ? -1 : (j == 3 ? -1 : 1))), this.position.y + (j == 1 ? 1 : (j == 2 ? -1 : (j == 3 ? 1 : -1))));
+            if (helperObj.InBound(p)) this.moves.push(p);
+        }
+        
+       //this.removeFriendIntersection(); //essential call
+       //this.removeEnemyIntersection(); //awaiting map initialization
     }
     this.removeEnemyIntersection = function()
     {
-
+        for (var i = 1; i<= 8; i++)
+        {
+            for (var j = 1; j<= 8; j++)
+            {
+                if(helperObj.map[i][j].color != this.color) //then enemey piece
+                {
+                    var enemy = helperObj.map[i][j];
+                    this.moves = difference(this.moves,enemy.moves);
+                    if(enemy.moves.includes(this.position)) checked = true; //Then the king is in CHECK!
+                }
+            }
+        }
     }
 }
+
+king.prototype = Object.create(piece.prototype);
+king.prototype.constructor = king;
+
 function pawn(_x, _y, c)
 {
     this.firstMove = true;
@@ -160,4 +181,7 @@ function pawn(_x, _y, c)
     }
 }
 
-
+//adding event listener on all squares on load
+ var squares = document.getElementsByTagName("rect");
+ for (var i = 0; i < squares.length; i++)
+    squares[i].setAttribute("onclick","handleClick(this)");
