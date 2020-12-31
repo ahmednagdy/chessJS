@@ -4,9 +4,12 @@ svg {
   width: 800px;
   height: 800px;
 }
+
 rect:hover {
   fill: chartreuse;
-  box-shadow: 0px 0px 41px 1px rgba(255, 0, 213, 1);
+}
+.black-piece {
+  transition: transform 1s;
 }
 .black-piece:hover {
   filter: drop-shadow(0px 0px 10px #e91010);
@@ -14,198 +17,196 @@ rect:hover {
 .white-piece:hover {
   filter: drop-shadow(0px 0px 10px green);
 }
-.c1-1 {
-  z-index: 10;
-}
-[class="1-1"] {
+
+[id="1-1"] {
   fill: lightgrey;
 }
-[class="1-2"] {
+[id="1-2"] {
   fill: darkgray;
 }
-[class="1-3"] {
+[id="1-3"] {
   fill: lightgrey;
 }
-[class="1-4"] {
+[id="1-4"] {
   fill: darkgray;
 }
-[class="1-5"] {
+[id="1-5"] {
   fill: lightgrey;
 }
-[class="1-6"] {
+[id="1-6"] {
   fill: darkgray;
 }
-[class="1-7"] {
+[id="1-7"] {
   fill: lightgrey;
 }
-[class="1-8"] {
+[id="1-8"] {
   fill: darkgray;
 }
-[class="2-1"] {
+[id="2-1"] {
   fill: darkgray;
 }
-[class="2-2"] {
+[id="2-2"] {
   fill: lightgrey;
 }
-[class="2-3"] {
+[id="2-3"] {
   fill: darkgray;
 }
-[class="2-4"] {
+[id="2-4"] {
   fill: lightgrey;
 }
-[class="2-5"] {
+[id="2-5"] {
   fill: darkgray;
 }
-[class="2-6"] {
+[id="2-6"] {
   fill: lightgrey;
 }
-[class="2-7"] {
+[id="2-7"] {
   fill: darkgray;
 }
-[class="2-8"] {
+[id="2-8"] {
   fill: lightgrey;
 }
-[class="3-1"] {
+[id="3-1"] {
   fill: lightgrey;
 }
-[class="3-2"] {
+[id="3-2"] {
   fill: darkgray;
 }
-[class="3-3"] {
+[id="3-3"] {
   fill: lightgrey;
 }
-[class="3-4"] {
+[id="3-4"] {
   fill: darkgray;
 }
-[class="3-5"] {
+[id="3-5"] {
   fill: lightgrey;
 }
-[class="3-6"] {
+[id="3-6"] {
   fill: darkgray;
 }
-[class="3-7"] {
+[id="3-7"] {
   fill: lightgrey;
 }
-[class="3-8"] {
+[id="3-8"] {
   fill: darkgray;
 }
-[class="4-1"] {
+[id="4-1"] {
   fill: darkgray;
 }
-[class="4-2"] {
+[id="4-2"] {
   fill: lightgrey;
 }
-[class="4-3"] {
+[id="4-3"] {
   fill: darkgray;
 }
-[class="4-4"] {
+[id="4-4"] {
   fill: lightgrey;
 }
-[class="4-5"] {
+[id="4-5"] {
   fill: darkgray;
 }
-[class="4-6"] {
+[id="4-6"] {
   fill: lightgrey;
 }
-[class="4-7"] {
+[id="4-7"] {
   fill: darkgray;
 }
-[class="4-8"] {
+[id="4-8"] {
   fill: lightgrey;
 }
-[class="5-1"] {
+[id="5-1"] {
   fill: lightgrey;
 }
-[class="5-2"] {
+[id="5-2"] {
   fill: darkgray;
 }
-[class="5-3"] {
+[id="5-3"] {
   fill: lightgrey;
 }
-[class="5-4"] {
+[id="5-4"] {
   fill: darkgray;
 }
-[class="5-5"] {
+[id="5-5"] {
   fill: lightgrey;
 }
-[class="5-6"] {
+[id="5-6"] {
   fill: darkgray;
 }
-[class="5-7"] {
+[id="5-7"] {
   fill: lightgrey;
 }
-[class="5-8"] {
+[id="5-8"] {
   fill: darkgray;
 }
-[class="6-1"] {
+[id="6-1"] {
   fill: darkgray;
 }
-[class="6-2"] {
+[id="6-2"] {
   fill: lightgrey;
 }
-[class="6-3"] {
+[id="6-3"] {
   fill: darkgray;
 }
-[class="6-4"] {
+[id="6-4"] {
   fill: lightgrey;
 }
-[class="6-5"] {
+[id="6-5"] {
   fill: darkgray;
 }
-[class="6-6"] {
+[id="6-6"] {
   fill: lightgrey;
 }
-[class="6-7"] {
+[id="6-7"] {
   fill: darkgray;
 }
-[class="6-8"] {
+[id="6-8"] {
   fill: lightgrey;
 }
-[class="7-1"] {
+[id="7-1"] {
   fill: lightgrey;
 }
-[class="7-2"] {
+[id="7-2"] {
   fill: darkgray;
 }
-[class="7-3"] {
+[id="7-3"] {
   fill: lightgrey;
 }
-[class="7-4"] {
+[id="7-4"] {
   fill: darkgray;
 }
-[class="7-5"] {
+[id="7-5"] {
   fill: lightgrey;
 }
-[class="7-6"] {
+[id="7-6"] {
   fill: darkgray;
 }
-[class="7-7"] {
+[id="7-7"] {
   fill: lightgrey;
 }
-[class="7-8"] {
+[id="7-8"] {
   fill: darkgray;
 }
-[class="8-1"] {
+[id="8-1"] {
   fill: darkgray;
 }
-[class="8-2"] {
+[id="8-2"] {
   fill: lightgrey;
 }
-[class="8-3"] {
+[id="8-3"] {
   fill: darkgray;
 }
-[class="8-4"] {
+[id="8-4"] {
   fill: lightgrey;
 }
-[class="8-5"] {
+[id="8-5"] {
   fill: darkgray;
 }
-[class="8-6"] {
+[id="8-6"] {
   fill: lightgrey;
 }
-[class="8-7"] {
+[id="8-7"] {
   fill: darkgray;
 }
-[class="8-8"] {
+[id="8-8"] {
   fill: lightgrey;
 }
