@@ -63,7 +63,7 @@ function piece(_x,_y,c) //We will pass the initial position here
 function knight(_x, _y, c)
 {
     //Constructor chain using call to initialize my vars and the same for the rest
-
+    piece.call(this,_x,_y)
     //two initial positions for white and two for black ...
     //you can get all pieces available positions from the board
     //--by counting from 1-8 from the bottom left corner as 1,1
@@ -82,6 +82,22 @@ function knight(_x, _y, c)
         x - 1 y - 2
         x - 2 y - 1
         */
+     
+            this.moves.push(Position(this.position.x+2,this.position.y+1));
+            this.moves.push(Position(this.position.x+1,this.position.y+2));
+            this.moves.push(Position(this.position.x-1,this.position.y+2));
+            this.moves.push(Position(this.position.x-2,this.position.y+1));
+            this.moves.push(Position(this.position.x+2,this.position.y-1));
+            this.moves.push(Position(this.position.x+1,this.position.y-2));
+            this.moves.push(Position(this.position.x-1,this.position.y-2));
+            this.moves.push(Position(this.position.x-2,this.position.y-1));
+          
+         for(var i =0 ;i<this.moves.length;i++)
+         {
+             if(!InBound(this.moves[i]) )
+                    this.moves.splice(i,1);
+         }
+      
 
         //if (x or y > 8) don't push (obviously)
 
@@ -91,6 +107,9 @@ function knight(_x, _y, c)
     //Calling the fill function
     this.getAndFillAvailableMoves();
 }
+knight.prototype=Object.create(piece.prototype);
+knight.prototype.constructor=knight;
+
 
 function queen(_x, _y, c)
 {
