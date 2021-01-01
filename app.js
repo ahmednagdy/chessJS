@@ -29,7 +29,7 @@ moveToMap_and_ui = function (piece, x, y) {
 
   let translatePosition = `translate(${x * 100}px, ${y * 100}px)`;
   let oldPosition = grabPositionPiece(piece);
-  if (map[x][y] == null) {
+  if (helperObj.map[x][y] == null) {
     piece.style.transform = translatePosition;
     console.log(translatePosition);
     if (checkCHECK()) {
