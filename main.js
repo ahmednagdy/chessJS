@@ -248,11 +248,13 @@ bishop.prototype.constructor = bishop;
 function getLineOfSquaresToFirstElement(pos,Xdirction,Ydriction){
     var Tpos = new Position(pox.x+Xdirction , pos.y+Ydriction);
     var posS=[];
-    while(helperObj.InBound(Tpos) &&  (helperObj.map[Tpos.x][Tpos.y]==null ||helperObj.map[Tpos.x][Tpos.y].color !=turn )){
+    while(helperObj.InBound(Tpos) &&  helperObj.map[Tpos.x][Tpos.y]==null ){
         posS.push(new Position(Tpos.x, Tops.y));
         Tpos.x+=Xdirction;
         Tpos.y+=Ydirction;
     }
+    if(helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color !=turn )
+        posS.push(new Position(Tpos.x, Tops.y));
     return posS;
 }
 //could think of a pinner class to implement those 3 pieces ...
