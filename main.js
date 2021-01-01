@@ -1,6 +1,7 @@
 //Link with UI --> each square will have
 //id = 1,1 -> 8,8 and onclick=handleClick(this.id)
-function handleClick(position) {
+function handleClick(position) 
+{
   //fill += king?
   //check position in map to get its state
   /////flag selected
@@ -9,40 +10,56 @@ function handleClick(position) {
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
-  if (isSelected) {
-    if (newSelection === selected) {
+  if (isSelected) 
+  {
+    if (newSelection === selected) 
+    {
       //user clicked twice -> Deselect
       selected = null; //optional step
       isSelected = false;
-    } else if (newSelection == null) {
+    } 
+    else if (newSelection == null) 
+    {
       //Empty Square => if available call move else deselect
-      if (selected.moves.includes(newSelection.position)) {
+      if (selected.moves.includes(newSelection.position)) 
+      {
         moveToMap_and_ui(selected, x, y);
         isSelected = false; //deselect
         selected = null;
-      } else {
+      } 
+      else 
+      {
         selected = null;
         isSelected = false;
       }
-    } else if (newSelection.color == turn) {
+    } 
+    else if (newSelection.color == turn) 
+    {
       //clicked a friend piece
       //change selection to the new piece
       selected = newSelection;
     } //(newSelection.color != turn) then it is an enemy piece
-    else {
-      if (selected.moves.includes(newSelection.position)) {
+    else 
+    {
+      if (selected.moves.includes(newSelection.position)) 
+      {
         //TAKE ////
         moveToMap_and_ui(selected, x, y); //deselect
         isSelected = false;
         selected = null;
-      } else {
+      } 
+      else 
+      {
         //Deselect ////
         selected = null;
         isSelected = false;
       }
     }
-  } else {
-    if (newSelection.color == turn) {
+  } 
+  else 
+  {
+    if (newSelection.color == turn) 
+    {
       selected = newSelection;
       isSelected = true; //ignore if first click and not your turn;
     }
@@ -50,7 +67,8 @@ function handleClick(position) {
   //highlight / dehighlight
   //game end scenarios to be handled in move!
   /////////IMPLEMENT Value OF/To string for piece.position to return ready id
-  if (isSelected) {
+  if (isSelected) 
+  {
     //highlight the piece and the moves
     var id = selected.position;
     id = id.x + "-" + id.y;
@@ -61,12 +79,11 @@ function handleClick(position) {
       console.log("id = " + id);
       document.getElementById(id).className = "highlight"; //the available square
     }
-  } else {
-    for (
-      var i = 0;
-      i < document.getElementsByClassName("highlight").length;
-      i++
-    ) {
+  } 
+  else 
+  {
+    for (var i = 0;i < document.getElementsByClassName("highlight").length;i++) 
+    {
       document.getElementsByClassName("highlight")[i].className = "normal"; //reset highlighted square
     }
   }
