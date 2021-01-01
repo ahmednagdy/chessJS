@@ -24,6 +24,8 @@ function handleClick(position)
             if(selected.moves.includes(newSelection.position))
             {
                 moveToMap_and_ui(selected,x,y);
+                isSelected = false; //deselect
+                selected = null;
             }
             else
             {
@@ -40,12 +42,14 @@ function handleClick(position)
         {
             if(selected.moves.includes(newSelection.position))
             {
-                //TAKE
-                moveToMap_and_ui(selected, x, y);
+                //TAKE ////
+                moveToMap_and_ui(selected, x, y); //deselect
+                isSelected = false;
+                selected = null;
             }
             else
             {
-                //Deselect
+                //Deselect ////
                 selected = null;
                 isSelected = false;
             }
@@ -142,6 +146,8 @@ var helperObj =
         //Then checkCHECK() after movement! then toggle turn.
         ///at last moveUI() and the UI
         /////////// or update on click
+        //------------------------------
+        //-----moveUI();
     },
     //three functions prototypes --implement removeFriendIntersection()
     removeFriendIntersection:function(piece){
@@ -299,6 +305,7 @@ function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
 }
 
 //could think of a pinner class to implement those 3 pieces ...
+//myStepDirection.x,.y
 function king(_x, _y, c)
 {
     piece.call(this,_x,_y,c);
