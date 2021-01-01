@@ -98,8 +98,32 @@ var B = { RemainingArrayOfPieces:[] } //---note : reference (one obj to be updat
 
 var helperObj =
 {
-    //map[1][3] = 
-    //map:[[obj1,obj2,null,new new],[],[],[],[],[],[],[]], //to be initialized with piece objs with initial positions
+    //map[x][y] 
+    // 0 for white
+    // 1 for black
+    var map = [[],[],[],[],[],[],[],[]], //to be initialized with piece objs with initial positions
+    (function () {
+        for (var i = 0 ; i< 9; i++) {
+            for (var j = 0; j < 9; j++) {
+                map[i][j] = null;
+            }
+        }
+        fillInitialize(1,2,1)
+        fillInitialize(8,7,-1)
+    })();
+    
+
+    function fillInitialize(_y1, _y2,c){
+        for(var i=1;i<9;i++)
+            map[i][_y2] = pawn(i, _y2, c);
+
+         map[1][_y1] = rook  (1, _y1, c);   map[8][_y1] = rook(8, _y1, c);
+         map[2][_y1] = knight(2, _y1, c);   map[7][_y1] = knight(7, _y1, c);
+         map[3][_y1] = bishop(3, _y1, c);   map[6][_y1] = bishop(6, _y1, c); 
+         map[4][_y1] = queen (4, _y1, c);
+         map[5][_y1] = king  (5, _y1, c);
+
+    }
     moveToMap_and_ui: function(piece, x, y) 
     {
         //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
@@ -113,6 +137,17 @@ var helperObj =
         /////////// or update on click
     },
     //three functions prototypes --implement removeFriendIntersection()
+    removeFriendIntersection:function(piece){
+        var arr = piece.moves
+        for(var i=0;i<arr.length;i++){
+            if( map[arr[i].x][arr[i].y] != null){
+                if(map[arr[i].x][arr[i].y].color == piece.color){
+                        arr.splice(i,1);
+                        i--;
+                    }
+                }
+        }
+    }
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
     difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; },
     InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) }
@@ -270,19 +305,41 @@ function king(_x, _y, c)
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
+
 function pawn(_x, _y, c)
 {
+    //this.moves
     this.firstMove = true;
     this.getAndFillAvailableMoves = function()
     {
         //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
+        var tempPosition = Position(_x, _y+c)
+        if(helperObj.map[_x][_y+1] == null && helperObj.InBound(tempPosition)){
+            this.moves.push(tempPosition);   
+        }
         //if (firstMove) allow y + 2; firstMove = false; //same above condition
+        if(this.firstMove){
+            tempPosition = Position(_x, _y+2*c);
+            if(helperObj.map[_x][_y+2*c] == null && helperObj.InBound(tempPosition)){
+                this.moves.push(tempPosition)
+                this.firstMove = false;//????????????????????????
+            }
+        }
         //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
+        tempPosition = Position(_x+c, _y+c)
+        if(helperObj.map[x + 1][y + 1] != null && helperObj.InBound(tempPosition)){
+            this.moves.push(tempPosition);
+        }
         //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
+        tempPosition = Position(_x-c, _y+c)
+        if(helperObj.map[x - 1][y + 1] != null && helperObj.InBound(tempPosition)){
+            this.moves.push(tempPosition);
+        }
 
         //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
         this.filterAvailables();
     }
+    
 }
 
 //adding event listener on all squares on load
