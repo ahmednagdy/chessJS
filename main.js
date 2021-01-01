@@ -6,8 +6,9 @@ function handleClick(position)
     //check position in map to get its state
     /////flag selected
     //select or deselect
-    var x = parseInt(position.split('-')[0]);
-    var y = parseInt(position.split('-')[1]);
+    console.log(position.id);
+    var x = parseInt(position.id.split('-')[0]);
+    var y = parseInt(position.id.split('-')[1]);
     var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
     if(isSelected)
     {
@@ -94,12 +95,14 @@ var isSelected = false;
 //Will only get updated when there is a TAKE action
 //Will be used to check the draw case of insufficient material
 var W = { RemainingArrayOfPieces:[] } //timer later
-var B = { RemainingArrayOfPieces:[] } //---note : reference (one obj to be updated one time)
+var B = { RemainingArrayOfPieces:[] }
+ //---note : reference (one obj to be updated one time)
 
 var helperObj =
 {
     //map[1][3] = 
     //map:[[obj1,obj2,null,new new],[],[],[],[],[],[],[]], //to be initialized with piece objs with initial positions
+   
     moveToMap_and_ui: function(piece, x, y) 
     {
         //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
@@ -115,7 +118,8 @@ var helperObj =
     //three functions prototypes --implement removeFriendIntersection()
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
     difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; },
-    InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) }
+    InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) },
+  
 }
 
 function Position(_x,_y) //factory for position
@@ -125,7 +129,6 @@ function Position(_x,_y) //factory for position
 }
 //could think of it as a class to implement its toString to get the id from position
 //this.getPos = function () { return this.position.x + "-" + this.position.y; }
-
 function piece(_x,_y,c) //We will pass the initial position here
 {
     this.position = Position(_x,_y);
@@ -140,12 +143,9 @@ function piece(_x,_y,c) //We will pass the initial position here
         //helperObj.checkCHECK(this); //Is "MY" king in danger?
     }
 }
-
-
 //All coming pieces will inherit (those two lines of code) the above structure
 //only the king will not call the filter function inside him because he can't be pinned
 //and apply constructor chaining
-
 function knight(_x, _y, c)
 {
     //Constructor chain using call to initialize my vars and the same for the rest
@@ -180,7 +180,7 @@ function knight(_x, _y, c)
           
          for(var i =0 ;i<this.moves.length;i++)
          {
-             if(!InBound(this.moves[i]) )
+             if(!helperObj.InBound(this.moves[i]) )
                     this.moves.splice(i,1);
          }
       
@@ -195,39 +195,66 @@ function knight(_x, _y, c)
 }
 knight.prototype=Object.create(piece.prototype);
 knight.prototype.constructor=knight;
-
-
 function queen(_x, _y, c)
 {
-    this.getAndFillAvailableMoves() = function()
+    piece.call(this,_x,_y,c);
+    this.getAndFillAvailableMoves = function()
     {
         //8 directions
         //(++x)(--x)(++y)(--y)(+x + y)(-x - y)(+x - y)(-x + y) at every step
 
         //Will get done using "getLineOfSquaresToFirstElement()" method
         //to be implemented ...
-        moves = getLineOfSquaresToFirstElement(this.position,111); // 1,2,3,4,5,6,7,8 
+        moves = getLineOfSquaresToFirstElement(this.position,1,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,-1)); 
 
         this.filterAvailables();
     }
 }
+queen.prototype = Object.create(piece.prototype);
+queen.prototype.constructor = queen;
 function rook(_x, _y, c)
 {
-    this.getAndFillAvailableMoves() = function()
+    queen.call(this,_x,_y,c);
+    this.getAndFillAvailableMoves = function()
     {
-        //SAME as Q but only 4 ++x --x ++y --y
-        //using the method in a different way or multiple times .. we will see 
+        moves = getLineOfSquaresToFirstElement(this.position,0,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,0));
     }
 }
+rook.prototype = Object.create(queen.prototype);
+rook.prototype.constructor = rook;
 function bishop(_x, _y, c)
 {
+    queen.call(this,_x,_y,c);
     this.getAndFillAvailableMoves() = function()
     {
-        //SAME but only 4 +x+y  +x-y  -x+y  -x-y
+        moves = getLineOfSquaresToFirstElement(this.position,1,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,-1)); 
+    }
+}
+bishop.prototype = Object.create(queen.prototype);
+bishop.prototype.constructor = bishop;
+function getLineOfSquaresToFirstElement(pos,Xdirction,Ydriction){
+    var Tpos = new Position(pox.x+Xdirction , pos.y+Ydriction);
+    var posS=[];
+    while(InBound(Tpos) &&  (helperObj.map[Tpos.x][Tpos.y]==null ||helperObj.map[Tpos.x][Tpos.y].color !=turn )){
+        posS.push(new Position(Tpos.x, Tops.y));
+        Tpos.x+=Xdirction;
+        pos.y+=Ydirction;
     }
 }
 //could think of a pinner class to implement those 3 pieces ...
-
 function king(_x, _y, c)
 {
     piece.call(this,_x,_y,c);
@@ -266,10 +293,8 @@ function king(_x, _y, c)
         }
     }
 }
-
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
-
 function pawn(_x, _y, c)
 {
     this.firstMove = true;
@@ -289,3 +314,4 @@ function pawn(_x, _y, c)
  var squares = document.getElementsByTagName("rect");
  for (var i = 0; i < squares.length; i++)
     squares[i].setAttribute("onclick","handleClick(this)");
+
