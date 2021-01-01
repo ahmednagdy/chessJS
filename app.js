@@ -2,108 +2,48 @@ let bishop1 = document.getElementById("blackBishop1");
 //bishop1.setAttribute("transform", "translate(500,500)");
 bishop1.style.transform = "translate(300px, 500px)";
 
-function translatePiece(id, posX, posY) {
-  let piece = document.getElementById(id);
-  let valueOfTranslate = "translate(" + posX + "px," + posY + "px)";
-  piece.style.transform = valueOfTranslate;
-}
-function movePiece(id, amountOfX, amountOfY) {
-  let piece = document.getElementById(id);
-  let Positions = piece.style.transform.match(/[0-9]{3}/g);
-  let posX = Positions[0];
-  let posY = Positions[1];
-
-  let valueOfTranslate =
-    "translate(" +
-    (Number(amountOfX * 100) + Number(posX)) +
-    "px," +
-    (Number(amountOfY * 100) + Number(posY)) +
-    "px)";
-  piece.style.transform = valueOfTranslate;
-}
-function grabPositionPiece(piece) {
-  let Positions = piece.style.transform.match(/[0-9]{3}/g);
-  let posX = Positions[0];
-  let posY = Positions[1];
-  return `${posX}px,${posY}px`;
-}
-function grabPositionSquare(square) {
-  let posx = square.getAttribute("x");
-  let posy = square.getAttribute("y");
-  let key = `${posx}px,${posy}px`;
-  return key;
-}
-
 moveToMap_and_ui = function (piece, x, y) {
-  let pieceID = piece.getAttribute("id"); //piece.pieceID;
   let Allpieces = document.querySelectorAll(".black-piece, .white-piece");
-  let filledPositions = [];
-  let allSquares = document.querySelectorAll("svg rect");
-  function getAllFilledPositions() {
-    for (let i = 0; i < Allpieces.length; i++) {
-      filledPositions.push(grabPositionPiece(Allpieces[i]));
-    }
-  }
-  getAllFilledPositions();
 
-  function detecetTheKing() {
-    let kingID;
-    if (/white/g.test(pieceID)) {
-      kingID = "whiteKing";
-    } else {
-      kingID = "blackKing";
-    }
-  }
-  let kingID = detecetTheKing();
-
-  function foundInFilled(square) {
-    let posx = square.getAttribute("x");
-    let posy = square.getAttribute("y");
-    let key = `${posx}px,${posy}px`;
-
-    for (let i = 0; i < filledPositions.length; i++) {
-      if (key == filledPositions[i]) {
-        return true;
-      }
-    }
-    return false;
+  function grabPositionPiece(pieceX) {
+    let Positions = pieceX.style.transform.match(/[0-9]{3}/g);
+    let posX = Positions[0];
+    let posY = Positions[1];
+    return `${posX}px,${posY}px`;
   }
 
-  function checCHECK() {
-    return false;
-  }
-
-  function getPieceOnSquare(square) {
-    Spos = grabPositionSquare(square);
+  function getPieceByPosition(posX, posY) {
+    Spos = `${posX * 100}px,${posY * 100}px`;
     for (let i = 0; i < Allpieces.length; i++) {
       if (Spos == grabPositionPiece(Allpieces[i])) {
         return Allpieces[i];
       }
     }
-    return 6;
   }
 
-  function onSquareClick(e) {
-    if (foundInFilled(e.target)) {
-      let eatenPiece = getPieceOnSquare(e.target);
-      piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
-      eatenPiece.style.transform = "translate(900px,900px)";
-    } else {
-      let oldPosition = grabPositionPiece(piece);
-      piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
-      if (checCHECK()) {
-        piece.style.transform = `translate(${oldPosition})`;
-      }
-    }
-    for (let i = 0; i < 64; i++) {
-      allSquares[i].removeEventListener("click", onSquareClick);
-    }
+  y = 9 - y;
+
+  function checkCHECK() {
+    return false;
   }
 
-  for (let i = 0; i < 64; i++) {
-    allSquares[i].addEventListener("click", onSquareClick);
+  let translatePosition = `translate(${x * 100}px, ${y * 100}px)`;
+  let oldPosition = grabPositionPiece(piece);
+  if (map[x][y] == null) {
+    piece.style.transform = translatePosition;
+    console.log(translatePosition);
+    if (checkCHECK()) {
+      piece.style.transform = `translate(${oldPosition})`;
+    }
+  } else {
+    let eatenPiece = getPieceByPosition(x, y);
+    piece.style.transform = translatePosition;
+    eatenPiece.style.transform = "translate(900px,900px)";
+    if (checkCHECK()) {
+      piece.style.transform = `translate(${oldPosition})`;
+    }
   }
 };
 
-let x = document.getElementById("blackBishop1");
-moveToMap_and_ui(x);
+let xs = document.getElementById("blackBishop1");
+moveToMap_and_ui(xs);
