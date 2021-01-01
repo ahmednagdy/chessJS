@@ -6,8 +6,9 @@ function handleClick(position)
     //check position in map to get its state
     /////flag selected
     //select or deselect
-    var x = parseInt(position.split('-')[0]);
-    var y = parseInt(position.split('-')[1]);
+    console.log(position.id);
+    var x = parseInt(position.id.split('-')[0]);
+    var y = parseInt(position.id.split('-')[1]);
     var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
     if(isSelected)
     {
@@ -94,36 +95,42 @@ var isSelected = false;
 //Will only get updated when there is a TAKE action
 //Will be used to check the draw case of insufficient material
 var W = { RemainingArrayOfPieces:[] } //timer later
-var B = { RemainingArrayOfPieces:[] } //---note : reference (one obj to be updated one time)
+var B = { RemainingArrayOfPieces:[] }
+ //---note : reference (one obj to be updated one time)
 
 var helperObj =
 {
     //map[x][y] 
     // 0 for white
     // 1 for black
-    var map = [[],[],[],[],[],[],[],[]], //to be initialized with piece objs with initial positions
-    (function () {
+     map : [], //to be initialized with piece objs with initial positions
+     Initialize:function () {
+        this.map = []
         for (var i = 0 ; i< 9; i++) {
-            for (var j = 0; j < 9; j++) {
-                map[i][j] = null;
+            this.map[i]=[];
+            for (var j = 0; j < 9; j++) {    
+                this.map[i][j] = null;
             }
         }
-        fillInitialize(1,2,1)
-        fillInitialize(8,7,-1)
-    })();
+        this.fillInitialize(1,2,1);
+        this.fillInitialize(8,7,0);
+    },
     
 
-    function fillInitialize(_y1, _y2,c){
+    fillInitialize:function (_y1, _y2,c){
         for(var i=1;i<9;i++)
-            map[i][_y2] = pawn(i, _y2, c);
+            this.map[i][_y2] = pawn(i, _y2, c);
 
-         map[1][_y1] = rook  (1, _y1, c);   map[8][_y1] = rook(8, _y1, c);
-         map[2][_y1] = knight(2, _y1, c);   map[7][_y1] = knight(7, _y1, c);
-         map[3][_y1] = bishop(3, _y1, c);   map[6][_y1] = bishop(6, _y1, c); 
-         map[4][_y1] = queen (4, _y1, c);
-         map[5][_y1] = king  (5, _y1, c);
+         this.map[1][_y1] = rook  (1, _y1, c);   this.map[8][_y1] = rook(8, _y1, c);
+         this.map[2][_y1] = knight(2, _y1, c);   this.map[7][_y1] = knight(7, _y1, c);
+         this.map[3][_y1] = bishop(3, _y1, c);   this.map[6][_y1] = bishop(6, _y1, c); 
+         this.map[4][_y1] = queen (4, _y1, c);
+         this.map[5][_y1] = king  (5, _y1, c);
 
-    }
+    },
+    //map[1][3] = 
+    //map:[[obj1,obj2,null,new new],[],[],[],[],[],[],[]], //to be initialized with piece objs with initial positions
+   
     moveToMap_and_ui: function(piece, x, y) 
     {
         //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
@@ -138,20 +145,22 @@ var helperObj =
     },
     //three functions prototypes --implement removeFriendIntersection()
     removeFriendIntersection:function(piece){
-        var arr = piece.moves
+        var arr = piece.moves;
         for(var i=0;i<arr.length;i++){
-            if( map[arr[i].x][arr[i].y] != null){
-                if(map[arr[i].x][arr[i].y].color == piece.color){
+            if( this.map[arr[i].x][arr[i].y] != null){
+                if(this.map[arr[i].x][arr[i].y].color == piece.color){
                         arr.splice(i,1);
                         i--;
                     }
                 }
         }
-    }
+    },
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
     difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; },
-    InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) }
-}
+    InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) },
+  
+};
+helperObj.Initialize()
 
 function Position(_x,_y) //factory for position
 {
@@ -160,7 +169,6 @@ function Position(_x,_y) //factory for position
 }
 //could think of it as a class to implement its toString to get the id from position
 //this.getPos = function () { return this.position.x + "-" + this.position.y; }
-
 function piece(_x,_y,c) //We will pass the initial position here
 {
     this.position = Position(_x,_y);
@@ -175,12 +183,9 @@ function piece(_x,_y,c) //We will pass the initial position here
         //helperObj.checkCHECK(this); //Is "MY" king in danger?
     }
 }
-
-
 //All coming pieces will inherit (those two lines of code) the above structure
 //only the king will not call the filter function inside him because he can't be pinned
 //and apply constructor chaining
-
 function knight(_x, _y, c)
 {
     //Constructor chain using call to initialize my vars and the same for the rest
@@ -215,7 +220,7 @@ function knight(_x, _y, c)
           
          for(var i =0 ;i<this.moves.length;i++)
          {
-             if(!InBound(this.moves[i]) )
+             if(!helperObj.InBound(this.moves[i]) )
                     this.moves.splice(i,1);
          }
       
@@ -230,39 +235,70 @@ function knight(_x, _y, c)
 }
 knight.prototype=Object.create(piece.prototype);
 knight.prototype.constructor=knight;
-
-
 function queen(_x, _y, c)
 {
-    this.getAndFillAvailableMoves() = function()
+    piece.call(this,_x,_y,c);
+    this.getAndFillAvailableMoves = function()
     {
         //8 directions
         //(++x)(--x)(++y)(--y)(+x + y)(-x - y)(+x - y)(-x + y) at every step
 
         //Will get done using "getLineOfSquaresToFirstElement()" method
         //to be implemented ...
-        moves = getLineOfSquaresToFirstElement(this.position,111); // 1,2,3,4,5,6,7,8 
+        moves = getLineOfSquaresToFirstElement(this.position,1,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,-1)); 
 
         this.filterAvailables();
     }
 }
+queen.prototype = Object.create(piece.prototype);
+queen.prototype.constructor = queen;
 function rook(_x, _y, c)
 {
-    this.getAndFillAvailableMoves() = function()
+    queen.call(this,_x,_y,c);
+    this.getAndFillAvailableMoves = function()
     {
-        //SAME as Q but only 4 ++x --x ++y --y
-        //using the method in a different way or multiple times .. we will see 
+        moves = getLineOfSquaresToFirstElement(this.position,0,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,0,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,0));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,0));
     }
 }
+rook.prototype = Object.create(queen.prototype);
+rook.prototype.constructor = rook;
 function bishop(_x, _y, c)
 {
+    queen.call(this,_x,_y,c);
     this.getAndFillAvailableMoves() = function()
     {
-        //SAME but only 4 +x+y  +x-y  -x+y  -x-y
+        moves = getLineOfSquaresToFirstElement(this.position,1,1);
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,-1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,1));
+        moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,-1)); 
     }
 }
-//could think of a pinner class to implement those 3 pieces ...
+bishop.prototype = Object.create(queen.prototype);
+bishop.prototype.constructor = bishop;
+function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
+    var Tpos = new Position(pox.x + Xdirction, pos.y + Ydriction);
+    var posS = [];
+    while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
+        posS.push(new Position(Tpos.x, Tops.y));
+        Tpos.x += Xdirction;
+        Tpos.y += Ydirction;
+    }
+    if (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color != turn)
+        posS.push(new Position(Tpos.x, Tops.y));
+    return posS;
+}
 
+//could think of a pinner class to implement those 3 pieces ...
 function king(_x, _y, c)
 {
     piece.call(this,_x,_y,c);
@@ -301,7 +337,6 @@ function king(_x, _y, c)
         }
     }
 }
-
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
@@ -309,29 +344,30 @@ king.prototype.constructor = king;
 function pawn(_x, _y, c)
 {
     //this.moves
+    var increment = (c == 0)? 1:-1;
     this.firstMove = true;
     this.getAndFillAvailableMoves = function()
     {
         //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
-        var tempPosition = Position(_x, _y+c)
-        if(helperObj.map[_x][_y+1] == null && helperObj.InBound(tempPosition)){
+        var tempPosition = Position(_x, _y+increment)
+        if(helperObj.map[_x][_y+increment] == null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);   
         }
-        //if (firstMove) allow y + 2; firstMove = false; //same above condition
+        //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
         if(this.firstMove){
-            tempPosition = Position(_x, _y+2*c);
-            if(helperObj.map[_x][_y+2*c] == null && helperObj.InBound(tempPosition)){
+            tempPosition = Position(_x, _y+2*increment);
+            if(helperObj.map[_x][_y+2*increment] == null && helperObj.InBound(tempPosition)){
                 this.moves.push(tempPosition)
-                this.firstMove = false;//????????????????????????
+                //this.firstMove = false;//????????????????????????
             }
         }
         //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
-        tempPosition = Position(_x+c, _y+c)
+        tempPosition = Position(_x+increment, _y+increment)
         if(helperObj.map[x + 1][y + 1] != null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);
         }
         //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
-        tempPosition = Position(_x-c, _y+c)
+        tempPosition = Position(_x-increment, _y+increment)
         if(helperObj.map[x - 1][y + 1] != null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);
         }
@@ -346,3 +382,4 @@ function pawn(_x, _y, c)
  var squares = document.getElementsByTagName("rect");
  for (var i = 0; i < squares.length; i++)
     squares[i].setAttribute("onclick","handleClick(this)");
+
