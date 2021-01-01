@@ -172,16 +172,22 @@ var helperObj =
         //-----moveUI();
       },
     //three functions prototypes --implement removeFriendIntersection()
-    removeFriendIntersection:function(piece){
+    removeFriendIntersection:function(piece)
+    {
         var arr = piece.moves;
-        for(var i=0;i<arr.length;i++){
-            if( this.map[arr[i].x][arr[i].y] != null){
-                if(this.map[arr[i].x][arr[i].y].color == piece.color){
+        for(var i=0;i<arr.length;i++)
+        {
+            if( this.map[arr[i].x][arr[i].y] != null)
+            {
+                if(this.map[arr[i].x][arr[i].y].color == piece.color)
+                {
                         arr.splice(i,1);
                         i--;
+                        
                     }
                 }
         }
+        console.log(arr);
     },
     //filterAvailables:function(){},
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
@@ -216,48 +222,29 @@ function piece(_x, _y, c) {
 //and apply constructor chaining
 function knight(_x, _y, c) {
   //Constructor chain using call to initialize my vars and the same for the rest
-  piece.call(this, _x, _y);
+  piece.call(this, _x, _y,c);
   //two initial positions for white and two for black ...
   //you can get all pieces available positions from the board
   //--by counting from 1-8 from the bottom left corner as 1,1
 
-  this.getAndFillAvailableMoves();
-  {
-    /* 
-        push these exact values into moves array as position objs starting from x,y of mine
-        x + 2 y + 1
-        x + 1 y + 2
-        x - 1 y + 2
-        x - 2 y + 1
-
-        x + 2 y - 1
-        x + 1 y - 2
-        x - 1 y - 2
-        x - 2 y - 1
-        */
-     
-            this.moves.push(Position(this.position.x+2,this.position.y+1));
-            this.moves.push(Position(this.position.x+1,this.position.y+2));
-            this.moves.push(Position(this.position.x-1,this.position.y+2));
-            this.moves.push(Position(this.position.x-2,this.position.y+1));
-            this.moves.push(Position(this.position.x+2,this.position.y-1));
-            this.moves.push(Position(this.position.x+1,this.position.y-2));
-            this.moves.push(Position(this.position.x-1,this.position.y-2));
-            this.moves.push(Position(this.position.x-2,this.position.y-1));
-          console.log(this.moves)
-         for(var i =0 ;i<this.moves.length;i++)
-         {
-             if(!helperObj.InBound(this.moves[i]) )
-                    this.moves.splice(i,1);
-         }
-         console.log(this.moves)
-    //if (x or y > 8) don't push (obviously)
-
+this.getAndFillAvailableMoves= function()
+{
+    var t = this.position;
+    var candidates = [Position(t.x+2, t.y+1), Position(t.x+1, t.y+2),
+            Position(t.x-1, t.y+2), Position(t.x-2, t.y+1), 
+            Position(t.x+2, t.y-1), Position(t.x+1, t.y-2), 
+            Position(t.x-1, t.y-2), Position(t.x-2, t.y-1) ];
+    
+    for(var i =0 ;i<candidates.length;i++)
+    {
+        if(helperObj.InBound(candidates[i]))
+            this.moves.push(candidates[i]);
+    }
     this.filterAvailables(); //this will be called as it is (no overriding here)
-  }
+}
 
   //Calling the fill function
-  this.getAndFillAvailableMoves();
+  //this.getAndFillAvailableMoves();
 }
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
