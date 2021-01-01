@@ -116,20 +116,20 @@ var helperObj =
                 this.map[i][j] = null;
             }
         }
-        this.fillInitialize(1,2,1);
-        this.fillInitialize(8,7,0);
+        this.fillInitialize(1,2,0);
+        this.fillInitialize(8,7,1);
     },
     
 
     fillInitialize:function (_y1, _y2,c){
         for(var i=1;i<9;i++)
-            this.map[i][_y2] = pawn(i, _y2, c);
+            this.map[i][_y2] = new pawn(i, _y2, c);
 
-         this.map[1][_y1] = rook  (1, _y1, c);   this.map[8][_y1] = rook(8, _y1, c);
-         this.map[2][_y1] = knight(2, _y1, c);   this.map[7][_y1] = knight(7, _y1, c);
-         this.map[3][_y1] = bishop(3, _y1, c);   this.map[6][_y1] = bishop(6, _y1, c); 
-         this.map[4][_y1] = queen (4, _y1, c);
-         this.map[5][_y1] = king  (5, _y1, c);
+         this.map[1][_y1] = new rook  (1, _y1, c);   this.map[8][_y1] = new rook(8, _y1, c);
+         this.map[2][_y1] = new knight(2, _y1, c);   this.map[7][_y1] = new knight(7, _y1, c);
+         this.map[3][_y1] = new bishop(3, _y1, c);   this.map[6][_y1] = new bishop(6, _y1, c); 
+         this.map[4][_y1] = new queen (4, _y1, c);
+         this.map[5][_y1] = new king  (5, _y1, c);
 
     },
     //map[1][3] = 
@@ -161,6 +161,7 @@ var helperObj =
                 }
         }
     },
+    //filterAvailables:function(){},
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
     difference  :function(arr1,arr2) { var arr = arr1.filter((x) => arr2.indexOf(x) == -1); return arr; },
     InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) },
@@ -223,13 +224,13 @@ function knight(_x, _y, c)
             this.moves.push(Position(this.position.x+1,this.position.y-2));
             this.moves.push(Position(this.position.x-1,this.position.y-2));
             this.moves.push(Position(this.position.x-2,this.position.y-1));
-          
+          console.log(this.moves)
          for(var i =0 ;i<this.moves.length;i++)
          {
              if(!helperObj.InBound(this.moves[i]) )
                     this.moves.splice(i,1);
          }
-      
+         console.log(this.moves)
 
         //if (x or y > 8) don't push (obviously)
 
@@ -281,7 +282,7 @@ rook.prototype.constructor = rook;
 function bishop(_x, _y, c)
 {
     queen.call(this,_x,_y,c);
-    this.getAndFillAvailableMoves() = function()
+    this.getAndFillAvailableMoves = function()
     {
         moves = getLineOfSquaresToFirstElement(this.position,1,1);
         moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,-1));
@@ -292,15 +293,15 @@ function bishop(_x, _y, c)
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
 function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
-    var Tpos = new Position(pox.x + Xdirction, pos.y + Ydriction);
+    var Tpos = new Position(pos.x + Xdirction, pos.y + Ydriction);
     var posS = [];
     while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
-        posS.push(new Position(Tpos.x, Tops.y));
+        posS.push(new Position(Tpos.x, Tpos.y));
         Tpos.x += Xdirction;
-        Tpos.y += Ydirction;
+        Tpos.y += Ydriction;
     }
     if (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color != turn)
-        posS.push(new Position(Tpos.x, Tops.y));
+        posS.push(new Position(Tpos.x, Tpos.y));
     return posS;
 }
 
@@ -324,7 +325,7 @@ function king(_x, _y, c)
             var p = Position(this.position.x + (j == 1 ? 1 : (j == 2 ? -1 : (j == 3 ? -1 : 1))), this.position.y + (j == 1 ? 1 : (j == 2 ? -1 : (j == 3 ? 1 : -1))));
             if (helperObj.InBound(p)) this.moves.push(p);
         }
-        
+        this.filterAvailables();
        //this.removeFriendIntersection(); //essential call
        //this.removeEnemyIntersection(); //awaiting map initialization
     }
@@ -344,12 +345,15 @@ function king(_x, _y, c)
         }
     }
 }
+
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
 
 function pawn(_x, _y, c)
 {
+    piece.call(this,_x,_y,c);
+    
     //this.moves
     var increment = (c == 0)? 1:-1;
     this.firstMove = true;
@@ -370,12 +374,12 @@ function pawn(_x, _y, c)
         }
         //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
         tempPosition = Position(_x+increment, _y+increment)
-        if(helperObj.map[x + 1][y + 1] != null && helperObj.InBound(tempPosition)){
+        if(helperObj.map[_x + 1][_y + 1] != null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);
         }
         //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
         tempPosition = Position(_x-increment, _y+increment)
-        if(helperObj.map[x - 1][y + 1] != null && helperObj.InBound(tempPosition)){
+        if(helperObj.map[_x - 1][_y + 1] != null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);
         }
 
@@ -384,6 +388,8 @@ function pawn(_x, _y, c)
     }
     
 }
+pawn.prototype = Object.create(piece.prototype);
+pawn.prototype.constructor = pawn;
 
 //adding event listener on all squares on load
  var squares = document.getElementsByTagName("rect");
