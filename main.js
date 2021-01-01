@@ -24,6 +24,8 @@ function handleClick(position)
             if(selected.moves.includes(newSelection.position))
             {
                 moveToMap_and_ui(selected,x,y);
+                isSelected = false; //deselect
+                selected = null;
             }
             else
             {
@@ -40,12 +42,14 @@ function handleClick(position)
         {
             if(selected.moves.includes(newSelection.position))
             {
-                //TAKE
-                moveToMap_and_ui(selected, x, y);
+                //TAKE ////
+                moveToMap_and_ui(selected, x, y); //deselect
+                isSelected = false;
+                selected = null;
             }
             else
             {
-                //Deselect
+                //Deselect ////
                 selected = null;
                 isSelected = false;
             }
@@ -114,6 +118,8 @@ var helperObj =
         //Then checkCHECK() after movement! then toggle turn.
         ///at last moveUI() and the UI
         /////////// or update on click
+        //------------------------------
+        //-----moveUI();
     },
     //three functions prototypes --implement removeFriendIntersection()
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
@@ -245,13 +251,13 @@ function bishop(_x, _y, c)
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
-function getLineOfSquaresToFirstElement(pos,Xdirction,Ydriction){
-    var Tpos = new Position(pox.x+Xdirction , pos.y+Ydriction);
+function getLineOfSquaresToFirstElement(pos, Xdirection, Ydirection){
+    var Tpos = Position(pox.x + Xdirection , pos.y+Ydirection);
     var posS=[];
-    while(InBound(Tpos) &&  (helperObj.map[Tpos.x][Tpos.y]==null ||helperObj.map[Tpos.x][Tpos.y].color !=turn )){
-        posS.push(new Position(Tpos.x, Tops.y));
-        Tpos.x+=Xdirction;
-        pos.y+=Ydirction;
+    while(InBound(Tpos) &&  (helperObj.map[Tpos.x][Tpos.y]==null)){
+        posS.push( Position(Tpos.x, Tops.y));
+        Tpos.x += Xdirection;
+        pos.y += Ydirection;
     }
 }
 //could think of a pinner class to implement those 3 pieces ...
