@@ -24,6 +24,8 @@ function handleClick(position)
             if(selected.moves.includes(newSelection.position))
             {
                 moveToMap_and_ui(selected,x,y);
+                isSelected = false; //deselect
+                selected = null;
             }
             else
             {
@@ -40,12 +42,14 @@ function handleClick(position)
         {
             if(selected.moves.includes(newSelection.position))
             {
-                //TAKE
-                moveToMap_and_ui(selected, x, y);
+                //TAKE ////
+                moveToMap_and_ui(selected, x, y); //deselect
+                isSelected = false;
+                selected = null;
             }
             else
             {
-                //Deselect
+                //Deselect ////
                 selected = null;
                 isSelected = false;
             }
@@ -114,6 +118,8 @@ var helperObj =
         //Then checkCHECK() after movement! then toggle turn.
         ///at last moveUI() and the UI
         /////////// or update on click
+        //------------------------------
+        //-----moveUI();
     },
     //three functions prototypes --implement removeFriendIntersection()
     intersection:function(arr1,arr2) { var arr = arr1.filter((x) => (arr2.indexOf(x) != -1)); return arr; },
@@ -245,19 +251,20 @@ function bishop(_x, _y, c)
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
-function getLineOfSquaresToFirstElement(pos,Xdirction,Ydriction){
-    var Tpos = new Position(pox.x+Xdirction , pos.y+Ydriction);
-    var posS=[];
-    while(helperObj.InBound(Tpos) &&  helperObj.map[Tpos.x][Tpos.y]==null ){
+function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
+    var Tpos = new Position(pox.x + Xdirction, pos.y + Ydriction);
+    var posS = [];
+    while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
         posS.push(new Position(Tpos.x, Tops.y));
-        Tpos.x+=Xdirction;
-        Tpos.y+=Ydirction;
+        Tpos.x += Xdirction;
+        Tpos.y += Ydirction;
     }
-    if(helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color !=turn )
+    if (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color != turn)
         posS.push(new Position(Tpos.x, Tops.y));
     return posS;
 }
 //could think of a pinner class to implement those 3 pieces ...
+//myStepDirection.x,.y
 function king(_x, _y, c)
 {
     piece.call(this,_x,_y,c);
