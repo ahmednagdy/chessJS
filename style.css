@@ -11,6 +11,9 @@ rect:hover {
 .black-piece {
   transition: transform 1s;
 }
+.white-piece {
+  transition: transform 1s;
+}
 .black-piece:hover {
   filter: drop-shadow(0px 0px 10px #e91010);
 }
