@@ -189,6 +189,7 @@ var helperObj =
     InBound: function (position) { return !((position.x > 8 || position.x < 1) || (position.y > 8 || position.y < 1)) },
   
 };
+helperObj.Initialize()
 
 function Position(_x, _y) {
   //factory for position
