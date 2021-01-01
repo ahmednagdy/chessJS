@@ -15,22 +15,19 @@ function handleClick(position)
     if (newSelection === selected) 
     {
       //user clicked twice -> Deselect
-      selected = null; //optional step
-      isSelected = false;
+      Deselect();
     } 
     else if (newSelection == null) 
     {
       //Empty Square => if available call move else deselect
-      if (selected.moves.includes(newSelection.position)) 
+      if (selected.moves.some(o=>o.x == x && o.y == y)) 
       {
-        moveToMap_and_ui(selected, x, y);
-        isSelected = false; //deselect
-        selected = null;
+        helperObj.moveToMap_and_ui(selected, x, y);
+        moveMap(x,y);
       } 
       else 
       {
-        selected = null;
-        isSelected = false;
+        Deselect();
       }
     } 
     else if (newSelection.color == turn) 
@@ -44,15 +41,12 @@ function handleClick(position)
       if (selected.moves.includes(newSelection.position)) 
       {
         //TAKE ////
-        moveToMap_and_ui(selected, x, y); //deselect
-        isSelected = false;
-        selected = null;
+        helperObj.moveToMap_and_ui(selected, x, y); //deselect
+        moveMap(x, y);
       } 
       else 
       {
-        //Deselect ////
-        selected = null;
-        isSelected = false;
+        Deselect();
       }
     }
   } 
@@ -101,6 +95,30 @@ var isSelected = false;
 var W = { RemainingArrayOfPieces: [] }; //timer later
 var B = { RemainingArrayOfPieces: [] };
 //---note : reference (one obj to be updated one time)
+
+function moveMap(x,y) //will move in the backend
+{
+  helperObj.map[selected.position.x][selected.position.y] = null;
+  helperObj.map[x][y] = selected;
+  helperObj.map[x][y].position = Position(x, y);
+  for (var i = 1; i <= 8; i++) 
+  {
+    for (var j = 1; j <= 8; j++) 
+    {
+      if (helperObj.map[i][j]!=null)
+        helperObj.map[i][j].getAndFillAvailableMoves();
+    }
+  }
+  //CheckCHECK()
+  //CheckGameEnd()
+  Deselect();
+  turn = !turn;
+}
+function Deselect()
+{
+  selected = null; //no pieces selected initially
+  isSelected = false;
+}
 
 var helperObj =
 {
@@ -156,25 +174,27 @@ var helperObj =
     
         y = 9 - y;
     
-        function checkCHECK() {
+        /*function checkCHECK() {
           return false;
-        }
-    
+        }*/
+        //var Spos = `${piece.position.x * 100}px,${piece.position.y * 100}px`;
+        //let pieceUI = document.querySelector('[translate="'+Spos+'"]');
+        let pieceUI = getPieceByPosition(piece.position.x,9-piece.position.y);
         let translatePosition = `translate(${x * 100}px, ${y * 100}px)`;
-        let oldPosition = grabPositionPiece(piece);
-        if (map[x][y] == null) {
-          piece.style.transform = translatePosition;
+        //let oldPosition = grabPositionPiece(piece);
+        if (helperObj.map[x][y] == null) {
+          pieceUI.style.transform = translatePosition;
           console.log(translatePosition);
-          if (checkCHECK()) {
+          /*if (checkCHECK()) {
             piece.style.transform = `translate(${oldPosition})`;
-          }
-        } else {
-          let eatenPiece = getPieceByPosition(x, y);
-          piece.style.transform = translatePosition;
-          eatenPiece.style.transform = "translate(900px,900px)";
-          if (checkCHECK()) {
+          }*/
+        } else { let eatenPiece = map[x][y];
+          let eatenPieceUI = document.getElementById(eatenPiece.position.x+"-"+eatenPiece.position.y);                //let eatenPiece = getPieceByPosition(x, y);
+          pieceUI.style.transform = translatePosition;
+          eatenPieceUI.style.transform = "translate(900px,900px)";
+          /*if (checkCHECK()) {
             piece.style.transform = `translate(${oldPosition})`;
-          }
+          }*/
         }
         //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
         //Will actually MOVE the piece in the map
@@ -261,7 +281,7 @@ this.getAndFillAvailableMoves= function()
 }
 
   //Calling the fill function
-  //this.getAndFillAvailableMoves();
+  this.getAndFillAvailableMoves();
 }
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
@@ -284,6 +304,7 @@ function queen(_x, _y, c) {
 
     this.filterAvailables();
   };
+  this.getAndFillAvailableMoves();
 }
 queen.prototype = Object.create(piece.prototype);
 queen.prototype.constructor = queen;
@@ -295,6 +316,7 @@ function rook(_x, _y, c) {
     moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
     moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
   };
+  this.getAndFillAvailableMoves();
 }
 rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
@@ -308,6 +330,7 @@ function bishop(_x, _y, c)
         moves = moves.concat(getLineOfSquaresToFirstElement(this.position,-1,1));
         moves = moves.concat(getLineOfSquaresToFirstElement(this.position,1,-1)); 
     }
+  this.getAndFillAvailableMoves();
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
@@ -372,6 +395,7 @@ function king(_x, _y, c)
       }
     }
   };
+  this.getAndFillAvailableMoves();
 }
 
 king.prototype = Object.create(piece.prototype);
@@ -402,7 +426,7 @@ function pawn(_x, _y, c)
         }
         //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
         tempPosition = Position(_x+increment, _y+increment)
-        if(helperObj.map[_x + 1][_y + 1] != null && helperObj.InBound(tempPosition)){
+        if(helperObj.map[(_x + 1)>8?_x:_x+1][_y + 1] != null && helperObj.InBound(tempPosition)){
             this.moves.push(tempPosition);
         }
         //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
@@ -414,7 +438,7 @@ function pawn(_x, _y, c)
         //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
         this.filterAvailables();
     }
-    
+  this.getAndFillAvailableMoves();
 }
 pawn.prototype = Object.create(piece.prototype);
 pawn.prototype.constructor = pawn;
