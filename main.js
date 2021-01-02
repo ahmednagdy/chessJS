@@ -61,6 +61,7 @@ var turn = 0;
 var selected = null;
 var isSelected = false;
 var oldStates=[];
+var checked = false;
 
 
 var W = { RemainingArrayOfPieces: [] };
@@ -195,12 +196,16 @@ var helperObj = {
   },
   //filterAvailables:function(){},
   intersection: function (arr1, arr2) {
-    var arr = arr1.filter((x) => arr2.indexOf(x) != -1);
+    var arr = arr1.filter((x) => helperObj.includesPosition(arr2,x));
     return arr;
   },
   difference: function (arr1, arr2) {
-    var arr = arr1.filter((x) => arr2.indexOf(x) == -1);
+    var arr = arr1.filter((x) => !helperObj.includesPosition(arr2,x));
     return arr;
+  },
+  includesPosition:function(arr, pos) //could try to bind these to Array / Position
+  {
+    return arr.some(p=>p.x == pos.x && p.y == pos.y);
   },
   InBound: function (position) {
     return !(
@@ -344,17 +349,20 @@ function king(_x, _y, c) {
     }
     //this.filterAvailables();
     helperObj.removeFriendIntersection(this); //essential call
-    //this.removeEnemyIntersection(); //awaiting map initialization
+    this.removeEnemyIntersection(); //awaiting map initialization
   };
 
   this.removeEnemyIntersection = function () {
     for (var i = 1; i <= 8; i++) {
       for (var j = 1; j <= 8; j++) {
-        if (helperObj.map[i][j].color != this.color) {
-          //then enemey piece
-          var enemy = helperObj.map[i][j];
-          this.moves = difference(this.moves, enemy.moves);
-          if (enemy.moves.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
+        if(helperObj.map[i][j]!=null)
+        {
+          var piece = helperObj.map[i][j];
+          if (piece.color != this.color) {
+            //then enemey piece
+            this.moves = helperObj.difference(this.moves, piece.moves);
+            if (piece.moves.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
+          }
         }
       }
     }
