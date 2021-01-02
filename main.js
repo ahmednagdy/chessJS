@@ -1,5 +1,6 @@
 //Link with UI --> each square will have
 //id = 1,1 -> 8,8 and onclick=handleClick(this.id)
+var oldStates = [];
 function handleClick(position) {
   //fill += king?
   //check position in map to get its state
@@ -45,24 +46,24 @@ function handleClick(position) {
   //highlight / dehighlight
   //game end scenarios to be handled in move!
   /////////IMPLEMENT Value OF/To string for piece.position to return ready id
+
+  //Dehighlight by default
+  for (var i = 0 ; i< oldStates.length; i++) 
+  {
+      document.getElementById(oldStates[i].id).setAttribute("class",oldStates[i].class); //reset highlighted square
+  }
   if (isSelected) {
     //highlight the piece and the moves
     var id = selected.position;
     id = id.x + "-" + id.y;
-    document.getElementById(id).className = "highlightPiece";
+    document.getElementById(id).setAttribute("class","highlightPiece"); 
+     oldStates = [];
     for (var i = 0; i < selected.moves.length; i++) {
       id = selected.moves[i];
       id = id.x + "-" + id.y; //test
       console.log("id = " + id);
-      document.getElementById(id).className = "highlight"; //the available square
-    }
-  } else {
-    for (
-      var i = 0;
-      i < document.getElementsByClassName("highlight").length;
-      i++
-    ) {
-      document.getElementsByClassName("highlight")[i].className = "normal"; //reset highlighted square
+      oldStates.push({id:id,class:document.getElementById(id).className.baseVal});
+      document.getElementById(id).setAttribute("class","highlight"); //the available square
     }
   }
   //////////NEED TO implement the three classed in css
@@ -113,6 +114,7 @@ function moveMap(x, y) {
     alert("Congratulation, Now Pawn become Queen");
   },1000)
   
+  //Highlight Old and new Moves until any click is made
 }
 function Deselect() {
   selected = null; //no pieces selected initially

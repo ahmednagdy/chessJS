@@ -31,3 +31,6 @@ rect:hover {
 .highlight {
   fill: #a3f7b5;
 }
+.highlightPiece {
+  fill: #b3e2bd;
+}
