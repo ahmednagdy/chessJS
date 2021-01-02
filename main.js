@@ -201,6 +201,7 @@ var helperObj = {
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
   },
+
   //three functions prototypes --implement removeFriendIntersection()
   removeFriendIntersection: function (piece) {
     var arr = piece.moves;
@@ -378,8 +379,8 @@ function king(_x, _y, c) {
       );
       if (helperObj.InBound(p)) this.moves.push(p);
     }
-    this.filterAvailables();
-    //this.removeFriendIntersection(); //essential call
+    //this.filterAvailables();
+    helperObj.removeFriendIntersection(this); //essential call
     //this.removeEnemyIntersection(); //awaiting map initialization
   };
 
@@ -390,7 +391,7 @@ function king(_x, _y, c) {
           //then enemey piece
           var enemy = helperObj.map[i][j];
           this.moves = difference(this.moves, enemy.moves);
-          if (enemy.moves.includes(this.position)) checked = true; //Then the king is in CHECK!
+          if (enemy.moves.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
         }
       }
     }
