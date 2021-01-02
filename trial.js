@@ -1,5 +1,5 @@
 //Link with UI --> each square will have
-//id = 1,1 -> 8,8 and onclick=OldHandler(this.id)
+//id = 1,1 -> 8,8 and onclick=OldHandler(this.id) W B [] {}{}
 function OldHandler(position) {
   //fill += king?
   //check position in map to get its state
@@ -69,7 +69,7 @@ function OldHandler(position) {
   //the board could be smaller
 }
 function handleClick(e) {
-  const position = e.target;
+  const position = e.target; //jemmy +
   let Allpieces = document.querySelectorAll(".black-piece, .white-piece");
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
