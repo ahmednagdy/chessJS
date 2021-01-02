@@ -28,7 +28,7 @@ function handleClick(position) {
       selected = newSelection;
     } //(newSelection.color != turn) then it is an enemy piece
     else {
-      if (selected.moves.includes(newSelection.position)) {
+      if (selected.moves.some((o) => o.x == newSelection.position.x && o.y == newSelection.position.y)) {
         //TAKE ////
         helperObj.moveToMap_and_ui(selected, x, y); //deselect
         moveMap(x, y);
@@ -179,15 +179,13 @@ var helperObj = {
   }
 }
 
-    y = 9 - y;
-
     /*function checkCHECK() {
           return false;
         }*/
     //var Spos = `${piece.position.x * 100}px,${piece.position.y * 100}px`;
     //let pieceUI = document.querySelector('[translate="'+Spos+'"]');
     let pieceUI = getPieceByPosition(piece.position.x, 9 - piece.position.y);
-    let translatePosition = `translate(${x * 100}px, ${y * 100}px)`;
+    let translatePosition = `translate(${x * 100}px, ${(9-y) * 100}px)`;
     //let oldPosition = grabPositionPiece(piece);
     
     if (this.map[x][y] == null) {
@@ -198,7 +196,7 @@ var helperObj = {
           }*/
         } else {
           console.log("some ooooooooooooooo")
-          let eatenPieceUI = getPieceByPosition(x, y);   //let eatenPiece = getPieceByPosition(x, y);
+          let eatenPieceUI = getPieceByPosition(x, 9 - y);   //let eatenPiece = getPieceByPosition(x, y);
           pieceUI.style.transform = translatePosition;
           eatenPieceUI.style.transform = "translate(900px,900px)";
           /*if (checkCHECK()) {
