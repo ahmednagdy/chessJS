@@ -123,6 +123,12 @@ function handleClick(e) {
     return { x: sqaure_x, y: square_y };
   }
 
+  function removeHighlight() {
+    for (let j = 0; j < allSquares.length; j++) {
+      allSquares[j].classList.remove("highlight");
+    }
+  }
+
   function fillPosiitons(myMoves) {
     for (let j = 0; j < allSquares.length; j++) {
       allSquares[j].classList.remove("highlight");
@@ -168,10 +174,12 @@ function handleClick(e) {
             helperObj.map[i][j].getAndFillAvailableMoves();
         }
       }
-      if (foundInFilled(e.target)) {
+      if (foundInFilled(e.target) && e.target.id != position.id) {
         let eatenPiece = getPieceOnSquare(e.target);
         piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
         eatenPiece.style.transform = "translate(900px,900px)";
+      } else if (e.target.id == position.id) {
+        removeHighlight();
       } else {
         let oldPosition = grabPositionPiece(piece);
         piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
@@ -179,7 +187,7 @@ function handleClick(e) {
       for (let i = 0; i < 64; i++) {
         allSquares[i].removeEventListener("click", onSquareClick);
       }
-
+      position.removeEventListener("click", onSquareClick);
       for (let x = 0; x < allSquares.length; x++) {
         allSquares[x].addEventListener("click", handleClick);
       }
@@ -189,6 +197,8 @@ function handleClick(e) {
     for (let i = 0; i < allAvailableSquares.length; i++) {
       allAvailableSquares[i].addEventListener("click", onSquareClick);
     }
+    position.addEventListener("click", onSquareClick);
+    console.log(position.id);
   }
 
   if (foundInFilled(position)) {
