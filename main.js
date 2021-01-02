@@ -160,13 +160,13 @@ var helperObj = {
 
     let pieceUI = getPieceByPosition(piece.position.x, 9 - piece.position.y);
     let translatePosition = `translate(${x * 100}px, ${(9-y) * 100}px)`;
-    pieceUI.style.transform = translatePosition;
 
     if (this.map[x][y] != null) 
     {
       let eatenPieceUI = getPieceByPosition(x, 9 - y);
       eatenPieceUI.style.transform = "translate(900px,900px)";
     } 
+    pieceUI.style.transform = translatePosition;
   },
 
   //three functions prototypes --implement removeFriendIntersection()
