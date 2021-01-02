@@ -81,47 +81,14 @@ function handleClick(e) {
   for (let x = 0; x < allSquares.length; x++) {
     allSquares[x].removeEventListener("click", handleClick);
   }
-  console.log("handle Click removed");
-  function grabPositionPiece(piece) {
-    let Positions = piece.style.transform.match(/[0-9]{3}/g);
-    let posX = Positions[0];
-    let posY = Positions[1];
-    return `${posX}px,${posY}px`;
-  }
-  function getAllFilledPositions() {
-    for (let i = 0; i < Allpieces.length; i++) {
-      filledPositions.push(grabPositionPiece(Allpieces[i]));
-    }
-  }
-  getAllFilledPositions();
+ 
 
-  function foundInFilled(square) {
-    let posx = square.getAttribute("x");
-    let posy = square.getAttribute("y");
-    let key = `${posx}px,${posy}px`;
-
-    for (let i = 0; i < filledPositions.length; i++) {
-      if (key == filledPositions[i]) {
-        return true;
-      }
-    }
-    return false;
-  }
+ 
+  helperObj.getAllFilledPositions(filledPositions , Allpieces);
 
   let myMoves;
   if (helperObj.map[x][y] != null) myMoves = helperObj.map[x][y].moves;
   console.log(myMoves);
-
-  function positionToSquare(posXY) {
-    let id = `${posXY.x}-${posXY.y}`;
-    return document.getElementById(id);
-  }
-
-  function squareToPosition(square) {
-    var sqaure_x = parseInt(square.id.split("-")[0]);
-    var square_y = parseInt(square.id.split("-")[1]);
-    return { x: sqaure_x, y: square_y };
-  }
 
   function removeHighlight() {
     for (let j = 0; j < allSquares.length; j++) {
@@ -129,61 +96,37 @@ function handleClick(e) {
     }
   }
 
-  function fillPosiitons(myMoves) {
-    for (let j = 0; j < allSquares.length; j++) {
-      allSquares[j].classList.remove("highlight");
-    }
-    for (let i = 0; i < myMoves.length; i++) {
-      let id = `${myMoves[i].x}-${myMoves[i].y}`;
-      document.getElementById(id).classList.toggle("highlight");
-    }
-  }
-
-  function grabPositionSquare(square) {
-    let posx = square.getAttribute("x");
-    let posy = square.getAttribute("y");
-    let key = `${posx}px,${posy}px`;
-    return key;
-  }
-
-  function getPieceOnSquare(square) {
-    let Spos = grabPositionSquare(square);
-    for (let i = 0; i < Allpieces.length; i++) {
-      if (Spos == grabPositionPiece(Allpieces[i])) {
-        return Allpieces[i];
-      }
-    }
-  }
 
   function moveUI(piece) {
     let allAvailableSquares = [];
     for (let i = 0; i < myMoves.length; i++) {
-      allAvailableSquares.push(positionToSquare(myMoves[i]));
+      allAvailableSquares.push(helperObj.positionToSquare(myMoves[i]));
     }
     function onSquareClick(e) {
       //Moving map then moving UI
       let temp = helperObj.map[oldX][oldY];
-      let newX = squareToPosition(e.target).x;
-      let newY = squareToPosition(e.target).y;
+      let newX = helperObj.squareToPosition(e.target).x;
+      let newY = helperObj.squareToPosition(e.target).y;
       helperObj.map[oldX][oldY] = null;
       helperObj.map[newX][newY] = temp;
-      helperObj.map[newX][newY].position = squareToPosition(e.target);
+      helperObj.map[newX][newY].position =  helperObj.squareToPosition(e.target);
       for (let i = 1; i <= 8; i++) {
         for (let j = 1; j <= 8; j++) {
           if (helperObj.map[i][j] != null)
             helperObj.map[i][j].getAndFillAvailableMoves();
         }
       }
-      if (foundInFilled(e.target) && e.target.id != position.id) {
-        let eatenPiece = getPieceOnSquare(e.target);
-        piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
+      if (helperObj.foundInFilled(e.target,filledPositions) && e.target.id != position.id) {
+        let eatenPiece = helperObj.getPieceOnSquare(e.target,Allpieces);
+        piece.style.transform = `translate(${helperObj.grabPositionSquare(e.target)})`;
         eatenPiece.style.transform = "translate(900px,900px)";
       } else if (e.target.id == position.id) {
         removeHighlight();
       } else {
-        let oldPosition = grabPositionPiece(piece);
-        piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
+        let oldPosition = helperObj.grabPositionPiece(piece);
+        piece.style.transform = `translate(${helperObj.grabPositionSquare(e.target)})`;
       }
+      removeHighlight();
       for (let i = 0; i < 64; i++) {
         allSquares[i].removeEventListener("click", onSquareClick);
       }
@@ -201,10 +144,10 @@ function handleClick(e) {
     console.log(position.id);
   }
 
-  if (foundInFilled(position)) {
+  if (helperObj.foundInFilled(position,filledPositions)) {
     console.log(helperObj.map[x][y].moves);
-    fillPosiitons(myMoves);
-    let targetPiece = getPieceOnSquare(position);
+    helperObj.fillPosiitons(myMoves,allSquares);
+    let targetPiece = helperObj.getPieceOnSquare(position,Allpieces);
     moveUI(targetPiece);
   } else {
     for (let x = 0; x < allSquares.length; x++) {
@@ -336,6 +279,7 @@ var helperObj = {
     //------------------------------
     //-----moveUI();
   },
+  
   //three functions prototypes --implement removeFriendIntersection()
   removeFriendIntersection: function (piece) {
     var arr = piece.moves;
@@ -354,6 +298,45 @@ var helperObj = {
     var arr = arr1.filter((x) => arr2.indexOf(x) != -1);
     return arr;
   },
+   getAllFilledPositions:function (filledPositions , Allpieces) {
+    for (let i = 0; i < Allpieces.length; i++) {
+      filledPositions.push(helperObj.grabPositionPiece(Allpieces[i]));
+    }
+  },
+  positionToSquare:function(posXY) {
+    let id = `${posXY.x}-${posXY.y}`;
+    return document.getElementById(id);
+  }
+,
+ getPieceOnSquare:function(square,Allpieces) {
+  let Spos = helperObj.grabPositionSquare(square);
+  for (let i = 0; i < Allpieces.length; i++) {
+    if (Spos == helperObj.grabPositionPiece(Allpieces[i])) {
+      return Allpieces[i];
+    }
+  }
+},
+ grabPositionSquare:function(square) {
+  let posx = square.getAttribute("x");
+  let posy = square.getAttribute("y");
+  let key = `${posx}px,${posy}px`;
+  return key;
+},
+ fillPosiitons:function(myMoves,allSquares) {
+  for (let j = 0; j < allSquares.length; j++) {
+    allSquares[j].classList.remove("highlight");
+  }
+  for (let i = 0; i < myMoves.length; i++) {
+    let id = `${myMoves[i].x}-${myMoves[i].y}`;
+    document.getElementById(id).classList.toggle("highlight");
+  }
+},
+squareToPosition:function(square) {
+  var sqaure_x = parseInt(square.id.split("-")[0]);
+  var square_y = parseInt(square.id.split("-")[1]);
+  return { x: sqaure_x, y: square_y };
+}
+,
   difference: function (arr1, arr2) {
     var arr = arr1.filter((x) => arr2.indexOf(x) == -1);
     return arr;
@@ -366,6 +349,24 @@ var helperObj = {
       position.y < 1
     );
   },
+   foundInFilled :function(square,filledPositions) {
+    let posx = square.getAttribute("x");
+    let posy = square.getAttribute("y");
+    let key = `${posx}px,${posy}px`;
+
+    for (let i = 0; i < filledPositions.length; i++) {
+      if (key == filledPositions[i]) {
+        return true;
+      }
+    }
+    return false;
+  },
+  grabPositionPiece : function(piece) {
+    let Positions = piece.style.transform.match(/[0-9]{3}/g);
+    let posX = Positions[0];
+    let posY = Positions[1];
+    return `${posX}px,${posY}px`;
+  }
 };
 helperObj.Initialize();
 
@@ -400,6 +401,7 @@ function knight(_x, _y, c) {
   //--by counting from 1-8 from the bottom left corner as 1,1
 
   this.getAndFillAvailableMoves = function () {
+    this.moves=[];
     var t = this.position;
     var candidates = [
       Position(t.x + 2, t.y + 1),
@@ -488,6 +490,7 @@ function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
 function king(_x, _y, c) {
   piece.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
+    this.moves=[];
     for (var i = -1, j = 0; i <= 1 && j <= 1; i += 2) {
       //gets  x- x+ y- y+
       var p = Position(
@@ -546,9 +549,11 @@ function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
 
   //this.moves
+ 
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
   this.getAndFillAvailableMoves = function () {
+    this.moves=[];
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(_x, _y + increment);
     if (
