@@ -188,8 +188,8 @@ var helperObj =
           /*if (checkCHECK()) {
             piece.style.transform = `translate(${oldPosition})`;
           }*/
-        } else { let eatenPiece = map[x][y];
-          let eatenPieceUI = document.getElementById(eatenPiece.position.x+"-"+eatenPiece.position.y);                //let eatenPiece = getPieceByPosition(x, y);
+        } else {
+          let eatenPieceUI = getPieceByPosition(x, y);   //let eatenPiece = getPieceByPosition(x, y);
           pieceUI.style.transform = translatePosition;
           eatenPieceUI.style.transform = "translate(900px,900px)";
           /*if (checkCHECK()) {
