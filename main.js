@@ -158,27 +158,15 @@ var helperObj = {
   }
 }
 
-    /*function checkCHECK() {
-          return false;
-        }*/
-    //var Spos = `${piece.position.x * 100}px,${piece.position.y * 100}px`;
-    //let pieceUI = document.querySelector('[translate="'+Spos+'"]');
     let pieceUI = getPieceByPosition(piece.position.x, 9 - piece.position.y);
     let translatePosition = `translate(${x * 100}px, ${(9-y) * 100}px)`;
-    //let oldPosition = grabPositionPiece(piece);
-    
-    if (this.map[x][y] == null) 
+    pieceUI.style.transform = translatePosition;
+
+    if (this.map[x][y] != null) 
     {
-      pieceUI.style.transform = translatePosition;
-      console.log(translatePosition);
-    } 
-    else 
-    {
-      console.log("some ooooooooooooooo")
-      let eatenPieceUI = getPieceByPosition(x, 9 - y);   //let eatenPiece = getPieceByPosition(x, y);
-      pieceUI.style.transform = translatePosition;
+      let eatenPieceUI = getPieceByPosition(x, 9 - y);
       eatenPieceUI.style.transform = "translate(900px,900px)";
-    }
+    } 
   },
 
   //three functions prototypes --implement removeFriendIntersection()
@@ -192,9 +180,7 @@ var helperObj = {
         }
       }
     }
-    //console.log(arr);
   },
-  //filterAvailables:function(){},
   intersection: function (arr1, arr2) {
     var arr = arr1.filter((x) => helperObj.includesPosition(arr2,x));
     return arr;
@@ -225,7 +211,8 @@ function Position(_x, _y) {
 function piece(_x, _y, c) {
   this.position = Position(_x, _y);
   this.color = c;
-  this.moves = []; 
+  this.moves = [];
+  this.scope = []; 
 
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
@@ -241,7 +228,7 @@ function knight(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {
     this.moves=[];
     var t = this.position;
-    var candidates = [
+    this.scope = [
       Position(t.x + 2, t.y + 1),
       Position(t.x + 1, t.y + 2),
       Position(t.x - 1, t.y + 2),
@@ -252,8 +239,8 @@ function knight(_x, _y, c) {
       Position(t.x - 2, t.y - 1),
     ];
 
-    for (var i = 0; i < candidates.length; i++) {
-      if (helperObj.InBound(candidates[i])) this.moves.push(candidates[i]);
+    for (var i = 0; i < this.scope.length; i++) {
+      if (helperObj.InBound(this.scope[i])) this.moves.push(this.scope[i]);
     }
     this.filterAvailables(); 
   };
@@ -264,7 +251,7 @@ knight.prototype.constructor = knight;
 function queen(_x, _y, c) {
   piece.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
-    this.moves=[];
+    this.moves=[]; this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);// /up
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, 1));//up
     this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));//down
@@ -273,6 +260,7 @@ function queen(_x, _y, c) {
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1));// /down
     this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1));// \up
     this. moves = this. moves.concat(getLineOfSquaresToFirstElement(this, 1, -1));// \down
+    this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
@@ -281,12 +269,15 @@ queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
+    this.scope = []; this.moves = [];
     this.moves = getLineOfSquaresToFirstElement(this, 0, 1);
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0));
     console.log("Rook PosS" + ' '+this.color)
     console.log( this.moves);
+    this.scope = this.scope.concat(this.moves);
+    this.filterAvailables();
   };
 }
 rook.prototype = Object.create(queen.prototype);
@@ -294,10 +285,12 @@ rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
+    this.moves = []; this.scope =[];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1));
+    this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
@@ -360,8 +353,8 @@ function king(_x, _y, c) {
           var piece = helperObj.map[i][j];
           if (piece.color != this.color) {
             //then enemey piece
-            this.moves = helperObj.difference(this.moves, piece.moves);
-            if (piece.moves.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
+            this.moves = helperObj.difference(this.moves, piece.scope);
+            if (piece.scope.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
           }
         }
       }
