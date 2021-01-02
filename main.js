@@ -188,32 +188,18 @@ var helperObj = {
     let translatePosition = `translate(${x * 100}px, ${(9-y) * 100}px)`;
     //let oldPosition = grabPositionPiece(piece);
     
-    if (this.map[x][y] == null) {
+    if (this.map[x][y] == null) 
+    {
       pieceUI.style.transform = translatePosition;
       console.log(translatePosition);
-      /*if (checkCHECK()) {
-            piece.style.transform = `translate(${oldPosition})`;
-          }*/
-        } else {
-          console.log("some ooooooooooooooo")
-          let eatenPieceUI = getPieceByPosition(x, 9 - y);   //let eatenPiece = getPieceByPosition(x, y);
-          pieceUI.style.transform = translatePosition;
-          eatenPieceUI.style.transform = "translate(900px,900px)";
-          /*if (checkCHECK()) {
-            piece.style.transform = `translate(${oldPosition})`;
-          }*/
+    } 
+    else 
+    {
+      console.log("some ooooooooooooooo")
+      let eatenPieceUI = getPieceByPosition(x, 9 - y);   //let eatenPiece = getPieceByPosition(x, y);
+      pieceUI.style.transform = translatePosition;
+      eatenPieceUI.style.transform = "translate(900px,900px)";
     }
-    //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
-    //Will actually MOVE the piece in the map
-    //Will check target square (in the map) for two cases
-    //-- if empty then just move else TAKE! (move and remove the piece on that square (map & UI))
-    //update the piece's position attribute
-    //Then call all map's pieces fillAvailableMoves() to update them ...... xxxx
-    //Then checkCHECK() after movement! then toggle turn.
-    ///at last moveUI() and the UI
-    /////////// or update on click
-    //------------------------------
-    //-----moveUI();
   },
   //three functions prototypes --implement removeFriendIntersection()
   removeFriendIntersection: function (piece) {
