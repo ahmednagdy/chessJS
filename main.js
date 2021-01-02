@@ -36,6 +36,7 @@ function handleClick(position) {
       }
     }
   } else {
+    if(newSelection)
     if (newSelection.color == turn) {
       selected = newSelection;
       isSelected = true; //ignore if first click and not your turn;
@@ -81,9 +82,22 @@ var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
   //will move in the backend
-  helperObj.map[selected.position.x][selected.position.y] = null;
+  var tX = selected.position.x; tY = selected.position.y;
+  var flag = false;
+  helperObj.map[tX][tY] = null;
+
+  //if(selected.firstMove  && Math.abs(tY - y) == 2)
+   // selected.firstMove =false;// for handel first move of pawn
+  if(selected.firstMove != undefined &&(y==8 || y==1)){
+    selected =  new queen(tX, tY, selected.color);
+    flag = true;
+  }
+
   helperObj.map[x][y] = selected;
   helperObj.map[x][y].position = Position(x, y);
+
+  
+
   for (var i = 1; i <= 8; i++) {
     for (var j = 1; j <= 8; j++) {
       if (helperObj.map[i][j] != null)
@@ -94,6 +108,11 @@ function moveMap(x, y) {
   //CheckGameEnd()
   Deselect();
   turn = !turn;
+  setTimeout(function(){
+    if(flag)
+    alert("Congratulation, Now Pawn become Queen");
+  },1000)
+  
 }
 function Deselect() {
   selected = null; //no pieces selected initially
@@ -115,6 +134,7 @@ var helperObj = {
     }
     this.fillInitialize(1, 2, 0);
     this.fillInitialize(8, 7, 1);
+    this.map[2][7]=null;
   },
 
   fillInitialize: function (_y1, _y2, c) {
@@ -403,19 +423,20 @@ function pawn(_x, _y, c) {
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
   this.getAndFillAvailableMoves = function () {
+    this.moves = []
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
-    var tempPosition = Position(_x, _y + increment);
+    var tempPosition = Position(this.position.x, this.position.y + increment);
     if (
-      helperObj.map[_x][_y + increment] == null &&
+      helperObj.map[this.position.x][this.position.y + increment] == null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
     }
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     if (this.firstMove) {
-      tempPosition = Position(_x, _y + 2 * increment);
+      tempPosition = Position(this.position.x, this.position.y + 2 * increment);
       if (
-        helperObj.map[_x][_y + 2 * increment] == null &&
+        helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
         helperObj.InBound(tempPosition)
       ) {
         this.moves.push(tempPosition);
@@ -423,17 +444,17 @@ function pawn(_x, _y, c) {
       }
     }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
-    tempPosition = Position(_x + increment, _y + increment);
+    tempPosition = Position(this.position.x + increment, this.position.y + increment);
     if (
-      helperObj.map[_x + 1 > 8 ? _x : _x + 1][_y + 1] != null &&
+      helperObj.map[this.position.x + 1 > 8 ? this.position.x : this.position.x + 1][this.position.y + 1] != null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
     }
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
-    tempPosition = Position(_x - increment, _y + increment);
+    tempPosition = Position(this.position.x - increment, this.position.y + increment);
     if (
-      helperObj.map[_x - 1][_y + 1] != null &&
+      helperObj.map[this.position.x - 1][this.position.y + 1] != null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
