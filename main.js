@@ -86,8 +86,8 @@ function moveMap(x, y) {
   var flag = false;
   helperObj.map[tX][tY] = null;
 
-  //if(selected.firstMove  && Math.abs(tY - y) == 2)
-   // selected.firstMove =false;// for handel first move of pawn
+  if(selected.firstMove  && Math.abs(tY - y) == 2)
+    selected.firstMove =false;// for handel first move of pawn
   if(selected.firstMove != undefined &&(y==8 || y==1)){
     selected =  new queen(tX, tY, selected.color);
     flag = true;
