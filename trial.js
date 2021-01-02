@@ -1,6 +1,6 @@
 //Link with UI --> each square will have
-//id = 1,1 -> 8,8 and onclick=handleClick(this.id)
-function handleClick(position) {
+//id = 1,1 -> 8,8 and onclick=OldHandler(this.id)
+function OldHandler(position) {
   //fill += king?
   //check position in map to get its state
   /////flag selected
@@ -36,7 +36,6 @@ function handleClick(position) {
       }
     }
   } else {
-    if(newSelection)
     if (newSelection.color == turn) {
       selected = newSelection;
       isSelected = true; //ignore if first click and not your turn;
@@ -69,6 +68,152 @@ function handleClick(position) {
   //including their hover style
   //the board could be smaller
 }
+function handleClick(e) {
+  const position = e.target;
+  let Allpieces = document.querySelectorAll(".black-piece, .white-piece");
+  var x = parseInt(position.id.split("-")[0]);
+  var y = parseInt(position.id.split("-")[1]);
+  let oldX = x;
+  let oldY = y;
+  let allSquares = document.getElementsByTagName("rect");
+  let filledPositions = [];
+
+  for (let x = 0; x < allSquares.length; x++) {
+    allSquares[x].removeEventListener("click", handleClick);
+  }
+  console.log("handle Click removed");
+  function grabPositionPiece(piece) {
+    let Positions = piece.style.transform.match(/[0-9]{3}/g);
+    let posX = Positions[0];
+    let posY = Positions[1];
+    return `${posX}px,${posY}px`;
+  }
+  function getAllFilledPositions() {
+    for (let i = 0; i < Allpieces.length; i++) {
+      filledPositions.push(grabPositionPiece(Allpieces[i]));
+    }
+  }
+  getAllFilledPositions();
+
+  function foundInFilled(square) {
+    let posx = square.getAttribute("x");
+    let posy = square.getAttribute("y");
+    let key = `${posx}px,${posy}px`;
+
+    for (let i = 0; i < filledPositions.length; i++) {
+      if (key == filledPositions[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let myMoves;
+  if (helperObj.map[x][y] != null) myMoves = helperObj.map[x][y].moves;
+  console.log(myMoves);
+
+  function positionToSquare(posXY) {
+    let id = `${posXY.x}-${posXY.y}`;
+    return document.getElementById(id);
+  }
+
+  function squareToPosition(square) {
+    var sqaure_x = parseInt(square.id.split("-")[0]);
+    var square_y = parseInt(square.id.split("-")[1]);
+    return { x: sqaure_x, y: square_y };
+  }
+
+  function removeHighlight() {
+    for (let j = 0; j < allSquares.length; j++) {
+      allSquares[j].classList.remove("highlight");
+    }
+  }
+
+  function fillPosiitons(myMoves) {
+    for (let j = 0; j < allSquares.length; j++) {
+      allSquares[j].classList.remove("highlight");
+    }
+    for (let i = 0; i < myMoves.length; i++) {
+      let id = `${myMoves[i].x}-${myMoves[i].y}`;
+      document.getElementById(id).classList.toggle("highlight");
+    }
+  }
+
+  function grabPositionSquare(square) {
+    let posx = square.getAttribute("x");
+    let posy = square.getAttribute("y");
+    let key = `${posx}px,${posy}px`;
+    return key;
+  }
+
+  function getPieceOnSquare(square) {
+    let Spos = grabPositionSquare(square);
+    for (let i = 0; i < Allpieces.length; i++) {
+      if (Spos == grabPositionPiece(Allpieces[i])) {
+        return Allpieces[i];
+      }
+    }
+  }
+
+  function moveUI(piece) {
+    let allAvailableSquares = [];
+    for (let i = 0; i < myMoves.length; i++) {
+      allAvailableSquares.push(positionToSquare(myMoves[i]));
+    }
+    function onSquareClick(e) {
+      //Moving map then moving UI
+      let temp = helperObj.map[oldX][oldY];
+      let newX = squareToPosition(e.target).x;
+      let newY = squareToPosition(e.target).y;
+      helperObj.map[oldX][oldY] = null;
+      helperObj.map[newX][newY] = temp;
+      helperObj.map[newX][newY].position = squareToPosition(e.target);
+      for (let i = 1; i <= 8; i++) {
+        for (let j = 1; j <= 8; j++) {
+          if (helperObj.map[i][j] != null)
+            helperObj.map[i][j].getAndFillAvailableMoves();
+        }
+      }
+      if (foundInFilled(e.target) && e.target.id != position.id) {
+        let eatenPiece = getPieceOnSquare(e.target);
+        piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
+        eatenPiece.style.transform = "translate(900px,900px)";
+      } else if (e.target.id == position.id) {
+        removeHighlight();
+      } else {
+        let oldPosition = grabPositionPiece(piece);
+        piece.style.transform = `translate(${grabPositionSquare(e.target)})`;
+      }
+      for (let i = 0; i < 64; i++) {
+        allSquares[i].removeEventListener("click", onSquareClick);
+      }
+      position.removeEventListener("click", onSquareClick);
+      for (let x = 0; x < allSquares.length; x++) {
+        allSquares[x].addEventListener("click", handleClick);
+      }
+      console.log("handle Click added");
+    }
+
+    for (let i = 0; i < allAvailableSquares.length; i++) {
+      allAvailableSquares[i].addEventListener("click", onSquareClick);
+    }
+    position.addEventListener("click", onSquareClick);
+    console.log(position.id);
+  }
+
+  if (foundInFilled(position)) {
+    console.log(helperObj.map[x][y].moves);
+    fillPosiitons(myMoves);
+    let targetPiece = getPieceOnSquare(position);
+    moveUI(targetPiece);
+  } else {
+    for (let x = 0; x < allSquares.length; x++) {
+      allSquares[x].addEventListener("click", handleClick);
+    }
+    console.log("handle Click added");
+  }
+}
+
 var turn = 0; //white to start
 var selected = null; //no pieces selected initially
 var isSelected = false;
@@ -82,22 +227,9 @@ var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
   //will move in the backend
-  var tX = selected.position.x; tY = selected.position.y;
-  var flag = false;
-  helperObj.map[tX][tY] = null;
-
-  if(selected.firstMove  && Math.abs(tY - y) == 2)
-    selected.firstMove =false;// for handel first move of pawn
-  if(selected.firstMove != undefined &&(y==8 || y==1)){
-    selected =  new queen(tX, tY, selected.color);
-    flag = true;
-  }
-
+  helperObj.map[selected.position.x][selected.position.y] = null;
   helperObj.map[x][y] = selected;
   helperObj.map[x][y].position = Position(x, y);
-
-  
-
   for (var i = 1; i <= 8; i++) {
     for (var j = 1; j <= 8; j++) {
       if (helperObj.map[i][j] != null)
@@ -108,11 +240,6 @@ function moveMap(x, y) {
   //CheckGameEnd()
   Deselect();
   turn = !turn;
-  setTimeout(function(){
-    if(flag)
-    alert("Congratulation, Now Pawn become Queen");
-  },1000)
-  
 }
 function Deselect() {
   selected = null; //no pieces selected initially
@@ -134,7 +261,6 @@ var helperObj = {
     }
     this.fillInitialize(1, 2, 0);
     this.fillInitialize(8, 7, 1);
-    this.map[2][7]=null;
   },
 
   fillInitialize: function (_y1, _y2, c) {
@@ -187,15 +313,18 @@ var helperObj = {
       /*if (checkCHECK()) {
             piece.style.transform = `translate(${oldPosition})`;
           }*/
-        } else {
-          let eatenPieceUI = getPieceByPosition(x, y);   //let eatenPiece = getPieceByPosition(x, y);
-          pieceUI.style.transform = translatePosition;
-          eatenPieceUI.style.transform = "translate(900px,900px)";
-          /*if (checkCHECK()) {
+    } else {
+      let eatenPiece = this.map[x][y];
+      let eatenPieceUI = document.getElementById(
+        eatenPiece.position.x + "-" + eatenPiece.position.y
+      ); //let eatenPiece = getPieceByPosition(x, y);
+      pieceUI.style.transform = translatePosition;
+      eatenPieceUI.style.transform = "translate(900px,900px)";
+      /*if (checkCHECK()) {
             piece.style.transform = `translate(${oldPosition})`;
           }*/
     }
-    //Will only get called in the handleClick method if selection is active (a piece selected in my turn)
+    //Will only get called in the OldHandler method if selection is active (a piece selected in my turn)
     //Will actually MOVE the piece in the map
     //Will check target square (in the map) for two cases
     //-- if empty then just move else TAKE! (move and remove the piece on that square (map & UI))
@@ -290,7 +419,7 @@ function knight(_x, _y, c) {
   };
 
   //Calling the fill function
-  //this.getAndFillAvailableMoves();
+  this.getAndFillAvailableMoves();
 }
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
@@ -420,20 +549,19 @@ function pawn(_x, _y, c) {
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
   this.getAndFillAvailableMoves = function () {
-    this.moves = []
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
-    var tempPosition = Position(this.position.x, this.position.y + increment);
+    var tempPosition = Position(_x, _y + increment);
     if (
-      helperObj.map[this.position.x][this.position.y + increment] == null &&
+      helperObj.map[_x][_y + increment] == null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
     }
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     if (this.firstMove) {
-      tempPosition = Position(this.position.x, this.position.y + 2 * increment);
+      tempPosition = Position(_x, _y + 2 * increment);
       if (
-        helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
+        helperObj.map[_x][_y + 2 * increment] == null &&
         helperObj.InBound(tempPosition)
       ) {
         this.moves.push(tempPosition);
@@ -441,17 +569,17 @@ function pawn(_x, _y, c) {
       }
     }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
-    tempPosition = Position(this.position.x + increment, this.position.y + increment);
+    tempPosition = Position(_x + increment, _y + increment);
     if (
-      helperObj.map[this.position.x + 1 > 8 ? this.position.x : this.position.x + 1][this.position.y + 1] != null &&
+      helperObj.map[_x + 1 > 8 ? _x : _x + 1][_y + 1] != null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
     }
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
-    tempPosition = Position(this.position.x - increment, this.position.y + increment);
+    tempPosition = Position(_x - increment, _y + increment);
     if (
-      helperObj.map[this.position.x - 1][this.position.y + 1] != null &&
+      helperObj.map[_x - 1][_y + 1] != null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
@@ -468,4 +596,6 @@ pawn.prototype.constructor = pawn;
 //adding event listener on all squares on load
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
-  squares[i].setAttribute("onclick", "handleClick(this)");
+  squares[i].addEventListener("click", handleClick);
+console.log("handle Click added");
+//squares[i].setAttribute("onclick", "handleClick(this)");
