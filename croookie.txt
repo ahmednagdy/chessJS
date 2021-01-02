@@ -1,0 +1,236 @@
+	
+- div (id=position) e.g. 1,1 .. 8,8 ----------------- jamal
+
+------ main structure    -- ahmed
+
+
+-pawn => if first?if 8th?has diagonal enemies?
+-king => 
+
+-bishop/rook/queen (pinners)
+-knight
+
+**checks and pins (check after every move)
+
+onclick = check(this) => ---------------------------- a
+(square.position)
+{
+    var 
+}
+
+
+*king's movement = his moves - intersection with enemies pieces availables
+*availables interesction with king's position = check!
+(check it after every move to enable inCHECK flag)
+
+player W = { arrayOfPieces[], timer}
+player B = { arrayOfPieces[], timer}
+
+------------------------
+
+helperObj = 
+{
+    map[][] (piece objs with initial locations)
+    moveToMap_and_ui(piece, x,y) will update all maps availables and checkCHECK() after movement! then toggle turn.
+
+}
+piece ctor()
+{
+    position, color, moves[], src,
+
+    getAndFillAvailableMoves() //abstract
+    this.checkPinning() {} & this.checkCHECK() {} //shared and used by all after filling
+    this.removeFriendIntersection() {} //also shared and used by all
+}
+ctor knight()
+{
+    //two initial positions (2,0) and (7,0) and two for black
+    position.x,position.y, color, moves[], src,
+    this.getAndFillAvailableMoves()
+    {
+        x+2 y+1
+        x+1 y+2
+        x-1 y+2
+        x-2 y+1
+
+        x+2 y-1
+        x+1 y-2
+        x-1 y-2
+        x-2 y-1
+
+        if(x or y > 8) don't push
+//filter
+        this.checkCHECK(); is my king in danger?
+        this.removeFriendIntersection();
+        this.checkPinning(); //Am I pinned?
+    }
+}
+
+ctor queen()
+{
+    position, color, moves[], src,
+    getAndFillAvailableMoves()
+    {
+        //8 directions
+        (++x) (--x) (++y) (--y) (+x+y) (-x-y) (+x-y) (-x+y) at every step
+
+        moves = getLineOfSquaresToFirstElement(this.position,2);0,1,2
+
+        this.checkCHECK(); is my king in danger?
+        this.removeFriendIntersection();
+        this.checkPinning(); //Am I pinned?
+    }
+}
+ctor rook()
+{
+    position, color, moves[], src,
+    getAndFillAvailableMoves()
+    {
+        //SAME but only 4 ++x --x ++y --y 
+    }
+ctor bishop()
+{
+    position, color, moves[], src,
+    getAndFillAvailableMoves()
+    {
+        //SAME but only 4 +x+y  +x-y  -x+y  -x-y
+    }
+}
+ctor king()
+{
+    position, color, moves[], src,
+    getAndFillAvailableMoves()
+    {
+        x++ , x-- , y-- , y++ , x+y+ , x-y- , x+y- , x-y+ (only one step)
+        //then filter them
+        removeEnemeyIntersection() { ... } 
+        //for each enemy piece x 
+        {
+            this.availableMoves = this.availableMoves - x.availableMoves;
+            if(x.availableMoves INCLUDES this.position) checked = true;
+        } 
+        
+    }
+}
+ctor pawn()
+{
+    position, color, moves[], src,firstMove=true,
+    getAndFillAvailableMoves()
+    {
+        normal: y+1 //handle straight can't take
+        if(firstMove) allow y+2; firstMove = false;
+        if(map[x+1][y+1] is enemy) allow x+1,y+1
+        if(map[x-1][y+1] is enemy) allow x-1,y+1
+        
+        //implement promotion in move method
+        this.removeFriendIntersection();
+        this.checkPinning();	
+        this.checkCHECK();
+    }
+}
+
+
+
+
+else
+{
+	get intersections with friend pieces (W/B.pieces[]) and remove them	
+    this.checkPinning();	
+    this.checkCHECK();
+
+}
+*update available moves array for all pieces after each move 
+checkPinning()
+{
+    var pinned = false;
+if (this.position intersects enemy queen/bishop/rook (pinners) availables moves)
+{
+    //check if I am on the same line as my king
+    //get the line squares
+    var line = helper.getLineOfSquaresBetween(this.position,myking.position);
+    for(var i = 0  ;i< line.length && map[line[i]]!= friend; i++) 
+    {
+        if (line[i] == myking.position) pinned = true; //if this is reached before a friend is found then the line is سالك
+    }
+}
+
+if (pinned) this.availableMoves = moves INTERSECTION the line from enemy to my king
+{
+    //getting the line
+    var line = helper.getLineOfSquaresBetween(p1,p2);
+    availableMoves = availableMoves INTERSECTION line;
+}
+}
+
+checkCheck()
+{
+    if (checked)
+    {
+        for each enemey piece x
+        {
+            if(x.availableMoves INCLUDES myking.position)
+            {
+                //then x is a checker
+                if(x is a pinner (instance of R/B/Q)) //TAKE OR BLOCK 
+                {
+                    var line = helper.getLineOfSquaresBetween(x.position,myking.position);
+                    this.availableMoves = this.availableMoves INTERSECTION line;
+                }
+                else //YOU have to TAKE IT
+                    this.availableMoves = this.availableMoves INTERSECTION x.position;
+            }
+        }
+    }
+}
+//game end functions -- Win(resign / checkmate / flag) / draw (2 cases)
+if checkmate()
+{
+    if(checked)
+    {
+        //checkCheck()
+        if all my pieces (including the king) availables = [];
+        declare win; //break loop or whatever
+    }
+}
+if Stalemate() //to be called in the beginning of each players turn
+{
+    if all my pieces (including the king) availables = []
+    declare draw;
+}
+if NotEnoughPieces() //to be called in the beginning of each players turn
+{
+    if W.pieces.length == 1 && B.pieces.length == 1 //only kings
+    or W.pieces.length == 1 && B has only a knight/bishop
+    or the opposite  
+    declare draw;
+}
+**implement helper.getLineOfSquaresBetween(p1,p2) => return positions[] //only direct lines (h/v/diagonal) //b/w and including both positions
+**(basically RBQ fill) implement helper.getLineOfSquaresToFirstElement(myPosition,0/1/2) => return positions[] //0==XY axis (R) //1==diagonals axis (B) // 2==Both (Q)
+
+**INTERSECTION can be implemented using filter function:example:
+
+
+var intersection = array_first.filter((x) => (array_second.indexOf(x) != -1));
+
+
+-------------------------------------------
+
+//Difference Example
+var array_difference = array_first.filter((x) => array_second.indexOf(x) == -1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

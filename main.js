@@ -1,6 +1,5 @@
 //Link with UI --> each square will have
 //id = 1,1 -> 8,8 and onclick=handleClick(this.id)
-var oldStates = [];
 function handleClick(position) {
   //fill += king?
   //check position in map to get its state
@@ -28,7 +27,7 @@ function handleClick(position) {
       selected = newSelection;
     } //(newSelection.color != turn) then it is an enemy piece
     else {
-      if (selected.moves.includes(newSelection.position)) {
+      if (selected.moves.some((o) => o.x == newSelection.position.x && o.y == newSelection.position.y)) {
         //TAKE ////
         helperObj.moveToMap_and_ui(selected, x, y); //deselect
         moveMap(x, y);
@@ -43,36 +42,41 @@ function handleClick(position) {
       isSelected = true; //ignore if first click and not your turn;
     }
   }
-  //highlight / dehighlight
-  //game end scenarios to be handled in move!
-  /////////IMPLEMENT Value OF/To string for piece.position to return ready id
-
-  //Dehighlight by default
-  for (var i = 0 ; i< oldStates.length; i++) 
+  
+  //remove highlight by default
+  if(oldStates[0]) document.getElementById(oldStates[0]).classList.remove("highlightPiece");
+  for (var i = 1 ; i< oldStates.length; i++) 
   {
-      document.getElementById(oldStates[i].id).setAttribute("class",oldStates[i].class); //reset highlighted square
+      document.getElementById(oldStates[i]).classList.remove("highlight"); //reset highlighted square
   }
   if (isSelected) {
     //highlight the piece and the moves
     var id = selected.position;
     id = id.x + "-" + id.y;
-    document.getElementById(id).setAttribute("class","highlightPiece"); 
-     oldStates = [];
+    document.getElementById(id).classList.toggle("highlightPiece"); 
+    oldStates = [];
+    oldStates.push(id);
     for (var i = 0; i < selected.moves.length; i++) {
       id = selected.moves[i];
       id = id.x + "-" + id.y; //test
       console.log("id = " + id);
-      oldStates.push({id:id,class:document.getElementById(id).className.baseVal});
-      document.getElementById(id).setAttribute("class","highlight"); //the available square
+      oldStates.push(id);
+      document.getElementById(id).classList.add("highlight"); //the available square
     }
+
   }
   //////////NEED TO implement the three classed in css
   //including their hover style
   //the board could be smaller
+
+  //highlight / dehighlight
+  //game end scenarios to be handled in move!
+  /////////IMPLEMENT Value OF/To string for piece.position to return ready id
 }
 var turn = 0; //white to start
 var selected = null; //no pieces selected initially
 var isSelected = false;
+var oldStates=[];
 
 //To be initialized with piece ids from both sides (e.g. int from 0 to 5) 0 1 2
 //Will only get updated when there is a TAKE action
@@ -120,7 +124,9 @@ function Deselect() {
   selected = null; //no pieces selected initially
   isSelected = false;
 }
+//-----------------------------------------------------------
 
+//-------------------------------------------
 var helperObj = {
   //map[x][y]
   // 0 for white
@@ -136,7 +142,7 @@ var helperObj = {
     }
     this.fillInitialize(1, 2, 0);
     this.fillInitialize(8, 7, 1);
-    this.map[2][7]=null;
+    //this.map[2][7]=null;
   },
 
   fillInitialize: function (_y1, _y2, c) {
@@ -165,15 +171,13 @@ var helperObj = {
     }
 
     function getPieceByPosition(posX, posY) {
-      Spos = `${posX * 100}px,${posY * 100}px`;
-      for (let i = 0; i < Allpieces.length; i++) {
-        if (Spos == grabPositionPiece(Allpieces[i])) {
-          return Allpieces[i];
-        }
-      }
+    var Spos = `${posX * 100}px,${posY * 100}px`;
+    for (let i = 0; i < Allpieces.length; i++) {
+    if (Spos == grabPositionPiece(Allpieces[i])) {
+      return Allpieces[i];
     }
-
-    y = 9 - y;
+  }
+}
 
     /*function checkCHECK() {
           return false;
@@ -181,8 +185,9 @@ var helperObj = {
     //var Spos = `${piece.position.x * 100}px,${piece.position.y * 100}px`;
     //let pieceUI = document.querySelector('[translate="'+Spos+'"]');
     let pieceUI = getPieceByPosition(piece.position.x, 9 - piece.position.y);
-    let translatePosition = `translate(${x * 100}px, ${y * 100}px)`;
+    let translatePosition = `translate(${x * 100}px, ${(9-y) * 100}px)`;
     //let oldPosition = grabPositionPiece(piece);
+    
     if (this.map[x][y] == null) {
       pieceUI.style.transform = translatePosition;
       console.log(translatePosition);
@@ -190,7 +195,8 @@ var helperObj = {
             piece.style.transform = `translate(${oldPosition})`;
           }*/
         } else {
-          let eatenPieceUI = getPieceByPosition(x, y);   //let eatenPiece = getPieceByPosition(x, y);
+          console.log("some ooooooooooooooo")
+          let eatenPieceUI = getPieceByPosition(x, 9 - y);   //let eatenPiece = getPieceByPosition(x, y);
           pieceUI.style.transform = translatePosition;
           eatenPieceUI.style.transform = "translate(900px,900px)";
           /*if (checkCHECK()) {
@@ -273,6 +279,7 @@ function knight(_x, _y, c) {
   //--by counting from 1-8 from the bottom left corner as 1,1
 
   this.getAndFillAvailableMoves = function () {
+    this.moves=[];
     var t = this.position;
     var candidates = [
       Position(t.x + 2, t.y + 1),
@@ -292,7 +299,7 @@ function knight(_x, _y, c) {
   };
 
   //Calling the fill function
-  //this.getAndFillAvailableMoves();
+  this.getAndFillAvailableMoves();
 }
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
@@ -304,14 +311,15 @@ function queen(_x, _y, c) {
 
     //Will get done using "getLineOfSquaresToFirstElement()" method
     //to be implemented ...
-    moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 0, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.moves=[];
+    this.moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 0, 1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
+    this. moves = this. moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
 
     this.filterAvailables();
   };
@@ -334,10 +342,11 @@ rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
-    moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.filterAvailables();
   };
   this.getAndFillAvailableMoves();
 }
@@ -358,9 +367,11 @@ function getLineOfSquaresToFirstElement(pos, Xdirction, Ydriction) {
 
 //could think of a pinner class to implement those 3 pieces ...
 //myStepDirection.x,.y
+
 function king(_x, _y, c) {
   piece.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
+    this.moves=[];
     for (var i = -1, j = 0; i <= 1 && j <= 1; i += 2) {
       //gets  x- x+ y- y+
       var p = Position(
@@ -385,17 +396,6 @@ function king(_x, _y, c) {
     //this.removeFriendIntersection(); //essential call
     //this.removeEnemyIntersection(); //awaiting map initialization
   };
-  for (var j = 1; j <= 4; j++) {
-    //gets  x-y- x+y+  x+y-  x-y+
-    var p = Position(
-      this.position.x + (j == 1 ? 1 : j == 2 ? -1 : j == 3 ? -1 : 1),
-      this.position.y + (j == 1 ? 1 : j == 2 ? -1 : j == 3 ? 1 : -1)
-    );
-    if (helperObj.InBound(p)) this.moves.push(p);
-  }
-
-  //this.removeFriendIntersection(); //essential call
-  //this.removeEnemyIntersection(); //awaiting map initialization
 
   this.removeEnemyIntersection = function () {
     for (var i = 1; i <= 8; i++) {
@@ -444,21 +444,24 @@ function pawn(_x, _y, c) {
     }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
     tempPosition = Position(this.position.x + increment, this.position.y + increment);
+    if( helperObj.InBound(tempPosition)){
     if (
-      helperObj.map[this.position.x + 1 > 8 ? this.position.x : this.position.x + 1][this.position.y + 1] != null &&
-      helperObj.InBound(tempPosition)
+      helperObj.map[this.position.x + increment][this.position.y + increment] != null 
+     
     ) {
       this.moves.push(tempPosition);
-    }
+    }}
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
     tempPosition = Position(this.position.x - increment, this.position.y + increment);
+   
+   if( helperObj.InBound(tempPosition)){
     if (
-      helperObj.map[this.position.x - 1][this.position.y + 1] != null &&
-      helperObj.InBound(tempPosition)
+      helperObj.map[this.position.x - increment][this.position.y + increment] != null
+     
     ) {
       this.moves.push(tempPosition);
     }
-
+  }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
