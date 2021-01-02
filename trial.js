@@ -433,14 +433,15 @@ function queen(_x, _y, c) {
 
     //Will get done using "getLineOfSquaresToFirstElement()" method
     //to be implemented ...
-    moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 0, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.moves=[];
+    this.moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 0, 1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
+    this. moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
+    this. moves = this. moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
 
     this.filterAvailables();
   };
@@ -451,10 +452,12 @@ queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
-    moves = getLineOfSquaresToFirstElement(this.position, 0, 1);
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
+    this.moves=[];
+    this.moves = getLineOfSquaresToFirstElement(this.position, 0, 1);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 0, -1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 1, 0));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 0));
+    this.filterAvailables();
   };
   this.getAndFillAvailableMoves();
 }
@@ -463,10 +466,11 @@ rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
-    moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
-    moves = moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.moves = getLineOfSquaresToFirstElement(this.position, 1, 1);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, -1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, -1, 1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this.position, 1, -1));
+    this.filterAvailables();
   };
   this.getAndFillAvailableMoves();
 }
@@ -549,24 +553,23 @@ function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
 
   //this.moves
- 
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
   this.getAndFillAvailableMoves = function () {
-    this.moves=[];
+    this.moves = []
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
-    var tempPosition = Position(_x, _y + increment);
+    var tempPosition = Position(this.position.x, this.position.y + increment);
     if (
-      helperObj.map[_x][_y + increment] == null &&
+      helperObj.map[this.position.x][this.position.y + increment] == null &&
       helperObj.InBound(tempPosition)
     ) {
       this.moves.push(tempPosition);
     }
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     if (this.firstMove) {
-      tempPosition = Position(_x, _y + 2 * increment);
+      tempPosition = Position(this.position.x, this.position.y + 2 * increment);
       if (
-        helperObj.map[_x][_y + 2 * increment] == null &&
+        helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
         helperObj.InBound(tempPosition)
       ) {
         this.moves.push(tempPosition);
@@ -574,22 +577,25 @@ function pawn(_x, _y, c) {
       }
     }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
-    tempPosition = Position(_x + increment, _y + increment);
+    tempPosition = Position(this.position.x + increment, this.position.y + increment);
+    if( helperObj.InBound(tempPosition)){
     if (
-      helperObj.map[_x + 1 > 8 ? _x : _x + 1][_y + 1] != null &&
-      helperObj.InBound(tempPosition)
+      helperObj.map[this.position.x + increment][this.position.y + increment] != null 
+     
     ) {
       this.moves.push(tempPosition);
-    }
+    }}
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
-    tempPosition = Position(_x - increment, _y + increment);
+    tempPosition = Position(this.position.x - increment, this.position.y + increment);
+   
+   if( helperObj.InBound(tempPosition)){
     if (
-      helperObj.map[_x - 1][_y + 1] != null &&
-      helperObj.InBound(tempPosition)
+      helperObj.map[this.position.x - increment][this.position.y + increment] != null
+     
     ) {
       this.moves.push(tempPosition);
     }
-
+  }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
