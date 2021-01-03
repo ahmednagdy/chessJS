@@ -41,7 +41,7 @@ function handleClick(position) {
     if (selected.isKing) {
       for (var i = 1; i <= 8; i++) {
         for (var j = 1; j <= 8; j++) {
-          if (helperObj.map[i][j] != null)
+          if (helperObj.map[i][j] != null && helperObj.map[i][j].color!=selected.color)
             helperObj.map[i][j].getAndFillAvailableMoves();
         }
       }
@@ -106,21 +106,6 @@ function moveMap(x, y) {
 
   helperObj.map[x][y] = selected;
   helperObj.map[x][y].position = Position(x, y);
-
-  /*var kingsPositions = [];
-  for (var i = 1; i <= 8; i++) {
-    for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j] != null)
-      {
-        if(helperObj.map[i][j].isKing)
-        kingsPositions.push(helperObj.map[i][j]);
-        else
-        helperObj.map[i][j].getAndFillAvailableMoves();
-      }
-    }
-  }
-  kingsPositions[0].getAndFillAvailableMoves();
-  kingsPositions[1].getAndFillAvailableMoves();*/
 
   Deselect();
   turn = !turn;
@@ -377,8 +362,8 @@ function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
     Tpos.y += Ydirection;
   }
   if (
-    helperObj.InBound(Tpos) &&
-    helperObj.map[Tpos.x][Tpos.y].color != Piece.color
+    helperObj.InBound(Tpos) //&&
+    //helperObj.map[Tpos.x][Tpos.y].color != Piece.color
   ) {
     posS.push(Position(Tpos.x, Tpos.y));
   }
@@ -501,3 +486,4 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
+  
