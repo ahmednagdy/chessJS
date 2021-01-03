@@ -15,7 +15,6 @@ svg {
   align-items: center;
 }
 .turn {
-  height: 300px;
   width: 350px;
   border: #03045e 3px dashed;
   border-radius: 5px;
@@ -24,6 +23,8 @@ svg {
   border-style: solid;
 }
 .timer {
+  margin: 0;
+  padding: 0.25em;
   text-align: center;
   font-size: 2rem;
 }
