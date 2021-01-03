@@ -92,7 +92,7 @@ function moveMap(x, y) {
   var flag = false;
   helperObj.map[tX][tY] = null;
 
-  if(selected.firstMove  && Math.abs(tY - y) == 2)
+  if(selected.firstMove )
     selected.firstMove =false;// for handel first move of pawn
   if(selected.firstMove != undefined &&(y==8 || y==1)){
     selected =  new queen(tX, tY, selected.color);
@@ -425,6 +425,7 @@ function pawn(_x, _y, c) {
     this.moves = []
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
+
     if (
       helperObj.map[this.position.x][this.position.y + increment] == null &&
       helperObj.InBound(tempPosition)
@@ -432,11 +433,12 @@ function pawn(_x, _y, c) {
       this.moves.push(tempPosition);
     }
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
-    if (this.firstMove) {
-      tempPosition = Position(this.position.x, this.position.y + 2 * increment);
+    tempPosition = Position(this.position.x, this.position.y + 2 * increment);
+    if(helperObj.InBound(tempPosition))
+    if (this.firstMove) {    
       if (
         helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
-        helperObj.InBound(tempPosition)
+        helperObj.map[this.position.x][this.position.y +  increment] == null
       ) {
         this.moves.push(tempPosition);
         //this.firstMove = false;//????????????????????????
