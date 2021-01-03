@@ -3,6 +3,24 @@ function handleClick(position) {
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
+  const Wpar = document.getElementsByTagName("p")[1];
+  const WProgressBar = document.getElementsByClassName("progress")[1];
+  const wdiv = document.getElementsByClassName("white")[0];
+
+  if(prevTurn==-1)
+  { 
+      t2 = setInterval(function () {
+      helperObj.changeProgressBar(WProgressBar, 1);
+      timer2 -= 1000;
+      Wpar.textContent = helperObj.toShow(timer2);
+    }, 1000);
+    
+    clearInterval(t1);
+    prevTurn=900;
+    Wpar.classList.add("running");
+    wdiv.classList.add("borderTurn");
+
+  }
   if (isSelected) {
     if (newSelection === selected) {
       Deselect();
@@ -15,6 +33,9 @@ function handleClick(position) {
       }
     } else if (newSelection.color == turn) {
       selected = newSelection;
+      
+       
+      
     } else {
       if (
         selected.moves.some(
@@ -78,6 +99,11 @@ var selected = null;
 var isSelected = false;
 var oldStates = [];
 var checked = false;
+let timer1 = 300 * 1000;
+let timer2 = 300 * 1000;
+let t1;
+let t2;
+let prevTurn = -1;
 
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
@@ -193,6 +219,13 @@ var helperObj = {
   },
 
   moveToMap_and_ui: function (piece, x, y) {
+    const Bpar = document.getElementsByTagName("p")[0];
+    const Wpar = document.getElementsByTagName("p")[1];
+    const BProgressBar = document.getElementsByClassName("progress")[0];
+    const WProgressBar = document.getElementsByClassName("progress")[1];
+    const Bdiv = document.getElementsByClassName("black")[0];
+    const wdiv = document.getElementsByClassName("white")[0];
+
     let pieceUI = this.getPieceByPosition(
       piece.position.x,
       9 - piece.position.y
@@ -228,6 +261,37 @@ var helperObj = {
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
+    
+    if (!turn||prevTurn==900)
+  {
+    t1 = setInterval(function () {
+      helperObj.changeProgressBar(BProgressBar, 1);
+      timer1 -= 1000;
+      
+      Bpar.textContent = helperObj.toShow(timer1);
+    }, 1000);
+    
+    clearInterval(t2);
+    prevTurn=50;
+    Bpar.classList.toggle("running");
+    Wpar.classList.toggle("running");    
+    wdiv.classList.toggle("borderTurn");
+    Bdiv.classList.toggle("borderTurn");
+   
+  }else 
+    {
+      t2 = setInterval(function () {
+        helperObj.changeProgressBar(WProgressBar, 1);
+        timer2 -= 1000;
+        Wpar.textContent = helperObj.toShow(timer2);
+      }, 1000);
+      Wpar.classList.toggle("running");
+      Bpar.classList.toggle("running");
+      wdiv.classList.toggle("borderTurn");
+      Bdiv.classList.toggle("borderTurn");
+      clearInterval(t1);
+    
+    }
   },
 
   //three functions prototypes --implement removeFriendIntersection()
@@ -264,6 +328,17 @@ var helperObj = {
       position.y < 1
     );
   },
+   changeProgressBar : function (element, val) {
+    let widthVal = parseInt(getComputedStyle(element).width);
+    widthVal -= val;
+    element.style.width = widthVal + "px";
+  },
+   toShow: function (millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }
+  
 };
 helperObj.Initialize();
 

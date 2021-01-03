@@ -15,8 +15,12 @@ svg {
 .turn {
   height: 300px;
   width: 350px;
-  border: #03045e 3px solid;
+  border: #03045e 3px dashed;
   border-radius: 5px;
+}
+.borderTurn 
+{
+  border-style: solid;
 }
 .timer {
   text-align: center;
@@ -30,7 +34,7 @@ svg {
 }
 .progress-container {
   border: darkorchid solid 1px;
-  height: 10px;
+  height: 20px;
 }
 .progress {
   height: 100%;
