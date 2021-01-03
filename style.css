@@ -1,14 +1,13 @@
 body {
-  background-color: #beced1;
+  background-color: #fbf0f0;
+  box-sizing: border-box;
 }
 svg {
   order: 2;
   display: block;
   width: 700px;
   height: 700px;
-  border-width: 15px;
-  border-style:  solid;
-  border-color:  orange;;
+  border: 5px solid;
 }
 .main {
   display: flex;
@@ -21,8 +20,7 @@ svg {
   border: #03045e 3px dashed;
   border-radius: 5px;
 }
-.borderTurn 
-{
+.borderTurn {
   border-style: solid;
 }
 .timer {
@@ -42,18 +40,19 @@ svg {
 .progress {
   height: 100%;
   background: rgb(255, 4, 43);
+  background: #1e9600; /* fallback for old browsers */
   background: linear-gradient(
-    90deg,
-    rgba(255, 4, 43, 1) 0%,
-    rgba(153, 60, 218, 1) 34%,
-    rgba(4, 203, 249, 1) 75%,
-    rgba(0, 212, 255, 1) 100%
-  );
+    to right,
+    #ff0000,
+    #fff200,
+    #1e9600
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 .running {
-  background-color: #023e8a;
-  color: white;
-  border-color: greenyellow;
+  background-color: #00917c;
+  color: #dfe0df;
+  border-color: #00917c;
+  border-width: 20px;
 }
 
 rect:hover {
@@ -88,9 +87,7 @@ rect:hover {
 .highlight-move {
   stroke: orange;
   stroke-width: 6px;
-  
 }
-.check
-{
-  fill:lightcoral;
+.check {
+  fill: lightcoral;
 }
