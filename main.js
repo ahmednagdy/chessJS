@@ -50,8 +50,10 @@ function handleClick(position) {
   }
   //--------------------------
   //remove highlight by default
+
   if (oldStates[0])
     document.getElementById(oldStates[0]).classList.remove("highlightPiece");
+
   for (var i = 1; i < oldStates.length; i++) {
     document.getElementById(oldStates[i]).classList.remove("highlight"); //reset highlighted square
   }
@@ -135,6 +137,15 @@ function Deselect() {
 //-------------------------------------------
 var helperObj = {
   map: [],
+  justHappenedMove: {
+    oldX: 0,
+    oldY: 0,
+    newX: 0,
+    newY: 0,
+  },
+  getSquareByPosition: function (x, y) {
+    return document.getElementById(`${x}-${y}`);
+  },
   getPieceByPosition: function (posX, posY) {
     let Allpieces = document.querySelectorAll(".black-piece, .white-piece");
     var Spos = `${posX * 100}px,${posY * 100}px`;
@@ -186,6 +197,30 @@ var helperObj = {
       piece.position.x,
       9 - piece.position.y
     );
+    let oldSquare = this.getSquareByPosition(
+      piece.position.x,
+      piece.position.y
+    );
+    if (helperObj.justHappenedMove.oldX != 0) {
+      let oldPos = helperObj.getSquareByPosition(
+        helperObj.justHappenedMove.oldX,
+        helperObj.justHappenedMove.oldY
+      );
+      let newPos = helperObj.getSquareByPosition(
+        helperObj.justHappenedMove.newX,
+        helperObj.justHappenedMove.newY
+      );
+      oldPos.classList.remove("highlight-move");
+      newPos.classList.remove("highlight-move");
+    }
+    let newSquar = this.getSquareByPosition(x, y);
+    this.justHappenedMove.oldX = piece.position.x;
+    this.justHappenedMove.oldY = piece.position.y;
+    this.justHappenedMove.newX = x;
+    this.justHappenedMove.newY = y;
+    oldSquare.classList.add("highlight-move");
+    newSquar.classList.add("highlight-move");
+    console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
     if (this.map[x][y] != null) {

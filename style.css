@@ -34,3 +34,7 @@ rect:hover {
 .highlightPiece {
   fill: #aad8b4;
 }
+.highlight-move {
+  stroke: orange;
+  stroke-width: 6px;
+}
