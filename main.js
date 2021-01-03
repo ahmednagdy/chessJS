@@ -7,19 +7,21 @@ function handleClick(position) {
   const WProgressBar = document.getElementsByClassName("progress")[1];
   const wdiv = document.getElementsByClassName("white")[0];
 
-  if(prevTurn==-1)
-  { 
-      t2 = setInterval(function () {
+  if (prevTurn == -1) {
+    t2 = setInterval(function () {
       helperObj.changeProgressBar(WProgressBar, 1);
       timer2 -= 1000;
       Wpar.textContent = helperObj.toShow(timer2);
+      if (timer2 <= 0) {
+        clearInterval(t2);
+        alert("time out");
+      }
     }, 1000);
-    
+
     clearInterval(t1);
-    prevTurn=900;
+    prevTurn = 900;
     Wpar.classList.add("running");
     wdiv.classList.add("borderTurn");
-
   }
   if (isSelected) {
     if (newSelection === selected) {
@@ -33,9 +35,6 @@ function handleClick(position) {
       }
     } else if (newSelection.color == turn) {
       selected = newSelection;
-      
-       
-      
     } else {
       if (
         selected.moves.some(
@@ -62,7 +61,10 @@ function handleClick(position) {
     if (selected.isKing) {
       for (var i = 1; i <= 8; i++) {
         for (var j = 1; j <= 8; j++) {
-          if (helperObj.map[i][j] != null && helperObj.map[i][j].color!=selected.color)
+          if (
+            helperObj.map[i][j] != null &&
+            helperObj.map[i][j].color != selected.color
+          )
             helperObj.map[i][j].getAndFillAvailableMoves();
         }
       }
@@ -246,36 +248,39 @@ var helperObj = {
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
-    
-    if (!turn||prevTurn==900)
-  {
-    t1 = setInterval(function () {
-      helperObj.changeProgressBar(BProgressBar, 1);
-      timer1 -= 1000;
-      
-      Bpar.textContent = helperObj.toShow(timer1);
-    }, 1000);
-    
-    clearInterval(t2);
-    prevTurn=50;
-    Bpar.classList.toggle("running");
-    Wpar.classList.toggle("running");    
-    wdiv.classList.toggle("borderTurn");
-    Bdiv.classList.toggle("borderTurn");
-   
-  }else 
-    {
+
+    if (!turn || prevTurn == 900) {
+      t1 = setInterval(function () {
+        helperObj.changeProgressBar(BProgressBar, 1);
+        timer1 -= 1000;
+        Bpar.textContent = helperObj.toShow(timer1);
+        if (timer1 <= 0) {
+          clearInterval(t1);
+          alert("time out");
+        }
+      }, 1000);
+
+      clearInterval(t2);
+      prevTurn = 50;
+      Bpar.classList.toggle("running");
+      Wpar.classList.toggle("running");
+      wdiv.classList.toggle("borderTurn");
+      Bdiv.classList.toggle("borderTurn");
+    } else {
       t2 = setInterval(function () {
         helperObj.changeProgressBar(WProgressBar, 1);
         timer2 -= 1000;
         Wpar.textContent = helperObj.toShow(timer2);
+        if (timer2 <= 0) {
+          clearInterval(t2);
+          alert("time out");
+        }
       }, 1000);
       Wpar.classList.toggle("running");
       Bpar.classList.toggle("running");
       wdiv.classList.toggle("borderTurn");
       Bdiv.classList.toggle("borderTurn");
       clearInterval(t1);
-    
     }
   },
 
@@ -313,17 +318,16 @@ var helperObj = {
       position.y < 1
     );
   },
-   changeProgressBar : function (element, val) {
+  changeProgressBar: function (element, val) {
     let widthVal = parseInt(getComputedStyle(element).width);
     widthVal -= val;
     element.style.width = widthVal + "px";
   },
-   toShow: function (millis) {
+  toShow: function (millis) {
     var minutes = Math.floor(millis / 60000);
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-  }
-  
+  },
 };
 helperObj.Initialize();
 
@@ -561,4 +565,3 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
-  
