@@ -9,11 +9,11 @@ rect:hover {
   fill: chartreuse;
 }
 .black-piece {
-  transition: transform 1s;
+  transition: transform 0.5s;
   pointer-events: none;
 }
 .white-piece {
-  transition: transform 1s;
+  transition: transform 0.5s;
   pointer-events: none;
 }
 .black-piece:hover {

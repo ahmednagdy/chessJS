@@ -1,6 +1,6 @@
 
 function handleClick(position) {
-  //console.log(position.id);
+  console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
@@ -33,7 +33,21 @@ function handleClick(position) {
       isSelected = true;
     }
   }
-  
+  //-------------------------
+  if(selected)
+  {
+    if(selected.isKing)
+  {
+    for (var i = 1; i <= 8; i++) {
+      for (var j = 1; j <= 8; j++) {
+        if (helperObj.map[i][j] != null)
+          helperObj.map[i][j].getAndFillAvailableMoves();
+      }
+    }
+  }
+  selected.getAndFillAvailableMoves();
+  }
+  //--------------------------
   //remove highlight by default
   if(oldStates[0]) document.getElementById(oldStates[0]).classList.remove("highlightPiece");
   for (var i = 1 ; i< oldStates.length; i++) 
@@ -83,13 +97,20 @@ function moveMap(x, y) {
   helperObj.map[x][y].position = Position(x, y);
 
   
-
+/*var kingsPositions = [];
   for (var i = 1; i <= 8; i++) {
     for (var j = 1; j <= 8; j++) {
       if (helperObj.map[i][j] != null)
+      {
+        if(helperObj.map[i][j].isKing)
+        kingsPositions.push(helperObj.map[i][j]);
+        else
         helperObj.map[i][j].getAndFillAvailableMoves();
+      }
     }
   }
+  kingsPositions[0].getAndFillAvailableMoves();
+  kingsPositions[1].getAndFillAvailableMoves();*/
   
   Deselect();
   turn = !turn;
@@ -223,7 +244,6 @@ function piece(_x, _y, c) {
 function knight(_x, _y, c) {
   
   piece.call(this, _x, _y, c);
- 
 
   this.getAndFillAvailableMoves = function () {
     this.moves=[];
@@ -274,8 +294,8 @@ function rook(_x, _y, c) {
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0));
-    console.log("Rook PosS" + ' '+this.color)
-    console.log( this.moves);
+    //console.log("Rook PosS" + ' '+this.color)
+    //console.log( this.moves);
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
@@ -297,17 +317,17 @@ function bishop(_x, _y, c) {
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
 
-function getLineOfSquaresToFirstElement(Piece, Xdirction, Ydriction) {
-  var Tpos = Position(Piece.position.x + Xdirction, Piece.position.y + Ydriction);
+function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
+  var Tpos = Position(Piece.position.x + Xdirection, Piece.position.y + Ydirection);
   var posS = [];
   while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
     posS.push(Position(Tpos.x, Tpos.y));
-    Tpos.x += Xdirction;
-    Tpos.y += Ydriction;
+    Tpos.x += Xdirection;
+    Tpos.y += Ydirection;
   }
   if (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y].color != Piece.color){
     posS.push(Position(Tpos.x, Tpos.y));
-    console.log("fuckkkkkkkkkkkk");
+    
   }
  
   return posS;
@@ -318,31 +338,21 @@ function getLineOfSquaresToFirstElement(Piece, Xdirction, Ydriction) {
 
 function king(_x, _y, c) {
   piece.call(this, _x, _y, c);
-  this.getAndFillAvailableMoves = function () {
-    this.moves=[];
-    for (var i = -1, j = 0; i <= 1 && j <= 1; i += 2) {
-      //gets  x- x+ y- y+
-      var p = Position(
-        this.position.x + (j != 1 ? i : 0),
-        this.position.y + (j == 1 ? i : 0)
-      );
-      if (i == 1 && j == 0) {
-        i = -3;
-        j = 1;
-      }
-      if (helperObj.InBound(p)) this.moves.push(p);
+  this.isKing = true;
+  this.getAndFillAvailableMoves = function () 
+  {
+    this.moves=[]; this.scope=[];
+    var candidates = [0,1,  0,-1,  1,0,  -1,0,  1,-1,  -1,1,  1,1,  -1,-1];
+    for (var i = 0; i < candidates.length; i+=2)
+    {
+      var candidatePosition = Position(this.position.x+candidates[i],this.position.y+candidates[i+1]);
+      if(helperObj.InBound(candidatePosition))
+        this.moves.push(candidatePosition);
+        this.scope.push(candidatePosition);
     }
-    for (var j = 1; j <= 4; j++) {
-      //gets  x-y- x+y+  x+y-  x-y+
-      var p = Position(
-        this.position.x + (j == 1 ? 1 : j == 2 ? -1 : j == 3 ? -1 : 1),
-        this.position.y + (j == 1 ? 1 : j == 2 ? -1 : j == 3 ? 1 : -1)
-      );
-      if (helperObj.InBound(p)) this.moves.push(p);
-    }
-    //this.filterAvailables();
-    helperObj.removeFriendIntersection(this); //essential call
-    this.removeEnemyIntersection(); //awaiting map initialization
+    console.log(this.moves);
+    helperObj.removeFriendIntersection(this); 
+    this.removeEnemyIntersection(); 
   };
 
   this.removeEnemyIntersection = function () {
@@ -354,7 +364,7 @@ function king(_x, _y, c) {
           if (piece.color != this.color) {
             //then enemey piece
             this.moves = helperObj.difference(this.moves, piece.scope);
-            if (piece.scope.some(o=>o.x == this.position.x && o.y == this.position.y)) checked = true; //Then the king is in CHECK!
+            if (helperObj.includesPosition(piece.scope,this.position)) checked = true; //Then the king is in CHECK!
           }
         }
       }
@@ -372,16 +382,14 @@ function pawn(_x, _y, c) {
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
   this.getAndFillAvailableMoves = function () {
-    this.moves = []
+    this.moves = []; this.scope = [];
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
 
-    if (
-      helperObj.map[this.position.x][this.position.y + increment] == null &&
-      helperObj.InBound(tempPosition)
-    ) {
+    if (helperObj.map[this.position.x][this.position.y + increment] == null &&
+      helperObj.InBound(tempPosition)) 
       this.moves.push(tempPosition);
-    }
+    
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     tempPosition = Position(this.position.x, this.position.y + 2 * increment);
     if(helperObj.InBound(tempPosition))
@@ -396,23 +404,20 @@ function pawn(_x, _y, c) {
     }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
     tempPosition = Position(this.position.x + increment, this.position.y + increment);
-    if( helperObj.InBound(tempPosition)){
-    if (
-      helperObj.map[this.position.x + increment][this.position.y + increment] != null 
-     
-    ) {
+    if( helperObj.InBound(tempPosition))
+    {
+      this.scope.push(tempPosition);
+    if (helperObj.map[this.position.x + increment][this.position.y + increment] != null) 
       this.moves.push(tempPosition);
-    }}
+    }
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
     tempPosition = Position(this.position.x - increment, this.position.y + increment);
    
-   if( helperObj.InBound(tempPosition)){
-    if (
-      helperObj.map[this.position.x - increment][this.position.y + increment] != null
-     
-    ) {
+   if(helperObj.InBound(tempPosition))
+   {
+    this.scope.push(tempPosition);
+    if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
       this.moves.push(tempPosition);
-    }
   }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
