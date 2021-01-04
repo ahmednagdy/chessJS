@@ -332,8 +332,9 @@ var helperObj = {
               if      (king.position.y>enemy.position.y) Ydirection = 1;
               else if (king.position.y<enemy.position.y) Ydirection = -1;
               var line = getLineOfSquaresToFirstElement(enemy,Xdirection, Ydirection);
-              piece.moves = helperObj.intersection(piece.moves,line);
-              piece.moves = piece.moves.concat(helperObj.intersection(piece.moves,[enemy.position]));
+              var oldmoves = piece.moves;
+              piece.moves = helperObj.intersection(piece.moves,[enemy.position]);
+              piece.moves = piece.moves.concat(helperObj.intersection(oldmoves,line));
               //multi check condition to be made at the king's removeEnemyIntersectionFunction
             }
             else
@@ -455,6 +456,7 @@ function queen(_x, _y, c) {
 queen.prototype = Object.create(piece.prototype);
 queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
+  this.hasMoved = false;
   queen.call(this, _x, _y, c);
   this.getAndFillAvailableMoves = function () {
     this.scope = [];
@@ -514,6 +516,7 @@ function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
 //myStepDirection.x,.y
 
 function king(_x, _y, c) {
+  this.hasMoved = false;
   piece.call(this, _x, _y, c);
   this.isKing = true;
   this.getAndFillAvailableMoves = function () {
@@ -524,12 +527,11 @@ function king(_x, _y, c) {
       var candidatePosition = Position(
         this.position.x + candidates[i],
         this.position.y + candidates[i + 1]
-      );
+     );
       if (helperObj.InBound(candidatePosition))
         this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
     }
-    console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
   };
