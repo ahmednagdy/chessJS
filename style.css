@@ -86,11 +86,11 @@ rect:hover {
   fill: #aad8b4;
 }
 .highlight-move {
-  /*stroke: orange;
-  stroke-width: 6px;*/
-  fill:cadetblue;
-  /*height: 97px;
-  width: 97px;*/
+  stroke: orange;
+  stroke-width: 6px;
+ 
+  height: 97px;
+  width: 97px;
 }
 .check {
   fill: lightcoral;
