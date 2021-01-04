@@ -88,6 +88,8 @@ rect:hover {
 .highlight-move {
   stroke: orange;
   stroke-width: 6px;
+  height: 97px;
+  width: 97px;
 }
 .check {
   fill: lightcoral;
