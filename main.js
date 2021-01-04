@@ -427,6 +427,8 @@ var helperObj = {
             else if(this.map[Tpos.x][Tpos.y]!=null  ){
               exit=true;
             }
+            Tpos.x+= P_to_K_Direction[0];
+            Tpos.y+= P_to_K_Direction[1];
           }
           
         }
