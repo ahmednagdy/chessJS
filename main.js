@@ -107,6 +107,18 @@ function moveMap(x, y) {
   helperObj.map[x][y] = selected;
   helperObj.map[x][y].position = Position(x, y);
 
+  //-------------------updating availables turn's pieces to check for !turn king safety
+  //------not only the moved piece because it could be a discovered check
+  //now checking everything ==> to be optimized
+  for (var i = 1; i <= 8; i++) {
+    for (var j = 1; j <= 8; j++) {
+      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
+        helperObj.map[i][j].getAndFillAvailableMoves();
+    }
+  }
+  helperObj.GetKing(0).getAndFillAvailableMoves();
+  helperObj.GetKing(1).getAndFillAvailableMoves();
+  //----------------------
   Deselect();
   turn = !turn;
   setTimeout(function () {
@@ -227,6 +239,52 @@ var helperObj = {
       }
     }
   },
+  isKingInCheck: function(piece)
+  {
+    if(checked) //if the king in check => filter my available moves
+    {
+      //var MultiCheck = 0;
+      for (var i = 1; i<= 8; i++)
+      for (var j = 1; j<= 8; j++)
+      if(helperObj.map[i][j]!=null)
+        if(helperObj.map[i][j].color !=piece.color) //enemy
+        {
+          var enemy = helperObj.map[i][j];
+          var king = this.GetKing(piece.color);
+          if (helperObj.includesPosition(enemy.scope, king.position))
+          {
+            //then enemy is a checker
+            if(enemy.pinner) //if pinner then could block or take
+            {
+              var Xdirection = 0;
+              if      (king.position.x>enemy.position.x) Xdirection = 1;
+              else if (king.position.x<enemy.position.x) Xdirection = -1;
+              var Ydirection = 0;
+              if      (king.position.y>enemy.position.y) Ydirection = 1;
+              else if (king.position.y<enemy.position.y) Ydirection = -1;
+              var line = getLineOfSquaresToFirstElement(enemy,Xdirection, Ydirection);
+              piece.moves = helperObj.intersection(piece.moves,line);
+              piece.moves = piece.moves.concat(helperObj.intersection(piece.moves,[enemy.position]));
+              //multi check condition to be made at the king's removeEnemyIntersectionFunction
+            }
+            else
+            piece.moves = helperObj.intersection(piece.moves,[enemy.position]);
+          }
+        }
+    }
+  }
+  ,
+  GetKing: function(color)
+  {
+    for (var i = 1; i<= 8; i++)
+      for (var j = 1; j<= 8; j++)
+      if(helperObj.map[i][j]!=null) 
+      {
+        if(helperObj.map[i][j].isKing && helperObj.map[i][j].color == color)
+        return helperObj.map[i][j];
+      }
+  }
+  ,
   intersection: function (arr1, arr2) {
     var arr = arr1.filter((x) => helperObj.includesPosition(arr2, x));
     return arr;
@@ -265,6 +323,7 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
+    helperObj.isKingInCheck(this);
   };
 }
 
@@ -296,6 +355,7 @@ knight.prototype.constructor = knight;
 
 function queen(_x, _y, c) {
   piece.call(this, _x, _y, c);
+  this.pinner = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
@@ -395,7 +455,9 @@ function king(_x, _y, c) {
     this.removeEnemyIntersection();
   };
 
-  this.removeEnemyIntersection = function () {
+  this.removeEnemyIntersection = function () 
+  {
+    checked = false;
     for (var i = 1; i <= 8; i++) {
       for (var j = 1; j <= 8; j++) {
         if (helperObj.map[i][j] != null) {
@@ -404,14 +466,19 @@ function king(_x, _y, c) {
             //then enemey piece
             this.moves = helperObj.difference(this.moves, piece.scope);
             if (helperObj.includesPosition(piece.scope, this.position))
+            {
               checked = true; //Then the king is in CHECK!
+              document.getElementById(this.position.x+"-"+this.position.y).classList.add("check");
+              checkedPosition = this.position;
+            }
           }
         }
       }
     }
+    if(!checked && checkedPosition) document.getElementById(checkedPosition.x+"-"+checkedPosition.y).classList.remove("check");
   };
 }
-
+var checkedPosition;
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
