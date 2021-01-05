@@ -144,8 +144,8 @@ function moveMap(x, y) {
         helperObj.map[i][j].getAndFillAvailableMoves();
     }
   }
-  helperObj.GetKing(0).getAndFillAvailableMoves();
-  helperObj.GetKing(1).getAndFillAvailableMoves();
+  //helperObj.GetKing(0).getAndFillAvailableMoves();
+  helperObj.GetKing(!turn).getAndFillAvailableMoves();
   //----------------------
   Deselect();
   turn = !turn;
