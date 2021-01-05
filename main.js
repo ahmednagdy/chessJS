@@ -453,7 +453,7 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
-    helperObj.checkPinning(this);
+    //helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
@@ -549,16 +549,19 @@ function bishop(_x, _y, c) {
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
-function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
+function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection, isScope=false) {
   var Tpos = Position(
     Piece.position.x + Xdirection,
     Piece.position.y + Ydirection
   );
-  var posS = [];
-  while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
+  var posS = []; 
+  var condition = (helperObj.InBound(Tpos) && (helperObj.map[Tpos.x][Tpos.y] == null)); 
+  if(isScope) condition = helperObj.InBound(Tpos);
+  while (helperObj.InBound(Tpos) && condition) {
     posS.push(Position(Tpos.x, Tpos.y));
     Tpos.x += Xdirection;
     Tpos.y += Ydirection;
+    if(!isScope) condition = (helperObj.InBound(Tpos) && (helperObj.map[Tpos.x][Tpos.y] == null));
   }
   if (
     helperObj.InBound(Tpos) //&&
@@ -609,6 +612,15 @@ function king(_x, _y, c) {
               checked = true; //Then the king is in CHECK!
               document.getElementById(this.position.x+"-"+this.position.y).classList.add("check");
               checkedPosition = this.position;
+
+              var Xdirection = 0;
+              if      (this.position.x>piece.position.x) Xdirection = 1;
+              else if (this.position.x<piece.position.x) Xdirection = -1;
+              var Ydirection = 0;
+              if      (this.position.y>piece.position.y) Ydirection = 1;
+              else if (this.position.y<piece.position.y) Ydirection = -1;
+
+              this.moves = helperObj.difference(this.moves, getLineOfSquaresToFirstElement(piece,Xdirection,Ydirection,true));
             }
           }
         }
