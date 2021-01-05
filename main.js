@@ -161,7 +161,7 @@ function Deselect() {
 
 //-------------------------------------------
 var helperObj = {
-  map: [],
+  map: [] =[[], [], [], [], [], [], [], [], []],
   justHappenedMove: {
     oldX: 0,
     oldY: 0,
@@ -187,9 +187,9 @@ var helperObj = {
     return `${posX}px,${posY}px`;
   },
   Initialize: function () {
-    this.map = [];
+    //this.map = [];
     for (var i = 0; i < 9; i++) {
-      this.map[i] = [];
+      //this.map[i] = [];
       for (var j = 0; j < 9; j++) {
         this.map[i][j] = null;
       }
