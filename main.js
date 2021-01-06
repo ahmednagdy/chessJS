@@ -162,7 +162,7 @@ function moveMap(x, y) {
   //now checking everything ==> to be optimized
   for (var i = 1; i <= 8; i++) {
     for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
+      if (helperObj.map[i][j])// && helperObj.map[i][j].color==turn)
         helperObj.map[i][j].getAndFillAvailableMoves();
     }
   }
@@ -174,14 +174,8 @@ function moveMap(x, y) {
   //-------------------------------
   Deselect();
   turn = !turn;
-  for (var i = 1; i <= 8; i++) {
-    for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
-        helperObj.map[i][j].getAndFillAvailableMoves();
-    }
-  }
-    whichCannotMove();
-    isNotEnoughPieces();
+  whichCannotMove();
+  isNotEnoughPieces();
 }
 function Deselect() {
   selected = null;
@@ -236,15 +230,15 @@ var helperObj = {
   },
 
   fillInitialize: function (_y1, _y2, c) {
-    for (var i = 1; i < 9; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+    for (var i = 1; i < 9; i++) //this.map[i][_y2] = new pawn(i, _y2, c);
 
-    this.map[1][_y1] = new rook(1, _y1, c);
-    this.map[8][_y1] = new rook(8, _y1, c);
+    //this.map[1][_y1] = new rook(1, _y1, c);
+    //this.map[8][_y1] = new rook(8, _y1, c);
     this.map[2][_y1] = new knight(2, _y1, c);
-    this.map[7][_y1] = new knight(7, _y1, c);
-    this.map[3][_y1] = new bishop(3, _y1, c);
+    //this.map[7][_y1] = new knight(7, _y1, c);
+    //this.map[3][_y1] = new bishop(3, _y1, c);
     this.map[6][_y1] = new bishop(6, _y1, c);
-    this.map[4][_y1] = new queen(4, _y1, c);
+    //this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x =0;
     for(var i=0;i<9;i++)
@@ -529,7 +523,7 @@ function isCheckmate(win){
 function stalemate() //to be called in the beginning of each players turn
 {
     //if all my pieces (including the king) availables = []
-    alert("the game is draw");////declare draw;
+    alert("Draw by Stalemate");////declare draw;
     return true;
 }
 function isNotEnoughPieces() /// state is array index 0 for black and 1 for white
@@ -538,35 +532,37 @@ function isNotEnoughPieces() /// state is array index 0 for black and 1 for whit
     //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
     //or W.pieces.length == 1 && B has only a knight/bishop
     //or the opposite  
-    var allPicees=[0,0];
-    var twhitePices= null;
-    var tblackPices= null;
+    var allPieces=[0,0];
+    var tmpWhitePiece= null;
+    var tmpBlackPiece= null;
 
-    for(var i=1;i<9;i++){
-      for(var j=1;j<9;j++){
+    for(var i=1;i<=8;i++){
+      for(var j=1;j<=8;j++){
         if(helperObj.map[i][j]){
-          allPicees[helperObj.map[i][j].color]++;
+          allPieces[helperObj.map[i][j].color]++;
           if(!helperObj.map[i][j].isKing)
           if(helperObj.map[i][j].color == 0)
-            twhitePices = helperObj.map[i][j];
+            tmpWhitePiece = helperObj.map[i][j];
           else
-            tblackPices = helperObj.map[i][j];
+            tmpBlackPiece = helperObj.map[i][j];
         }      
       }
     }
 
-    if((allPicees[0] + allPicees[1]) > 3)
+    if((allPieces[0] + allPieces[1]) > 3)
       return false;
 
-    if( allPicees[0] == 1 && allPicees[1]==1){
+    if( allPieces[0] == 1 && allPieces[1]==1){
       console.log("from isNotEnoughPieces");
-      stalemate();////declare draw;
+      alert("Draw by Insufficient Material");////declare draw;
+      gameOver = true;
       return true;
     }
-    var piceCheck =  (allPicees[0] == 1)? tblackPices:twhitePices;
-    if( piceCheck.bishop || piceCheck.knight){
+    var pieceCheck =  (allPieces[0] == 1)? tmpBlackPiece:tmpWhitePiece;
+    if(pieceCheck.bishop || pieceCheck.knight){
       console.log("from isNotEnoughPieces");
-      stalemate();////declare draw;
+      alert("Draw by Insufficient Material");////declare draw;
+      gameOver = true;
       return true;
     }
     return false;
