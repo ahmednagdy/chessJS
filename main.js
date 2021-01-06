@@ -230,15 +230,15 @@ var helperObj = {
   },
 
   fillInitialize: function (_y1, _y2, c) {
-    for (var i = 1; i < 9; i++) //this.map[i][_y2] = new pawn(i, _y2, c);
+    for (var i = 1; i < 9; i++) this.map[i][_y2] = new pawn(i, _y2, c);
 
-    //this.map[1][_y1] = new rook(1, _y1, c);
-    //this.map[8][_y1] = new rook(8, _y1, c);
+    this.map[1][_y1] = new rook(1, _y1, c);
+    this.map[8][_y1] = new rook(8, _y1, c);
     this.map[2][_y1] = new knight(2, _y1, c);
-    //this.map[7][_y1] = new knight(7, _y1, c);
-    //this.map[3][_y1] = new bishop(3, _y1, c);
+    this.map[7][_y1] = new knight(7, _y1, c);
+    this.map[3][_y1] = new bishop(3, _y1, c);
     this.map[6][_y1] = new bishop(6, _y1, c);
-    //this.map[4][_y1] = new queen(4, _y1, c);
+    this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x =0;
     for(var i=0;i<9;i++)
