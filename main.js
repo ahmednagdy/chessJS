@@ -1,7 +1,7 @@
 function handleClick(position) {
   if(gameOver)
     return;
-  //console.log(position.id);
+  console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
@@ -36,7 +36,7 @@ function handleClick(position) {
         helperObj.moveToMap_and_ui(selected, x, y); var color = selected.color;
         moveMap(x, y);  
         //move the rook next to it
-        console.log("Selected is " + selected);
+        //console.log("Selected is " + selected);
         helperObj.moveToMap_and_ui(helperObj.map[8][color?8:1], 6, color?8:1);
         selected = helperObj.map[8][color?8:1]; turn = !turn;
         moveMap(6, color?8:1);
@@ -246,7 +246,7 @@ var helperObj = {
         if(this.map[i][j])
           x++;
       }
-      console.log(x)
+      //console.log(x)
   },
 
   moveToMap_and_ui: function (piece, x, y) {
@@ -475,7 +475,8 @@ function Position(_x, _y) {
   var p = { x: _x, y: _y };
   return p;
 }
-function whichCannotMove(){ 
+function whichCannotMove()
+{ 
   //console.log("------------------------------------")
   var flag=false;
   var allPicees=[0,0];
@@ -487,11 +488,11 @@ function whichCannotMove(){
       {
         //x++;
         //console.log("Enter the if!")
-        helperObj.map[i][j].filterAvailables();
+        if(!helperObj.map[i][j].isKing) helperObj.map[i][j].filterAvailables();
         if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0)
         {           
           flag = true;
-          console.log(helperObj.map[i][j]);
+          //console.log(helperObj.map[i][j]);
           //break;
         }  
         allPicees[parseInt(helperObj.map[i][j].color)]++;
@@ -499,28 +500,28 @@ function whichCannotMove(){
     }
   }
   //console.log(x)
-  console.log(allPicees)
-  console.log(flag)
+  //console.log(allPicees);
+  //console.log(flag);
   setTimeout(
     function()
     {
     if(!flag)
-     isCheckmate( turn? "black" : "white");
+     isCheckmate( turn? "White" : "Black");
   else if(allPicees[0] + allPicees[1] < 4)
   {
     //console.log(allPicees)
     isNotEnoughPieces(allPicees[0], allPicees[1]);
   }},500);
-  return null
+  //return null
 }
 function isCheckmate(win){
-  console.log("from isCheckmate")
+  //console.log("from isCheckmate")
   gameOver=true;
   if(checked){
-      alert(win+" is the winner");//declare win;
-      return true;
+      alert("Checkmate! " + win + " wins :)");//declare win;
+      //return true;
   }else
-    return stalemate();
+     stalemate();
 };
 
 function stalemate() //to be called in the beginning of each players turn
