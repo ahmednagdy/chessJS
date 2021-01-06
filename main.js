@@ -16,8 +16,14 @@ function handleClick(position) {
       Wpar.textContent = helperObj.toShow(timer2);
       if (timer2 <= 0) {
         clearInterval(t2);
-        alert("time out");
-        gameOver=true;
+        if(isNotEnoughPieces(0)) //!turn //checks for black pieces if white time's up
+        {
+          alert("Draw"); gameOver = true;
+        }
+        else
+        {
+          alert("White wins by timeout"); gameOver = true;
+        }
       }
     }, 1000);
 
@@ -123,8 +129,8 @@ var isSelected = false;
 var oldStates = [];
 var checked = false;
 var gameOver = false;
-let timer1 = 300 * 1000;
-let timer2 = 300 * 1000;
+let timer1 = 30 * 1000;
+let timer2 = 30 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -298,9 +304,17 @@ var helperObj = {
         helperObj.changeProgressBar(BProgressBar, 1);
         timer1 -= 1000;
         Bpar.textContent = helperObj.toShow(timer1);
-        if (timer1 <= 0) {
+        if (timer1 <= 0) 
+        {
           clearInterval(t1);
-          alert("time out");
+          if(isNotEnoughPieces(1)) //!turn //checks for black pieces if white time's up
+          {
+            alert("Draw"); gameOver = true;
+          }
+          else
+          {
+            alert("White wins by timeout"); gameOver = true;
+          }
         }
       }, 1000);
 
@@ -317,7 +331,14 @@ var helperObj = {
         Wpar.textContent = helperObj.toShow(timer2);
         if (timer2 <= 0) {
           clearInterval(t2);
-          alert("time out");
+          if(isNotEnoughPieces(0)) //!turn //checks for black pieces if white time's up
+          {
+            alert("Draw"); gameOver = true;
+          }
+          else
+          {
+            alert("Black wins by timeout"); gameOver = true;
+          }
         }
       }, 1000);
       Wpar.classList.toggle("running");
@@ -535,7 +556,7 @@ function stalemate() //to be called in the beginning of each players turn
     alert("Draw by Stalemate");////declare draw;
     return true;
 }
-function isNotEnoughPieces() /// state is array index 0 for black and 1 for white
+function isNotEnoughPieces(color) /// state is array index 0 for black and 1 for white
 //to be called in the beginning of each players turn
 {
     //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
@@ -556,6 +577,10 @@ function isNotEnoughPieces() /// state is array index 0 for black and 1 for whit
             tmpBlackPiece = helperObj.map[i][j];
         }      
       }
+    }
+    if(color!=undefined)
+    {
+      return allPieces[color] == 1;
     }
 
     if((allPieces[0] + allPieces[1]) > 3)
