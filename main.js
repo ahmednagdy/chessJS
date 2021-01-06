@@ -446,13 +446,22 @@ var helperObj = {
         P_to_K_Direction[0]=DeffX/Math.abs(DeffX);
       if(DeffY != 0)
         P_to_K_Direction[1]=DeffY/Math.abs(DeffY);
-      if(pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1])){// the pinner could move to the king direction
+      if(pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1]) &&(Math.abs(DeffX) == Math.abs(DeffY) || Math.abs(P_to_K_Direction[1] + P_to_K_Direction[0]) == 1) ){// the pinner could move to the king direction
         if(this.includesPosition(pinners[i].scope,piece.position)){
           let Tpos = Position(piece.position.x+P_to_K_Direction[0],piece.position.y+P_to_K_Direction[1])
           let exit = false
           while(this.InBound(Tpos) && !exit){
             if(Tpos.x == king.position.x&&Tpos.y == king.position.y){
-              piece.moves=[];
+              let pinnedMoves=[];
+              let temp_pos = Position(piece.position.x+ (P_to_K_Direction[0]*-1),piece.position.y+ (P_to_K_Direction[1]*-1))
+              
+              while(temp_pos.x!=pinners[i].position.x || temp_pos.y!=pinners[i].position.y ){
+                pinnedMoves.push(temp_pos);
+                temp_pos = Position(temp_pos.x+ (P_to_K_Direction[0]*-1),temp_pos.y+ (P_to_K_Direction[1]*-1))
+              } 
+              pinnedMoves.push(temp_pos);
+              piece.moves = this.intersection(pinnedMoves , piece.moves);
+              //piece.moves=[];
               exit=true;
             }
             else if(this.map[Tpos.x][Tpos.y]!=null  ){
@@ -564,7 +573,7 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
-    //helperObj.checkPinning(this);
+    helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
