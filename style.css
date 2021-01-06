@@ -6,7 +6,7 @@ svg {
   order: 2;
   display: block;
   width: 700px;
-  height: 700px;
+  max-height: 700px;
   border: 5px solid;
 }
 .main {
@@ -88,6 +88,7 @@ rect:hover {
 .highlight-move {
   stroke: orange;
   stroke-width: 6px;
+
   height: 97px;
   width: 97px;
 }

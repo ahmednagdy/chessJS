@@ -148,8 +148,8 @@ function moveMap(x, y) {
         helperObj.map[i][j].getAndFillAvailableMoves();
     }
   }
-  helperObj.GetKing(0).getAndFillAvailableMoves();
-  helperObj.GetKing(1).getAndFillAvailableMoves();
+  //helperObj.GetKing(0).getAndFillAvailableMoves();
+  helperObj.GetKing(!turn).getAndFillAvailableMoves();
   //----------------------
   Deselect();
   turn = !turn;
@@ -209,6 +209,7 @@ var helperObj = {
           helperObj.map[i][j].getAndFillAvailableMoves();
       }
     }
+  
   },
 
   fillInitialize: function (_y1, _y2, c) {
@@ -339,8 +340,9 @@ var helperObj = {
               if      (king.position.y>enemy.position.y) Ydirection = 1;
               else if (king.position.y<enemy.position.y) Ydirection = -1;
               var line = getLineOfSquaresToFirstElement(enemy,Xdirection, Ydirection);
-              piece.moves = helperObj.intersection(piece.moves,line);
-              piece.moves = piece.moves.concat(helperObj.intersection(piece.moves,[enemy.position]));
+              var oldmoves = piece.moves;
+              piece.moves = helperObj.intersection(piece.moves,[enemy.position]);
+              piece.moves = piece.moves.concat(helperObj.intersection(oldmoves,line));
               //multi check condition to be made at the king's removeEnemyIntersectionFunction
             }
             else
@@ -393,6 +395,55 @@ var helperObj = {
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   },
+  findEnemyPinners:function(color){
+    let Tpinners = [];
+    for(var i =1;i<9;i++){
+      for(var j=1;j<9;j++){
+        if(helperObj.map[j][i]!=null && helperObj.map[j][i].pinner && helperObj.map[j][i].color != color){
+          Tpinners.push(helperObj.map[j][i]);
+        }
+      }
+    }
+    return Tpinners;
+  },
+  checkPinning:function(piece){
+    
+    //we could use W or B arrays but for now i 'll use map
+    let pinners = [];
+    pinners = this.findEnemyPinners(piece.color);
+    let king = this.GetKing(piece.color);
+    let P_to_K_Direction = [] ;
+    for(let i = 0 ; i < pinners.length ; i++){
+      let DeffX = king.position.x -pinners[i].position.x;
+      let DeffY = king.position.y -pinners[i].position.y;
+      P_to_K_Direction[0] = DeffX;
+      P_to_K_Direction[1] = DeffY;
+      if(DeffX != 0)
+        P_to_K_Direction[0]=DeffX/Math.abs(DeffX);
+      if(DeffY != 0)
+        P_to_K_Direction[1]=DeffY/Math.abs(DeffY);
+      if(pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1])){// the pinner could move to the king direction
+        if(this.includesPosition(pinners[i].scope,piece.position)){
+          let Tpos = Position(piece.position.x+P_to_K_Direction[0],piece.position.y+P_to_K_Direction[1])
+          let exit = false
+          while(this.InBound(Tpos) && !exit){
+            if(Tpos.x == king.position.x&&Tpos.y == king.position.y){
+              piece.moves=[];
+              exit=true;
+            }
+            else if(this.map[Tpos.x][Tpos.y]!=null  ){
+              exit=true;
+            }
+            Tpos.x+= P_to_K_Direction[0];
+            Tpos.y+= P_to_K_Direction[1];
+          }
+          
+        }
+      }
+    }
+  }
+
+
 };
 helperObj.Initialize();
 
@@ -469,8 +520,12 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
+    helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
+}
+piece.prototype.typeof=function(){
+  return "piece";
 }
 
 function knight(_x, _y, c) {
@@ -502,19 +557,20 @@ knight.prototype.constructor = knight;
 function queen(_x, _y, c) {
   piece.call(this, _x, _y, c);
   this.pinner = true;
+  this.directions=[[1,1],[0,1],[0,-1],[1,0],[-1,0],[-1,-1],[-1,1],[1,-1]];
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
-    this.moves = getLineOfSquaresToFirstElement(this, 1, 1); // /up
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, 1)); //up
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1)); //down
+    this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
+    for(let i =1;i<8;i++){
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0], this.directions[i][1]));
+    }
+    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1)); //down
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0)); //-->
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0)); //<--
-    this.moves = this.moves.concat(
-      getLineOfSquaresToFirstElement(this, -1, -1)
-    ); // /down
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1)); // /down
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1)); // \up
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1)); // \down
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1)); // \down*/
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
@@ -522,16 +578,19 @@ function queen(_x, _y, c) {
 queen.prototype = Object.create(piece.prototype);
 queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
+  this.hasMoved = false;
   queen.call(this, _x, _y, c);
+  this.directions=[[0,1],[0,-1],[1,0],[-1,0]];
   this.getAndFillAvailableMoves = function () {
     this.scope = [];
     this.moves = [];
     this.moves = getLineOfSquaresToFirstElement(this, 0, 1);
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));
+    for(let i =1;i<4;i++){
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, this.directions[i][0], this.directions[i][1]));
+    }
+    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0));
-    //console.log("Rook PosS" + ' '+this.color)
-    //console.log( this.moves);
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0));*/
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
@@ -541,22 +600,23 @@ rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
   this.bishop = true;
+  this.directions=[[1,1],[-1,-1],[-1,1],[1,-1]];
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
-    this.moves = this.moves.concat(
-      getLineOfSquaresToFirstElement(this, -1, -1)
-    );
+    for(let i =1;i<4;i++){
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0], this.directions[i][1]));
+    }
+    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1));
     this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1));
+    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1));*/
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
-
 function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
   var Tpos = Position(
     Piece.position.x + Xdirection,
@@ -582,6 +642,7 @@ function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
 //myStepDirection.x,.y
 
 function king(_x, _y, c) {
+  this.hasMoved = false;
   piece.call(this, _x, _y, c);
   this.isKing = true;
   this.getAndFillAvailableMoves = function () {
@@ -592,7 +653,7 @@ function king(_x, _y, c) {
       var candidatePosition = Position(
         this.position.x + candidates[i],
         this.position.y + candidates[i + 1]
-      );
+     );
       if (helperObj.InBound(candidatePosition))
         this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
