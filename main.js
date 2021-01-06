@@ -753,3 +753,6 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
+
+  for (var i =0; i< 2; i++)
+  document.getElementsByClassName("timer")[i].setAttribute("style","font-family:roboto;font-weight:bold");
