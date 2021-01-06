@@ -129,8 +129,8 @@ var isSelected = false;
 var oldStates = [];
 var checked = false;
 var gameOver = false;
-let timer1 = 30 * 1000;
-let timer2 = 30 * 1000;
+let timer1 = 300 * 1000;
+let timer2 = 300 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -533,7 +533,7 @@ function whichCannotMove()
   //console.log(allPicees)
   //console.log(flag)
   if(!flag)
-     isCheckmate( turn? "black" : "white");
+     isCheckmate( turn? "White" : "Black");
   /*else if(allPicees[0] + allPicees[1] < 4){
     //console.log(allPicees)
     isNotEnoughPieces(allPicees[0], allPicees[1]);
@@ -544,7 +544,8 @@ function isCheckmate(win){
   //console.log("from isCheckmate")
   gameOver=true;
   if(checked){
-      alert("Checkmate! " + win + " wins :)");//declare win;
+      setTimeout(
+    function() {alert("Checkmate! " + win + " wins :)");},500);//declare win;
       //return true;
   }else
      stalemate();
