@@ -123,8 +123,8 @@ var isSelected = false;
 var oldStates = [];
 var checked = false;
 var gameOver = false;
-let timer1 = 300 * 1000*1000;
-let timer2 = 300 * 1000*1000;
+let timer1 = 300 * 1000;
+let timer2 = 300 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -842,5 +842,4 @@ var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
 
-  for (var i =0; i< 2; i++)
-  document.getElementsByClassName("timer")[i].setAttribute("style","font-family:roboto;font-weight:bold");
+  

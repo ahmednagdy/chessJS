@@ -27,6 +27,8 @@ svg {
   padding: 0.25em;
   text-align: center;
   font-size: 2rem;
+  font-family:roboto;
+  font-weight:bold;
 }
 .black {
   order: 1;
