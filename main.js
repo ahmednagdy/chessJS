@@ -1,5 +1,7 @@
 function handleClick(position) {
-  console.log(position.id);
+  if(gameOver)
+    return;
+  //console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
@@ -15,6 +17,7 @@ function handleClick(position) {
       if (timer2 <= 0) {
         clearInterval(t2);
         alert("time out");
+        gameOver=true;
       }
     }, 1000);
 
@@ -119,8 +122,9 @@ var selected = null;
 var isSelected = false;
 var oldStates = [];
 var checked = false;
-let timer1 = 300 * 1000;
-let timer2 = 300 * 1000;
+var gameOver = false;
+let timer1 = 300 * 1000*1000;
+let timer2 = 300 * 1000*1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -130,8 +134,7 @@ var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
   var tX = selected.position.x;
-  var tY = selected.position.y;
-  var flag = false;
+  tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
   if (selected.firstMove) selected.firstMove = false; // for handel first move of pawn
@@ -147,7 +150,6 @@ function moveMap(x, y) {
 
     tPawn.innerHTML = anyQueen.innerHTML;
     selected = new queen(tX, tY, selected.color);
-    flag = true;
   }
   //Updating first move for king and rook
   if(selected.hasMoved == false) selected.hasMoved = true
@@ -172,9 +174,13 @@ function moveMap(x, y) {
   //-------------------------------
   Deselect();
   turn = !turn;
-  setTimeout(function () {
-    if (flag) alert("Congratulation, Now Pawn become Queen");
-  }, 1000);
+  for (var i = 1; i <= 8; i++) {
+    for (var j = 1; j <= 8; j++) {
+      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
+        helperObj.map[i][j].getAndFillAvailableMoves();
+    }
+  }
+    whichCannotMove();
 }
 function Deselect() {
   selected = null;
@@ -239,6 +245,13 @@ var helperObj = {
     this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
+    var x =0;
+    for(var i=0;i<9;i++)
+      for(var j=0;j<9;j++){
+        if(this.map[i][j])
+          x++;
+      }
+      console.log(x)
   },
 
   moveToMap_and_ui: function (piece, x, y) {
@@ -276,7 +289,7 @@ var helperObj = {
     this.justHappenedMove.newY = y;
     oldSquare.classList.add("highlight-move");
     newSquar.classList.add("highlight-move");
-    console.log(newSquar.classList);
+    //console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
     if (this.map[x][y] != null) {
@@ -467,6 +480,79 @@ function Position(_x, _y) {
   var p = { x: _x, y: _y };
   return p;
 }
+function whichCannotMove(){ 
+  //console.log("------------------------------------")
+  var flag=false;
+  var allPicees=[0,0];
+  for(var i=0;i<9;i++){
+    for(var j=0;j<9;j++){
+      //console.log(helperObj.map[i][j])
+      //console.log("i: "+i+" j:"+ j)
+      if(helperObj.map[i][j]){
+        //x++;
+        //console.log("Enter the if!")
+        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0 ){           
+          flag = true;
+          console.log(helperObj.map[i][j]);
+          //break;
+        }  
+        allPicees[parseInt(helperObj.map[i][j].color)]++;
+      } 
+    }
+  }
+  //console.log(x)
+  console.log(allPicees)
+  console.log(flag)
+  if(!flag)
+     isCheckmate( turn? "black" : "white");
+  else if(allPicees[0] + allPicees[1] < 4){
+    //console.log(allPicees)
+    isNotEnoughPieces(allPicees[0], allPicees[1]);
+  }
+  return null
+}
+function isCheckmate(win){
+  console.log("from isCheckmate")
+  gameOver=true;
+  if(checked){
+      alert(win+" is the winner");//declare win;
+      return true;
+  }else
+    return stalemate();
+};
+
+function stalemate() //to be called in the beginning of each players turn
+{
+    //if all my pieces (including the king) availables = []
+    alert("the game is draw");////declare draw;
+    return true;
+}
+function isNotEnoughPieces(whitePices, blackPices) /// state is array index 0 for black and 1 for white
+//to be called in the beginning of each players turn
+{
+    //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
+    //or W.pieces.length == 1 && B has only a knight/bishop
+    //or the opposite  
+    console.log(whitePices + blackPices)
+    if( whitePices == 1 && blackPices==1){
+      console.log("from isNotEnoughPieces")
+      stalemate();////declare draw;
+      return true;
+    }
+    var colorCheck = (whitePices == 1 )? blackPices:whitePices;
+    for(var i=0;i<helperObj.map.length;i++){
+      for(var j=0;j<helperObj.map[i].length;j++){
+        if(helperObj.map[i][j]?.color == colorCheck  ){           
+            if(helperObj.map[i][j].bishop || helperObj.map[i][j].knight){
+              console.log("from isNotEnoughPieces")
+              stalemate();////declare draw;
+              return true;
+            }
+          }
+      }
+    }
+    return false;
+}
 function piece(_x, _y, c) {
   this.position = Position(_x, _y);
   this.color = c;
@@ -486,7 +572,7 @@ piece.prototype.typeof=function(){
 
 function knight(_x, _y, c) {
   piece.call(this, _x, _y, c);
-
+  this.knight = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     var t = this.position;
@@ -557,6 +643,7 @@ rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
+  this.bishop = true;
   this.directions=[[1,1],[-1,-1],[-1,1],[1,-1]];
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -618,6 +705,7 @@ function king(_x, _y, c) {
         this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
     }
+    //console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
     /////adding castling capabililty
