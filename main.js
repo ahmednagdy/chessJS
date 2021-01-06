@@ -1,5 +1,7 @@
 function handleClick(position) {
-  console.log(position.id);
+  if(gameOver)
+    return;
+  //console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
@@ -15,6 +17,7 @@ function handleClick(position) {
       if (timer2 <= 0) {
         clearInterval(t2);
         alert("time out");
+        gameOver=true;
       }
     }, 1000);
 
@@ -101,8 +104,9 @@ var selected = null;
 var isSelected = false;
 var oldStates = [];
 var checked = false;
-let timer1 = 300 * 1000;
-let timer2 = 300 * 1000;
+var gameOver = false;
+let timer1 = 300 * 1000*1000;
+let timer2 = 300 * 1000*1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -152,6 +156,9 @@ function moveMap(x, y) {
   setTimeout(function () {
     if (flag) alert("Congratulation, Now Pawn become Queen");
   }, 1000);
+  setTimeout(function(){
+    whichCannotMove();
+  },0)
 }
 function Deselect() {
   selected = null;
@@ -252,7 +259,7 @@ var helperObj = {
     this.justHappenedMove.newY = y;
     oldSquare.classList.add("highlight-move");
     newSquar.classList.add("highlight-move");
-    console.log(newSquar.classList);
+    //console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
     if (this.map[x][y] != null) {
@@ -393,6 +400,66 @@ function Position(_x, _y) {
   var p = { x: _x, y: _y };
   return p;
 }
+function whichCannotMove(){ 
+  var state=[false, false];
+  var stateMoves=[false, false];
+  var allPicees =0;
+  var t;
+  for(var i=0;i<helperObj.map.length;i++){
+    for(var j=0;j<helperObj.map[i].length;j++){
+      if(helperObj.map[i][j]){
+        if(helperObj.map[i][j].moves.length != 0){
+            t = helperObj.map[i][j];
+            if(!state[t.color] || !state[t.color].isKing){
+              state[t.color] = t;
+              stateMoves[t.color] = helperObj.map[i][j].moves;
+            }
+          }
+          allPicees++;
+        }
+    }
+  }
+  console.log(state, allPicees);
+  console.log(stateMoves);
+  if(!state[0])
+    return isCheckmate("black");
+  else if(!state[1])
+    return isCheckmate("black");
+  else if(allPicees < 4){
+    return isNotEnoughPieces(state,allPicees)
+  }
+    return null
+}
+function isCheckmate(win){
+  gameOver=true;
+  if(checked){
+      alert(win+" is the winner");//declare win;
+      return true;
+  }else
+    return stalemate();
+};
+
+function stalemate() //to be called in the beginning of each players turn
+{
+    //if all my pieces (including the king) availables = []
+    alert("the game is draw");////declare draw;
+    return true;
+}
+function isNotEnoughPieces(state, allPicees) /// state is array index 0 for black and 1 for white
+//to be called in the beginning of each players turn
+{
+    //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
+    //or W.pieces.length == 1 && B has only a knight/bishop
+    //or the opposite  
+    if( allPicees == 2
+     || (state[1].bishop || state[1].knight) 
+     || (state[0].bishop || state[0].knight) ){
+        alert("the game is draw");////declare draw;
+        gameOver=true;
+        return true;
+    }
+    return false;
+}
 function piece(_x, _y, c) {
   this.position = Position(_x, _y);
   this.color = c;
@@ -408,7 +475,7 @@ function piece(_x, _y, c) {
 
 function knight(_x, _y, c) {
   piece.call(this, _x, _y, c);
-
+  this.knight = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     var t = this.position;
@@ -473,6 +540,7 @@ rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
+  this.bishop = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
@@ -529,7 +597,7 @@ function king(_x, _y, c) {
         this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
     }
-    console.log(this.moves);
+    //console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
   };
