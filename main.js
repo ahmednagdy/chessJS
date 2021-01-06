@@ -174,13 +174,8 @@ function moveMap(x, y) {
   //-------------------------------
   Deselect();
   turn = !turn;
-  for (var i = 1; i <= 8; i++) {
-    for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
-        helperObj.map[i][j].getAndFillAvailableMoves();
-    }
-  }
-    whichCannotMove();
+  
+  whichCannotMove();
 }
 function Deselect() {
   selected = null;
@@ -484,14 +479,17 @@ function whichCannotMove(){
   //console.log("------------------------------------")
   var flag=false;
   var allPicees=[0,0];
-  for(var i=0;i<9;i++){
-    for(var j=0;j<9;j++){
+  for(var i=1;i<=8;i++){
+    for(var j=1;j<=8;j++){
       //console.log(helperObj.map[i][j])
       //console.log("i: "+i+" j:"+ j)
-      if(helperObj.map[i][j]){
+      if(helperObj.map[i][j])
+      {
         //x++;
         //console.log("Enter the if!")
-        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0 ){           
+        helperObj.map[i][j].filterAvailables();
+        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0)
+        {           
           flag = true;
           console.log(helperObj.map[i][j]);
           //break;
@@ -503,12 +501,16 @@ function whichCannotMove(){
   //console.log(x)
   console.log(allPicees)
   console.log(flag)
-  if(!flag)
+  setTimeout(
+    function()
+    {
+    if(!flag)
      isCheckmate( turn? "black" : "white");
-  else if(allPicees[0] + allPicees[1] < 4){
+  else if(allPicees[0] + allPicees[1] < 4)
+  {
     //console.log(allPicees)
     isNotEnoughPieces(allPicees[0], allPicees[1]);
-  }
+  }},500);
   return null
 }
 function isCheckmate(win){
