@@ -139,12 +139,11 @@ let t1;
 let t2;
 let prevTurn = -1;
 var dor_count = 0;
-
+const originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
-  dor_count++;
   var tX = selected.position.x;
   tY = selected.position.y;
   helperObj.map[tX][tY] = null;
@@ -152,11 +151,32 @@ function moveMap(x, y) {
   if (selected.firstMove != undefined) {
     if (selected.firstMove) {
       selected.firstMove = false;
-      selected.passPsitionForOnpassWa(x, y);
-    } //else if(selected.position.y == y){
-    //selected.color == 0 ? y+=1 : y+=-1;
-    //console.log(y);
-    //}
+      selected.passPsitionForOnpassWa(x,y);
+    }else if(tY == y+1 ){
+      if(helperObj.map[tX+1][tY]?.isOnpassWa()){
+        //  var r =helperObj.map[tX+1][tY];
+        //  setTimeout(function(){
+        //    helperObj.moveToMap_and_ui(r,x,y);
+        //  },2000)
+        helperObj.moveToMap_and_ui(helperObj.map[tX+1][tY],x,y);
+        helperObj.map[tX+1][tY] = null;
+      }else if(helperObj.map[tX-1][tY]?.isOnpassWa()){
+        //  var r =helperObj.map[tX-1][tY];
+        //  setTimeout(function(){
+        //    helperObj.moveToMap_and_ui(r,x,y);
+        //  },2000)
+        helperObj.moveToMap_and_ui(helperObj.map[tX-1][tY],x,y);
+        helperObj.map[tX-1][tY] = null;
+      }
+    }else if(tY == y-1 ){
+      if(helperObj.map[tX+1][tY]?.isOnpassWa()){
+        helperObj.moveToMap_and_ui(helperObj.map[tX+1][tY],x,y);
+        helperObj.map[tX+1][tY] = null;
+      }else if(helperObj.map[tX-1][tY]?.isOnpassWa()){
+        helperObj.moveToMap_and_ui(helperObj.map[tX-1][tY],x,y);
+        helperObj.map[tX-1][tY] = null;
+      }
+    }
   } // for handel first move of pawn
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
     let anyQueen;
@@ -193,6 +213,7 @@ function moveMap(x, y) {
 
   //-------------------------------
   Deselect();
+  dor_count++;
   turn = !turn;
   whichCannotMove();
   isNotEnoughPieces();
@@ -206,6 +227,7 @@ function Deselect() {
 //-------------------------------------------
 var helperObj = {
   map: ([] = [[], [], [], [], [], [], [], [], []]),
+  Allpieces: [],
   justHappenedMove: {
     oldX: 0,
     oldY: 0,
@@ -247,6 +269,36 @@ var helperObj = {
       }
     }
   },
+  ResetGame: function () {
+    /*
+    for (let i= 0; i< this.Allpieces.length; i++) {
+     
+      let current = this.Allpieces[i];
+       document.getElementsByTagName("svg")[0].innerHTML=originalUI;
+       var squares = document.getElementsByTagName("rect");
+       for (let j = 0; j < squares.length; j++)
+           squares[j].setAttribute("onclick", "handleClick(this)");
+
+      selected=current;
+      moveMap(current.initPos.x,current.initPos.y) ; 
+    }*/
+    this.Initialize();
+    document.getElementsByTagName("svg")[0].innerHTML=originalUI;
+    var squares = document.getElementsByTagName("rect");
+    for (var i = 0; i < squares.length; i++)
+         squares[i].setAttribute("onclick", "handleClick(this)");
+    turn = 0;
+    
+    // for (let i = 0; i<Allpieces.length; i++)
+    //{
+    //var current = Allpieces[i];
+    //console.log()
+    // this.moveToMap_and_ui(current,current.initPos.x,current.initPos.y);
+    //moveMap(current.initPos.x,current.initPos.y)
+
+    //}
+    //  console.log(Allpieces[0])
+  },
 
   fillInitialize: function (_y1, _y2, c) {
     for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
@@ -264,6 +316,12 @@ var helperObj = {
       for (var j = 0; j <= 8; j++) {
         if (this.map[i][j]) x++;
       }
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.map[i][j] != null) this.Allpieces.push(this.map[i][j]);
+      }
+    }
+
     //console.log(x)
   },
 
@@ -627,6 +685,7 @@ piece.prototype.typeof = function () {
 
 function knight(_x, _y, c) {
   piece.call(this, _x, _y, c);
+  this.initPos = Position(_x, _y);
   this.knight = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -653,6 +712,7 @@ knight.prototype.constructor = knight;
 
 function queen(_x, _y, c) {
   piece.call(this, _x, _y, c);
+  this.initPos = Position(_x, _y);
   this.pinner = true;
   this.directions = [
     [1, 1],
@@ -692,6 +752,7 @@ queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
   this.hasMoved = false;
   queen.call(this, _x, _y, c);
+  this.initPos = Position(_x, _y);
   this.directions = [
     [0, 1],
     [0, -1],
@@ -726,6 +787,7 @@ rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
+  this.initPos = Position(_x, _y);
   this.bishop = true;
   this.directions = [
     [1, 1],
@@ -793,7 +855,9 @@ function getLineOfSquaresToFirstElement(
 function king(_x, _y, c) {
   this.hasMoved = false;
   this.castled = false;
+
   piece.call(this, _x, _y, c);
+  this.initPos = Position(_x, _y);
   this.isKing = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -881,7 +945,7 @@ king.prototype.constructor = king;
 
 function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
-
+  this.initPos = Position(_x, _y);
   //this.moves
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
@@ -894,7 +958,7 @@ function pawn(_x, _y, c) {
   this.passPsitionForOnpassWa = function (x, y) {
     if (x == _x && y == _y + 2 * increment) {
       //console.log("ppppppppppppppp")
-      canOnPassWa = dor_count;
+      canOnPassWa = dor_count+1 ; 
       //console.log(canOnPassWa)
     }
   };
@@ -935,15 +999,28 @@ function pawn(_x, _y, c) {
       if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
         this.moves.push(tempPosition);
     }
-    tempPosition = Position(this.position.x - increment, this.position.y);
-    if (helperObj.InBound(tempPosition) && helperObj?.map[this.position.x - increment][this.position.y]?.firstMove !=undefined)
-      if (helperObj?.map[this.position.x - increment][this.position.y]?.isOnpassWa()) // for is en passant
-        this.moves.push(Position(this.position.x - increment, this.position.y));
-      
-    tempPosition = Position(this.position.x + increment, this.position.y);
-    if (helperObj.InBound(tempPosition) && helperObj?.map[this.position.x + increment][this.position.y]?.firstMove !=undefined)
-    if (helperObj?.map[this.position.x + increment][this.position.y]?.isOnpassWa()) // for is en passant
-        this.moves.push(Position(this.position.x + increment, this.position.y));
+    
+    tempPosition = Position(
+      this.position.x-increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition)
+        && helperObj.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x - increment, this.position.y +increment));
+    }
+
+    tempPosition = Position(
+      this.position.x+increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition) 
+      && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x + increment, this.position.y +increment));
+    }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
