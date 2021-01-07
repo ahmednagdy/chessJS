@@ -26,35 +26,53 @@ function handleClick(position) {
     Wpar.classList.add("running");
     wdiv.classList.add("borderTurn");
   }
-  if (isSelected) {
-    if (newSelection === selected) {
-      Deselect();
-    } else if (newSelection == null) {
-      if (selected.moves.some((o) => o.x == x && o.y == y)) {
+  if (isSelected) 
+  {
+    if (newSelection === selected) Deselect();
+    else if (newSelection == null) 
+    {
+      if (selected.isKing && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2,selected.position.y)) && (x == selected.position.x + 2)) //the boss  wants to castle king side
+      {
+        helperObj.moveToMap_and_ui(selected, x, y); var color = selected.color;
+        moveMap(x, y);  
+        //move the rook next to it
+        console.log("Selected is " + selected);
+        helperObj.moveToMap_and_ui(helperObj.map[8][color?8:1], 6, color?8:1);
+        selected = helperObj.map[8][color?8:1]; turn = !turn;
+        moveMap(6, color?8:1);
+      }
+      else if (selected.isKing && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2,selected.position.y)) && (x == selected.position.x - 2)) //the boss  wants to castle queen side
+      {
+        helperObj.moveToMap_and_ui(selected, x, y); var color = selected.color;
+        moveMap(x, y);
+        //move the rook next to it
+        helperObj.moveToMap_and_ui(helperObj.map[1][color?8:1], 4, color?8:1);
+        selected = helperObj.map[8][color?8:1]; turn = !turn;
+        moveMap(4, color?8:1);
+      }
+      else if (helperObj.includesPosition(selected.moves,Position(x,y))) 
+      {
         helperObj.moveToMap_and_ui(selected, x, y);
         moveMap(x, y);
-      } else {
-        Deselect();
-      }
-    } else if (newSelection.color == turn) {
-      selected = newSelection;
-    } else {
-      if (
-        selected.moves.some(
-          (o) =>
-            o.x == newSelection.position.x && o.y == newSelection.position.y
-        )
-      ) {
+      } 
+      else Deselect();
+    } 
+    else if (newSelection.color == turn) selected = newSelection;
+    else {
+      if (helperObj.includesPosition(selected.moves,Position(newSelection.position.x,newSelection.position.y)))
+       {
         //TAKE ////
         helperObj.moveToMap_and_ui(selected, x, y); //deselect
         moveMap(x, y);
-      } else {
-        Deselect();
-      }
+      } 
+      else Deselect();
     }
-  } else {
+  } 
+  else 
+  {
     if (newSelection)
-      if (newSelection.color == turn) {
+      if (newSelection.color == turn) 
+      {
         selected = newSelection;
         isSelected = true;
       }
@@ -133,6 +151,8 @@ function moveMap(x, y) {
     tPawn.innerHTML = anyQueen.innerHTML;
     selected = new queen(tX, tY, selected.color);
   }
+  //Updating first move for king and rook
+  if(selected.hasMoved == false) selected.hasMoved = true
 
   helperObj.map[x][y] = selected;
   helperObj.map[x][y].position = Position(x, y);
@@ -148,7 +168,10 @@ function moveMap(x, y) {
   }
   //helperObj.GetKing(0).getAndFillAvailableMoves();
   helperObj.GetKing(!turn).getAndFillAvailableMoves();
-  //----------------------
+  //----------------------check king castling
+
+
+  //-------------------------------
   Deselect();
   turn = !turn;
   for (var i = 1; i <= 8; i++) {
@@ -614,6 +637,8 @@ function rook(_x, _y, c) {
     this.filterAvailables();
   };
 }
+rook.prototype.typeof = function() {return "rook";}
+
 rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
@@ -636,16 +661,19 @@ function bishop(_x, _y, c) {
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.constructor = bishop;
-function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
+function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection, isScope=false) {
   var Tpos = Position(
     Piece.position.x + Xdirection,
     Piece.position.y + Ydirection
   );
-  var posS = [];
-  while (helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null) {
+  var posS = []; 
+  var condition = (helperObj.InBound(Tpos) && (helperObj.map[Tpos.x][Tpos.y] == null)); 
+  if(isScope) condition = helperObj.InBound(Tpos);
+  while (helperObj.InBound(Tpos) && condition) {
     posS.push(Position(Tpos.x, Tpos.y));
     Tpos.x += Xdirection;
     Tpos.y += Ydirection;
+    if(!isScope) condition = (helperObj.InBound(Tpos) && (helperObj.map[Tpos.x][Tpos.y] == null));
   }
   if (
     helperObj.InBound(Tpos) //&&
@@ -661,7 +689,7 @@ function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) {
 //myStepDirection.x,.y
 
 function king(_x, _y, c) {
-  this.hasMoved = false;
+  this.hasMoved = false; this.castled = false;
   piece.call(this, _x, _y, c);
   this.isKing = true;
   this.getAndFillAvailableMoves = function () {
@@ -680,6 +708,28 @@ function king(_x, _y, c) {
     //console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
+    /////adding castling capabililty
+    if(!checked)
+    {
+    if(!this.hasMoved && helperObj.map[8][turn?8:1] && !helperObj.map[8][turn?8:1].hasMoved)
+    {
+      if(getLineOfSquaresToFirstElement(this,1,0).length==3)
+      {
+        if(helperObj.includesPosition(this.moves,Position(this.position.x+1,this.position.y)))
+        this.moves.push(Position(this.position.x+2,this.position.y));
+      }
+    }
+    if(!this.hasMoved && helperObj.map[1][turn?8:1] && !helperObj.map[1][turn?8:1].hasMoved)
+    {
+      if(getLineOfSquaresToFirstElement(this,-1,0).length==4)
+      {
+        if(helperObj.includesPosition(this.moves,Position(this.position.x-1,this.position.y)))
+        this.moves.push(Position(this.position.x-2,this.position.y));
+      }
+    }
+    this.removeEnemyIntersection();
+  }
+
   };
 
   this.removeEnemyIntersection = function () 
@@ -697,6 +747,17 @@ function king(_x, _y, c) {
               checked = true; //Then the king is in CHECK!
               document.getElementById(this.position.x+"-"+this.position.y).classList.add("check");
               checkedPosition = this.position;
+              if(piece.pinner) //remove its long scope beyond the king
+              {
+              var Xdirection = 0;
+              if      (this.position.x>piece.position.x) Xdirection = 1;
+              else if (this.position.x<piece.position.x) Xdirection = -1;
+              var Ydirection = 0;
+              if      (this.position.y>piece.position.y) Ydirection = 1;
+              else if (this.position.y<piece.position.y) Ydirection = -1;
+
+              this.moves = helperObj.difference(this.moves, getLineOfSquaresToFirstElement(piece,Xdirection,Ydirection,true));
+              }
             }
           }
         }
