@@ -19,6 +19,24 @@
     <title>Chess</title>
   </head>
   <body>
+    <div class="popup-container-ng">
+      <div class="pop-up-ng">
+        <p class="starts-ng">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i
+          ><i class="fas fa-star"></i>
+        </p>
+        <p class="message-ng">Welcome to our chess game!</p>
+        <label>Select player's total time:</label>
+        <select class="time-select">
+          <option class="time-option" value="180000">3 min</option>
+          <option class="time-option" value="300000">5 min</option>
+          <option class="time-option" value="600000">10 min</option>
+        </select>
+        <div class="buttons-container-ng">
+          <a class="btn2">Start</a>
+        </div>
+      </div>
+    </div>
     <div class="popup-container">
       <div class="pop-up">
         <p class="starts">
@@ -1567,6 +1585,12 @@
           <div class="progress"></div>
         </div>
       </div>
+    </div>
+
+    <div class="control-buttons">
+      <a href="#" class="myButton">Reset</a>
+      <a href="#" class="myButton">New Game</a>
+      <a href="#" class="myButton">Resign</a>
     </div>
 
     <script src="pop.js"></script>
