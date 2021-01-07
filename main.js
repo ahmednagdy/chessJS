@@ -34,7 +34,7 @@ function handleClick(position) {
   if (isSelected) {
     if (newSelection === selected) Deselect();
     else if (newSelection == null) {
-      if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2) 
+      if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2)
       {
         //the boss  wants to castle king side
         helperObj.moveToMap_and_ui(selected, x, y);
@@ -46,9 +46,9 @@ function handleClick(position) {
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(6, color ? 8 : 1);
-      } 
+      }
       else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
-        x == selected.position.x - 2) 
+        x == selected.position.x - 2)
         {
         //the boss  wants to castle queen side
         helperObj.moveToMap_and_ui(selected, x, y);
@@ -262,7 +262,7 @@ var helperObj = {
   ResetGame: function () {
     /*
     for (let i= 0; i< this.Allpieces.length; i++) {
-     
+
       let current = this.Allpieces[i];
        document.getElementsByTagName("svg")[0].innerHTML=originalUI;
        var squares = document.getElementsByTagName("rect");
@@ -270,7 +270,7 @@ var helperObj = {
            squares[j].setAttribute("onclick", "handleClick(this)");
 
       selected=current;
-      moveMap(current.initPos.x,current.initPos.y) ; 
+      moveMap(current.initPos.x,current.initPos.y) ;
     }*/
     this.Initialize();
     document.getElementsByTagName("svg")[0].innerHTML=originalUI;
@@ -278,7 +278,7 @@ var helperObj = {
     for (var i = 0; i < squares.length; i++)
          squares[i].setAttribute("onclick", "handleClick(this)");
     turn = 0;
-    
+
     // for (let i = 0; i<Allpieces.length; i++)
     //{
     //var current = Allpieces[i];
@@ -325,7 +325,7 @@ var helperObj = {
 
     let pieceUI = this.getPieceByPosition(piece.position.x, 9 - piece.position.y);
     let oldSquare = this.getSquareByPosition(piece.position.x,piece.position.y);
-    if (helperObj.justHappenedMove.oldX != 0) 
+    if (helperObj.justHappenedMove.oldX != 0)
     {
       let oldPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.oldX,helperObj.justHappenedMove.oldY);
       let newPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.newX,helperObj.justHappenedMove.newY);
@@ -342,14 +342,14 @@ var helperObj = {
     //console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
-    if (this.map[x][y] != null) 
+    if (this.map[x][y] != null)
     {
       let eatenPieceUI = this.getPieceByPosition(x, 9 - y);
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
 
-    if (!turn || prevTurn == 900) 
+    if (!turn || prevTurn == 900)
     {
       t1 = setInterval(function () {
         helperObj.changeProgressBar(BProgressBar, 1);
@@ -437,14 +437,14 @@ var helperObj = {
                   piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
                   piece.moves = piece.moves.concat(helperObj.intersection(oldmoves, line));
                   //multi check condition to be made at the king's removeEnemyIntersectionFunction
-                } 
+                }
                 else
                   piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
               }
             }
     }
   },
-  GetKing: function (color) 
+  GetKing: function (color)
   {
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
@@ -453,44 +453,44 @@ var helperObj = {
             return helperObj.map[i][j];
         }
   },
-  intersection: function (arr1, arr2) 
+  intersection: function (arr1, arr2)
   {
     var arr = arr1.filter((x) => helperObj.includesPosition(arr2, x));
     return arr;
   },
-  difference: function (arr1, arr2) 
+  difference: function (arr1, arr2)
   {
     var arr = arr1.filter((x) => !helperObj.includesPosition(arr2, x));
     return arr;
   },
-  includesPosition: function (arr,pos) //could try to bind these to Array / Position 
+  includesPosition: function (arr,pos) //could try to bind these to Array / Position
   {
     return arr.some((p) => p.x == pos.x && p.y == pos.y);
   },
-  InBound: function (position) 
+  InBound: function (position)
   {
     return !(position.x > 8 || position.x < 1 ||  position.y > 8 || position.y < 1);
   },
-  changeProgressBar: function (element, val) 
+  changeProgressBar: function (element, val)
   {
     let widthVal = parseInt(getComputedStyle(element).width);
     widthVal -= val;
     element.style.width = widthVal + "px";
   },
-  toShow: function (millis) 
+  toShow: function (millis)
   {
     var minutes = Math.floor(millis / 60000);
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   },
-  findEnemyPinners: function (color) 
+  findEnemyPinners: function (color)
   {
     let Tpinners = [];
-    for (var i = 1; i <= 8; i++) 
+    for (var i = 1; i <= 8; i++)
     {
-      for (var j = 1; j <= 8; j++) 
+      for (var j = 1; j <= 8; j++)
       {
-        if (helperObj.map[j][i] != null && helperObj.map[j][i].pinner && helperObj.map[j][i].color != color) 
+        if (helperObj.map[j][i] != null && helperObj.map[j][i].pinner && helperObj.map[j][i].color != color)
           Tpinners.push(helperObj.map[j][i]);
       }
     }
@@ -502,7 +502,7 @@ var helperObj = {
     pinners = this.findEnemyPinners(piece.color);
     let king = this.GetKing(piece.color);
     let P_to_K_Direction = [];
-    for (let i = 0; i < pinners.length; i++) 
+    for (let i = 0; i < pinners.length; i++)
     {
       let DeffX = king.position.x - pinners[i].position.x;
       let DeffY = king.position.y - pinners[i].position.y;
@@ -953,7 +953,7 @@ function pawn(_x, _y, c) {
       //console.log(canOnPassWa)
     }
   };
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
     this.scope = []; this.canTakeEnPassant = null;
@@ -967,15 +967,15 @@ function pawn(_x, _y, c) {
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     tempPosition = Position(this.position.x, this.position.y + 2 * increment);
     if (helperObj.InBound(tempPosition))
-      if (this.firstMove) 
+      if (this.firstMove)
       {
         if (helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
-  helperObj.map[this.position.x][this.position.y + increment] == null) 
+  helperObj.map[this.position.x][this.position.y + increment] == null)
           this.moves.push(tempPosition);
       }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
     tempPosition = Position(this.position.x + increment,this.position.y + increment);
-    if (helperObj.InBound(tempPosition)) 
+    if (helperObj.InBound(tempPosition))
     {
       this.scope.push(tempPosition);
       if (helperObj.map[this.position.x + increment][this.position.y + increment] != null)
@@ -984,7 +984,7 @@ function pawn(_x, _y, c) {
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
     tempPosition = Position(this.position.x - increment,this.position.y + increment);
 
-    if (helperObj.InBound(tempPosition)) 
+    if (helperObj.InBound(tempPosition))
     {
       this.scope.push(tempPosition);
       if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
@@ -1004,7 +1004,7 @@ function pawn(_x, _y, c) {
       this.position.x+increment,
       this.position.y
     );
-    if (helperObj.InBound(tempPosition) 
+    if (helperObj.InBound(tempPosition)
       && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
     if( helperObj.map[this.position.x+increment][this.position.y]?.EnPassantIsAvailable()) // for en passant
     {
@@ -1023,4 +1023,12 @@ var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
 
-  helperObj.Initialize();
+var startGame = document.getElementById("start-game");
+startGame.addEventListener("click", setTimeToStartGame);
+
+var resetBtn = document.getElementById("reset");
+resetBtn.addEventListener("click", function (){
+  helperObj.ResetGame();
+});
+
+helperObj.Initialize();

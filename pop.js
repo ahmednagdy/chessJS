@@ -22,8 +22,16 @@ function hideEndGameBox() {
   popupContainer.style.display = "none";
   popup.style.marginTop = "-750px";
 }
-const keepButton = document.querySelectorAll(".btn2")[0];
-const playButton = document.querySelectorAll(".btn2")[1];
+
+function setTimeToStartGame (){
+  var value = Number(document.getElementsByClassName("time-select")[0].value);
+  var popup = document.getElementsByClassName("popup-container-ng")[0];
+  popup.style.display = "none";
+  timer1 = timer2 = value;
+  step = 1000*300/value
+}
+const keepButton = document.querySelectorAll(".btn2")[1];
+const playButton = document.querySelectorAll(".btn2")[2];
 
 keepButton.addEventListener("click", hideEndGameBox);
 playButton.addEventListener("click", hideEndGameBox);
