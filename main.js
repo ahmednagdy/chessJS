@@ -34,36 +34,22 @@ function handleClick(position) {
   if (isSelected) {
     if (newSelection === selected) Deselect();
     else if (newSelection == null) {
-      if (
-        selected.isKing &&
-        helperObj.includesPosition(
-          selected.moves,
-          Position(selected.position.x + 2, selected.position.y)
-        ) &&
-        x == selected.position.x + 2
-      ) {
+      if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2) 
+      {
         //the boss  wants to castle king side
         helperObj.moveToMap_and_ui(selected, x, y);
         var color = selected.color;
         moveMap(x, y);
         //move the rook next to it
         //console.log("Selected is " + selected);
-        helperObj.moveToMap_and_ui(
-          helperObj.map[8][color ? 8 : 1],
-          6,
-          color ? 8 : 1
-        );
+        helperObj.moveToMap_and_ui(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(6, color ? 8 : 1);
-      } else if (
-        selected.isKing &&
-        helperObj.includesPosition(
-          selected.moves,
-          Position(selected.position.x - 2, selected.position.y)
-        ) &&
-        x == selected.position.x - 2
-      ) {
+      } 
+      else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
+        x == selected.position.x - 2) 
+        {
         //the boss  wants to castle queen side
         helperObj.moveToMap_and_ui(selected, x, y);
         var color = selected.color;
@@ -246,9 +232,9 @@ var helperObj = {
   },
   Initialize: function () {
     //this.map = [];
-    for (var i = 0; i < 9; i++) {
+    for (var i = 0; i <= 8; i++) {
       //this.map[i] = [];
-      for (var j = 0; j < 9; j++) {
+      for (var j = 0; j <= 8; j++) {
         this.map[i][j] = null;
       }
     }
@@ -263,7 +249,7 @@ var helperObj = {
   },
 
   fillInitialize: function (_y1, _y2, c) {
-    for (var i = 1; i < 9; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+    for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
 
     this.map[1][_y1] = new rook(1, _y1, c);
     this.map[8][_y1] = new rook(8, _y1, c);
@@ -274,8 +260,8 @@ var helperObj = {
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x = 0;
-    for (var i = 0; i < 9; i++)
-      for (var j = 0; j < 9; j++) {
+    for (var i = 0; i <= 8; i++)
+      for (var j = 0; j <= 8; j++) {
         if (this.map[i][j]) x++;
       }
     //console.log(x)
@@ -289,23 +275,12 @@ var helperObj = {
     const Bdiv = document.getElementsByClassName("black")[0];
     const wdiv = document.getElementsByClassName("white")[0];
 
-    let pieceUI = this.getPieceByPosition(
-      piece.position.x,
-      9 - piece.position.y
-    );
-    let oldSquare = this.getSquareByPosition(
-      piece.position.x,
-      piece.position.y
-    );
-    if (helperObj.justHappenedMove.oldX != 0) {
-      let oldPos = helperObj.getSquareByPosition(
-        helperObj.justHappenedMove.oldX,
-        helperObj.justHappenedMove.oldY
-      );
-      let newPos = helperObj.getSquareByPosition(
-        helperObj.justHappenedMove.newX,
-        helperObj.justHappenedMove.newY
-      );
+    let pieceUI = this.getPieceByPosition(piece.position.x, 9 - piece.position.y);
+    let oldSquare = this.getSquareByPosition(piece.position.x,piece.position.y);
+    if (helperObj.justHappenedMove.oldX != 0) 
+    {
+      let oldPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.oldX,helperObj.justHappenedMove.oldY);
+      let newPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.newX,helperObj.justHappenedMove.newY);
       oldPos.classList.remove("highlight-move");
       newPos.classList.remove("highlight-move");
     }
@@ -319,13 +294,15 @@ var helperObj = {
     //console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
-    if (this.map[x][y] != null) {
+    if (this.map[x][y] != null) 
+    {
       let eatenPieceUI = this.getPieceByPosition(x, 9 - y);
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
 
-    if (!turn || prevTurn == 900) {
+    if (!turn || prevTurn == 900) 
+    {
       t1 = setInterval(function () {
         helperObj.changeProgressBar(BProgressBar, 1);
         timer1 -= 1000;
@@ -407,28 +384,20 @@ var helperObj = {
                   var Ydirection = 0;
                   if (king.position.y > enemy.position.y) Ydirection = 1;
                   else if (king.position.y < enemy.position.y) Ydirection = -1;
-                  var line = getLineOfSquaresToFirstElement(
-                    enemy,
-                    Xdirection,
-                    Ydirection
-                  );
+                  var line = getLineOfSquaresToFirstElement(enemy, Xdirection,Ydirection);
                   var oldmoves = piece.moves;
-                  piece.moves = helperObj.intersection(piece.moves, [
-                    enemy.position,
-                  ]);
-                  piece.moves = piece.moves.concat(
-                    helperObj.intersection(oldmoves, line)
-                  );
+                  piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
+                  piece.moves = piece.moves.concat(helperObj.intersection(oldmoves, line));
                   //multi check condition to be made at the king's removeEnemyIntersectionFunction
-                } else
-                  piece.moves = helperObj.intersection(piece.moves, [
-                    enemy.position,
-                  ]);
+                } 
+                else
+                  piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
               }
             }
     }
   },
-  GetKing: function (color) {
+  GetKing: function (color) 
+  {
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
         if (helperObj.map[i][j] != null) {
@@ -436,49 +405,45 @@ var helperObj = {
             return helperObj.map[i][j];
         }
   },
-  intersection: function (arr1, arr2) {
+  intersection: function (arr1, arr2) 
+  {
     var arr = arr1.filter((x) => helperObj.includesPosition(arr2, x));
     return arr;
   },
-  difference: function (arr1, arr2) {
+  difference: function (arr1, arr2) 
+  {
     var arr = arr1.filter((x) => !helperObj.includesPosition(arr2, x));
     return arr;
   },
-  includesPosition: function (
-    arr,
-    pos //could try to bind these to Array / Position
-  ) {
+  includesPosition: function (arr,pos) //could try to bind these to Array / Position 
+  {
     return arr.some((p) => p.x == pos.x && p.y == pos.y);
   },
-  InBound: function (position) {
-    return !(
-      position.x > 8 ||
-      position.x < 1 ||
-      position.y > 8 ||
-      position.y < 1
-    );
+  InBound: function (position) 
+  {
+    return !(position.x > 8 || position.x < 1 ||  position.y > 8 || position.y < 1);
   },
-  changeProgressBar: function (element, val) {
+  changeProgressBar: function (element, val) 
+  {
     let widthVal = parseInt(getComputedStyle(element).width);
     widthVal -= val;
     element.style.width = widthVal + "px";
   },
-  toShow: function (millis) {
+  toShow: function (millis) 
+  {
     var minutes = Math.floor(millis / 60000);
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   },
-  findEnemyPinners: function (color) {
+  findEnemyPinners: function (color) 
+  {
     let Tpinners = [];
-    for (var i = 1; i < 9; i++) {
-      for (var j = 1; j < 9; j++) {
-        if (
-          helperObj.map[j][i] != null &&
-          helperObj.map[j][i].pinner &&
-          helperObj.map[j][i].color != color
-        ) {
+    for (var i = 1; i <= 8; i++) 
+    {
+      for (var j = 1; j <= 8; j++) 
+      {
+        if (helperObj.map[j][i] != null && helperObj.map[j][i].pinner && helperObj.map[j][i].color != color) 
           Tpinners.push(helperObj.map[j][i]);
-        }
       }
     }
     return Tpinners;
@@ -489,7 +454,8 @@ var helperObj = {
     pinners = this.findEnemyPinners(piece.color);
     let king = this.GetKing(piece.color);
     let P_to_K_Direction = [];
-    for (let i = 0; i < pinners.length; i++) {
+    for (let i = 0; i < pinners.length; i++) 
+    {
       let DeffX = king.position.x - pinners[i].position.x;
       let DeffY = king.position.y - pinners[i].position.y;
       P_to_K_Direction[0] = DeffX;
@@ -543,7 +509,7 @@ var helperObj = {
     }
   },
 };
-helperObj.Initialize();
+//helperObj.Initialize();
 
 function Position(_x, _y) {
   var p = { x: _x, y: _y };
@@ -553,8 +519,8 @@ function whichCannotMove() {
   //console.log("------------------------------------")
   var flag = false;
   //var allPicees=[0,0];
-  for (var i = 1; i < 9; i++) {
-    for (var j = 1; j < 9; j++) {
+  for (var i = 1; i <= 8; i++) {
+    for (var j = 1; j <= 8; j++) {
       //console.log(helperObj.map[i][j])
       //console.log("i: "+i+" j:"+ j)
       if (helperObj.map[i][j]) {
@@ -868,12 +834,7 @@ function king(_x, _y, c) {
         !helperObj.map[1][turn ? 8 : 1].hasMoved
       ) {
         if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4) {
-          if (
-            helperObj.includesPosition(
-              this.moves,
-              Position(this.position.x - 1, this.position.y)
-            )
-          )
+          if (helperObj.includesPosition(this.moves,Position(this.position.x - 1, this.position.y)))
             this.moves.push(Position(this.position.x - 2, this.position.y));
         }
       }
@@ -892,11 +853,10 @@ function king(_x, _y, c) {
             this.moves = helperObj.difference(this.moves, piece.scope);
             if (helperObj.includesPosition(piece.scope, this.position)) {
               checked = true; //Then the king is in CHECK!
-              document
-                .getElementById(this.position.x + "-" + this.position.y)
-                .classList.add("check");
+              helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
               checkedPosition = this.position;
-              if (piece.pinner) {
+              if (piece.pinner) //to be implemented as (piece instanceof pinner)
+              {
                 //remove its long scope beyond the king
                 var Xdirection = 0;
                 if (this.position.x > piece.position.x) Xdirection = 1;
@@ -904,16 +864,7 @@ function king(_x, _y, c) {
                 var Ydirection = 0;
                 if (this.position.y > piece.position.y) Ydirection = 1;
                 else if (this.position.y < piece.position.y) Ydirection = -1;
-
-                this.moves = helperObj.difference(
-                  this.moves,
-                  getLineOfSquaresToFirstElement(
-                    piece,
-                    Xdirection,
-                    Ydirection,
-                    true
-                  )
-                );
+                this.moves = helperObj.difference(this.moves,getLineOfSquaresToFirstElement(piece,Xdirection, Ydirection,true));
               }
             }
           }
@@ -921,9 +872,7 @@ function king(_x, _y, c) {
       }
     }
     if (!checked && checkedPosition)
-      document
-        .getElementById(checkedPosition.x + "-" + checkedPosition.y)
-        .classList.remove("check");
+      document.getElementById(checkedPosition.x + "-" + checkedPosition.y).classList.remove("check");
   };
 }
 var checkedPosition;
@@ -949,90 +898,52 @@ function pawn(_x, _y, c) {
       //console.log(canOnPassWa)
     }
   };
-  this.getAndFillAvailableMoves = function () {
+  this.getAndFillAvailableMoves = function () 
+  {
     this.moves = [];
     this.scope = [];
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
 
-    if (
-      helperObj.map[this.position.x][this.position.y + increment] == null &&
-      helperObj.InBound(tempPosition)
-    )
+    if (helperObj.map[this.position.x][this.position.y + increment] == null &&
+      helperObj.InBound(tempPosition))
       this.moves.push(tempPosition);
 
     //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
     tempPosition = Position(this.position.x, this.position.y + 2 * increment);
     if (helperObj.InBound(tempPosition))
-      if (this.firstMove) {
-        if (
-          helperObj.map[this.position.x][this.position.y + 2 * increment] ==
-            null &&
-          helperObj.map[this.position.x][this.position.y + increment] == null
-        ) {
+      if (this.firstMove) 
+      {
+        if (helperObj.map[this.position.x][this.position.y + 2 * increment] == null &&
+  helperObj.map[this.position.x][this.position.y + increment] == null) 
           this.moves.push(tempPosition);
-          //this.firstMove = false;//????????????????????????
-        }
       }
     //if (map[x + 1][y + 1] is enemy) allow x + 1, y + 1
-    tempPosition = Position(
-      this.position.x + increment,
-      this.position.y + increment
-    );
-    if (helperObj.InBound(tempPosition)) {
+    tempPosition = Position(this.position.x + increment,this.position.y + increment);
+    if (helperObj.InBound(tempPosition)) 
+    {
       this.scope.push(tempPosition);
-      if (
-        helperObj.map[this.position.x + increment][
-          this.position.y + increment
-        ] != null
-      )
+      if (helperObj.map[this.position.x + increment][this.position.y + increment] != null)
         this.moves.push(tempPosition);
     }
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
-    tempPosition = Position(
-      this.position.x - increment,
-      this.position.y + increment
-    );
+    tempPosition = Position(this.position.x - increment,this.position.y + increment);
 
-    if (helperObj.InBound(tempPosition)) {
+    if (helperObj.InBound(tempPosition)) 
+    {
       this.scope.push(tempPosition);
-      if (
-        helperObj.map[this.position.x - increment][
-          this.position.y + increment
-        ] != null
-      )
+      if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
         this.moves.push(tempPosition);
     }
-
     tempPosition = Position(this.position.x - increment, this.position.y);
-    if (
-      helperObj.InBound(tempPosition) &&
-      helperObj?.map[this.position.x - increment][this.position.y]?.firstMove !=
-        undefined
-    )
-      if (
-        helperObj?.map[this.position.x - increment][
-          this.position.y
-        ]?.isOnpassWa()
-      ) {
-        // for isPassWa
+    if (helperObj.InBound(tempPosition) && helperObj?.map[this.position.x - increment][this.position.y]?.firstMove !=undefined)
+      if (helperObj?.map[this.position.x - increment][this.position.y]?.isOnpassWa()) // for is en passant
         this.moves.push(Position(this.position.x - increment, this.position.y));
-      }
-
+      
     tempPosition = Position(this.position.x + increment, this.position.y);
-    if (
-      helperObj.InBound(tempPosition) &&
-      helperObj?.map[this.position.x + increment][this.position.y]?.firstMove !=
-        undefined
-    )
-      if (
-        helperObj?.map[this.position.x + increment][
-          this.position.y
-        ]?.isOnpassWa()
-      ) {
-        // for isPassWa
+    if (helperObj.InBound(tempPosition) && helperObj?.map[this.position.x + increment][this.position.y]?.firstMove !=undefined)
+    if (helperObj?.map[this.position.x + increment][this.position.y]?.isOnpassWa()) // for is en passant
         this.moves.push(Position(this.position.x + increment, this.position.y));
-      }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
@@ -1044,3 +955,5 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
+
+  helperObj.Initialize();
