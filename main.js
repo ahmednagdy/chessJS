@@ -153,7 +153,8 @@ let t1;
 let t2;
 let prevTurn = -1;
 var dor_count = 0;
-const originalUI= document.getElementsByTagName("svg")[0].innerHTML;
+const originalUI = document.getElementsByClassName("pieces-container")[0]
+  .innerHTML;
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
@@ -220,7 +221,7 @@ function Deselect() {
 //-------------------------------------------
 var helperObj = {
   map: ([] = [[], [], [], [], [], [], [], [], []]),
-  Allpieces:[],
+  Allpieces: [],
   justHappenedMove: {
     oldX: 0,
     oldY: 0,
@@ -262,8 +263,7 @@ var helperObj = {
       }
     }
   },
-  ResetGame :function()
-  {
+  ResetGame: function () {
     /*
     for (let i= 0; i< this.Allpieces.length; i++) {
      
@@ -275,31 +275,28 @@ var helperObj = {
 
       selected=current;
       moveMap(current.initPos.x,current.initPos.y) ; 
-    }*/ 
+    }*/
     this.Initialize();
-    document.getElementsByTagName("svg")[0].innerHTML=originalUI;
-       var squares = document.getElementsByTagName("rect");
-       for (let j = 0; j < squares.length; j++)
-           squares[j].setAttribute("onclick", "handleClick(this)");
-    turn=0;
-    
-    
-   // for (let i = 0; i<Allpieces.length; i++) 
+    document.getElementsByClassName(
+      "pieces-container"
+    )[0].innerHTML = originalUI;
+    var squares = document.getElementsByTagName("rect");
+    turn = 0;
+
+    // for (let i = 0; i<Allpieces.length; i++)
     //{
-     //var current = Allpieces[i]; 
-      //console.log()
-     // this.moveToMap_and_ui(current,current.initPos.x,current.initPos.y); 
-      //moveMap(current.initPos.x,current.initPos.y)  
-      
+    //var current = Allpieces[i];
+    //console.log()
+    // this.moveToMap_and_ui(current,current.initPos.x,current.initPos.y);
+    //moveMap(current.initPos.x,current.initPos.y)
+
     //}
-  //  console.log(Allpieces[0])
-    
+    //  console.log(Allpieces[0])
   },
 
   fillInitialize: function (_y1, _y2, c) {
-    for (var i = 1; i < 9; i++)   this.map[i][_y2] = new pawn(i, _y2, c);
-        
-    
+    for (var i = 1; i < 9; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+
     this.map[1][_y1] = new rook(1, _y1, c);
     this.map[8][_y1] = new rook(8, _y1, c);
     this.map[2][_y1] = new knight(2, _y1, c);
@@ -313,14 +310,12 @@ var helperObj = {
       for (var j = 0; j < 9; j++) {
         if (this.map[i][j]) x++;
       }
-      for(let i=0;i<8;i++)
-      {
-        for(let j=0;j<8;j++){
-        if(this.map[i][j]!=null)
-          this.Allpieces.push(this.map[i][j]);
-        }
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.map[i][j] != null) this.Allpieces.push(this.map[i][j]);
       }
-  
+    }
+
     //console.log(x)
   },
 
@@ -704,7 +699,7 @@ piece.prototype.typeof = function () {
 
 function knight(_x, _y, c) {
   piece.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   this.knight = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -731,7 +726,7 @@ knight.prototype.constructor = knight;
 
 function queen(_x, _y, c) {
   piece.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   this.pinner = true;
   this.directions = [
     [1, 1],
@@ -771,7 +766,7 @@ queen.prototype.constructor = queen;
 function rook(_x, _y, c) {
   this.hasMoved = false;
   queen.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   this.directions = [
     [0, 1],
     [0, -1],
@@ -806,7 +801,7 @@ rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   this.bishop = true;
   this.directions = [
     [1, 1],
@@ -876,7 +871,7 @@ function king(_x, _y, c) {
   this.castled = false;
 
   piece.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   this.isKing = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -981,7 +976,7 @@ king.prototype.constructor = king;
 
 function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
-  this.initPos =Position(_x,_y);
+  this.initPos = Position(_x, _y);
   //this.moves
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
