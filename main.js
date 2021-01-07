@@ -63,7 +63,18 @@ function handleClick(position) {
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(4, color ? 8 : 1);
-      } else if (helperObj.includesPosition(selected.moves, Position(x, y))) {
+      } 
+      else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
+      {
+          helperObj.moveToMap_and_ui(selected.canTakeEnPassant,x,y);
+          helperObj.map[x][y] = selected.canTakeEnPassant;
+          helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
+        
+          helperObj.moveToMap_and_ui(selected,x,y);
+          moveMap(x,y);
+      }
+      else if (helperObj.includesPosition(selected.moves, Position(x, y))) 
+      {
         helperObj.moveToMap_and_ui(selected, x, y);
         moveMap(x, y);
       } else Deselect();
@@ -148,36 +159,15 @@ function moveMap(x, y) {
   tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
-  if (selected.firstMove != undefined) {
-    if (selected.firstMove) {
+  if (selected.firstMove != undefined) 
+  {
+    if (selected.firstMove) 
+    {
       selected.firstMove = false;
-      selected.passPsitionForOnpassWa(x,y);
-    }else if(tY == y+1 ){
-      if(helperObj.map[tX+1][tY]?.isOnpassWa()){
-        //  var r =helperObj.map[tX+1][tY];
-        //  setTimeout(function(){
-        //    helperObj.moveToMap_and_ui(r,x,y);
-        //  },2000)
-        helperObj.moveToMap_and_ui(helperObj.map[tX+1][tY],x,y);
-        helperObj.map[tX+1][tY] = null;
-      }else if(helperObj.map[tX-1][tY]?.isOnpassWa()){
-        //  var r =helperObj.map[tX-1][tY];
-        //  setTimeout(function(){
-        //    helperObj.moveToMap_and_ui(r,x,y);
-        //  },2000)
-        helperObj.moveToMap_and_ui(helperObj.map[tX-1][tY],x,y);
-        helperObj.map[tX-1][tY] = null;
-      }
-    }else if(tY == y-1 ){
-      if(helperObj.map[tX+1][tY]?.isOnpassWa()){
-        helperObj.moveToMap_and_ui(helperObj.map[tX+1][tY],x,y);
-        helperObj.map[tX+1][tY] = null;
-      }else if(helperObj.map[tX-1][tY]?.isOnpassWa()){
-        helperObj.moveToMap_and_ui(helperObj.map[tX-1][tY],x,y);
-        helperObj.map[tX-1][tY] = null;
-      }
+      selected.passPositionForEnPassant(x,y);
     }
-  } // for handel first move of pawn
+  } // for handling the first move of pawns
+
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
     let anyQueen;
     if (selected.color == 0) {
@@ -947,25 +937,26 @@ function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
   //this.moves
+  this.canTakeEnPassant = null;
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
-  this.isOnpassWa = function () {
+  this.EnPassantIsAvailable = function () {
     //console.log(dor_count , canOnPassWa);
     //console.log(this.position.x, this.position.y)
-    return dor_count == canOnPassWa;
+    return dor_count == canBeTakenEnPassant;
   };
-  var canOnPassWa = -1;
-  this.passPsitionForOnpassWa = function (x, y) {
+  var canBeTakenEnPassant = -1;
+  this.passPositionForEnPassant = function (x, y) {
     if (x == _x && y == _y + 2 * increment) {
       //console.log("ppppppppppppppp")
-      canOnPassWa = dor_count+1 ; 
+      canBeTakenEnPassant = dor_count+1 ; 
       //console.log(canOnPassWa)
     }
   };
   this.getAndFillAvailableMoves = function () 
   {
     this.moves = [];
-    this.scope = [];
+    this.scope = []; this.canTakeEnPassant = null;
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
 
@@ -1000,15 +991,13 @@ function pawn(_x, _y, c) {
         this.moves.push(tempPosition);
     }
     
-    tempPosition = Position(
-      this.position.x-increment,
-      this.position.y
-    );
+    tempPosition = Position(this.position.x-increment,this.position.y);
     if (helperObj.InBound(tempPosition)
         && helperObj.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
-    if( helperObj.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
+    if( helperObj.map[this.position.x-increment][this.position.y]?.EnPassantIsAvailable() ) // for en passant
     {
       this.moves.push(Position(this.position.x - increment, this.position.y +increment));
+      this.canTakeEnPassant = helperObj.map[this.position.x-increment][this.position.y];
     }
 
     tempPosition = Position(
@@ -1017,9 +1006,10 @@ function pawn(_x, _y, c) {
     );
     if (helperObj.InBound(tempPosition) 
       && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
-    if( helperObj.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
+    if( helperObj.map[this.position.x+increment][this.position.y]?.EnPassantIsAvailable()) // for en passant
     {
       this.moves.push(Position(this.position.x + increment, this.position.y +increment));
+      this.canTakeEnPassant = helperObj.map[this.position.x+increment][this.position.y];
     }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
