@@ -153,8 +153,7 @@ let t1;
 let t2;
 let prevTurn = -1;
 var dor_count = 0;
-const originalUI = document.getElementsByClassName("pieces-container")[0]
-  .innerHTML;
+const originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
@@ -277,12 +276,12 @@ var helperObj = {
       moveMap(current.initPos.x,current.initPos.y) ; 
     }*/
     this.Initialize();
-    document.getElementsByClassName(
-      "pieces-container"
-    )[0].innerHTML = originalUI;
+    document.getElementsByTagName("svg")[0].innerHTML=originalUI;
     var squares = document.getElementsByTagName("rect");
+    for (var i = 0; i < squares.length; i++)
+         squares[i].setAttribute("onclick", "handleClick(this)");
     turn = 0;
-
+    
     // for (let i = 0; i<Allpieces.length; i++)
     //{
     //var current = Allpieces[i];
