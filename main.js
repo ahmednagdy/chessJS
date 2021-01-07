@@ -128,16 +128,26 @@ let timer2 = 300 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
+var dor_count = 0;
 
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
+  dor_count++;
   var tX = selected.position.x;
   tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
-  if (selected.firstMove) selected.firstMove = false; // for handel first move of pawn
+  if (selected.firstMove != undefined) {
+    if(selected.firstMove){
+      selected.firstMove = false;
+      selected.passPsitionForOnpassWa(x,y);
+    }//else if(selected.position.y == y){
+      //selected.color == 0 ? y+=1 : y+=-1;
+      //console.log(y);
+    //}
+  } // for handel first move of pawn
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
     let anyQueen;
     if (selected.color == 0) {
@@ -793,12 +803,25 @@ var checkedPosition;
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
+
 function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
 
   //this.moves
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
+  this.isOnpassWa = function(){
+    //console.log(dor_count , canOnPassWa);
+    //console.log(this.position.x, this.position.y)
+     return dor_count == canOnPassWa} ;
+  var canOnPassWa= -1;
+  this.passPsitionForOnpassWa = function (x, y){
+    if(x == _x && y == _y+2*increment){
+      //console.log("ppppppppppppppp")
+      canOnPassWa = dor_count ; 
+      //console.log(canOnPassWa)
+    }
+  }
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
@@ -852,6 +875,28 @@ function pawn(_x, _y, c) {
         ] != null
       )
         this.moves.push(tempPosition);
+    }
+    
+    tempPosition = Position(
+      this.position.x-increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition)
+        && helperObj?.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj?.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x - increment, this.position.y));
+    }
+
+    tempPosition = Position(
+      this.position.x+increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition) 
+      && helperObj?.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj?.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x + increment, this.position.y));
     }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
