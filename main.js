@@ -123,8 +123,8 @@ var isSelected = false;
 var oldStates = [];
 var checked = false;
 var gameOver = false;
-let timer1 = 300 * 1000*1000;
-let timer2 = 300 * 1000*1000;
+let timer1 = 300 * 1000;
+let timer2 = 300 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
@@ -485,14 +485,17 @@ function whichCannotMove(){
   //console.log("------------------------------------")
   var flag=false;
   //var allPicees=[0,0];
-  for(var i=0;i<9;i++){
-    for(var j=0;j<9;j++){
+  for(var i=1;i<9;i++){
+    for(var j=1;j<9;j++){
       //console.log(helperObj.map[i][j])
       //console.log("i: "+i+" j:"+ j)
-      if(helperObj.map[i][j]){
+      if(helperObj.map[i][j])
+      {
         //x++;
         //console.log("Enter the if!")
-        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0 ){           
+        helperObj.map[i][j].filterAvailables();
+        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0)
+        {           
           flag = true;
          // console.log(helperObj.map[i][j]);
           //break;
@@ -855,3 +858,5 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
+
+  
