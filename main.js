@@ -181,6 +181,7 @@ function moveMap(x, y) {
     }
   }
     whichCannotMove();
+    isNotEnoughPieces();
 }
 function Deselect() {
   selected = null;
@@ -483,7 +484,7 @@ function Position(_x, _y) {
 function whichCannotMove(){ 
   //console.log("------------------------------------")
   var flag=false;
-  var allPicees=[0,0];
+  //var allPicees=[0,0];
   for(var i=0;i<9;i++){
     for(var j=0;j<9;j++){
       //console.log(helperObj.map[i][j])
@@ -493,22 +494,22 @@ function whichCannotMove(){
         //console.log("Enter the if!")
         if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0 ){           
           flag = true;
-          console.log(helperObj.map[i][j]);
+         // console.log(helperObj.map[i][j]);
           //break;
         }  
-        allPicees[parseInt(helperObj.map[i][j].color)]++;
+       // allPicees[parseInt(helperObj.map[i][j].color)]++;
       } 
     }
   }
   //console.log(x)
-  console.log(allPicees)
-  console.log(flag)
+  //console.log(allPicees)
+  //console.log(flag)
   if(!flag)
      isCheckmate( turn? "black" : "white");
-  else if(allPicees[0] + allPicees[1] < 4){
+  /*else if(allPicees[0] + allPicees[1] < 4){
     //console.log(allPicees)
     isNotEnoughPieces(allPicees[0], allPicees[1]);
-  }
+  }*/
   return null
 }
 function isCheckmate(win){
@@ -527,29 +528,42 @@ function stalemate() //to be called in the beginning of each players turn
     alert("the game is draw");////declare draw;
     return true;
 }
-function isNotEnoughPieces(whitePices, blackPices) /// state is array index 0 for black and 1 for white
+function isNotEnoughPieces() /// state is array index 0 for black and 1 for white
 //to be called in the beginning of each players turn
 {
     //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
     //or W.pieces.length == 1 && B has only a knight/bishop
     //or the opposite  
-    console.log(whitePices + blackPices)
-    if( whitePices == 1 && blackPices==1){
-      console.log("from isNotEnoughPieces")
+    var allPicees=[0,0];
+    var twhitePices= null;
+    var tblackPices= null;
+
+    for(var i=1;i<9;i++){
+      for(var j=1;j<9;j++){
+        if(helperObj.map[i][j]){
+          allPicees[helperObj.map[i][j].color]++;
+          if(!helperObj.map[i][j].isKing)
+          if(helperObj.map[i][j].color == 0)
+            twhitePices = helperObj.map[i][j];
+          else
+            tblackPices = helperObj.map[i][j];
+        }      
+      }
+    }
+
+    if((allPicees[0] + allPicees[1]) > 3)
+      return false;
+
+    if( allPicees[0] == 1 && allPicees[1]==1){
+      console.log("from isNotEnoughPieces");
       stalemate();////declare draw;
       return true;
     }
-    var colorCheck = (whitePices == 1 )? blackPices:whitePices;
-    for(var i=0;i<helperObj.map.length;i++){
-      for(var j=0;j<helperObj.map[i].length;j++){
-        if(helperObj.map[i][j]?.color == colorCheck  ){           
-            if(helperObj.map[i][j].bishop || helperObj.map[i][j].knight){
-              console.log("from isNotEnoughPieces")
-              stalemate();////declare draw;
-              return true;
-            }
-          }
-      }
+    var piceCheck =  (allPicees[0] == 1)? tblackPices:twhitePices;
+    if( piceCheck.bishop || piceCheck.knight){
+      console.log("from isNotEnoughPieces");
+      stalemate();////declare draw;
+      return true;
     }
     return false;
 }
