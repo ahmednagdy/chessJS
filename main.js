@@ -117,7 +117,6 @@ var B = { RemainingArrayOfPieces: [] };
 function moveMap(x, y) {
   var tX = selected.position.x;
   tY = selected.position.y;
-  var flag = false;
   helperObj.map[tX][tY] = null;
 
   if (selected.firstMove) selected.firstMove = false; // for handel first move of pawn
@@ -133,7 +132,6 @@ function moveMap(x, y) {
 
     tPawn.innerHTML = anyQueen.innerHTML;
     selected = new queen(tX, tY, selected.color);
-    flag = true;
   }
 
   helperObj.map[x][y] = selected;
@@ -153,12 +151,13 @@ function moveMap(x, y) {
   //----------------------
   Deselect();
   turn = !turn;
-  setTimeout(function () {
-    if (flag) alert("Congratulation, Now Pawn become Queen");
-  }, 1000);
-  setTimeout(function(){
+  for (var i = 1; i <= 8; i++) {
+    for (var j = 1; j <= 8; j++) {
+      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
+        helperObj.map[i][j].getAndFillAvailableMoves();
+    }
+  }
     whichCannotMove();
-  },0)
 }
 function Deselect() {
   selected = null;
@@ -223,6 +222,13 @@ var helperObj = {
     this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
+    var x =0;
+    for(var i=0;i<9;i++)
+      for(var j=0;j<9;j++){
+        if(this.map[i][j])
+          x++;
+      }
+      console.log(x)
   },
 
   moveToMap_and_ui: function (piece, x, y) {
@@ -452,36 +458,38 @@ function Position(_x, _y) {
   return p;
 }
 function whichCannotMove(){ 
-  var state=[false, false];
-  var stateMoves=[false, false];
-  var allPicees =0;
-  var t;
-  for(var i=0;i<helperObj.map.length;i++){
-    for(var j=0;j<helperObj.map[i].length;j++){
+  //console.log("------------------------------------")
+  var flag=false;
+  var allPicees=[0,0];
+  for(var i=0;i<9;i++){
+    for(var j=0;j<9;j++){
+      //console.log(helperObj.map[i][j])
+      //console.log("i: "+i+" j:"+ j)
       if(helperObj.map[i][j]){
-        if(helperObj.map[i][j].moves.length != 0){
-            t = helperObj.map[i][j];
-            if(!state[t.color] || !state[t.color].isKing){
-              state[t.color] = t;
-              stateMoves[t.color] = helperObj.map[i][j].moves;
-            }
-          }
-          allPicees++;
-        }
+        //x++;
+        //console.log("Enter the if!")
+        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0 ){           
+          flag = true;
+          console.log(helperObj.map[i][j]);
+          //break;
+        }  
+        allPicees[parseInt(helperObj.map[i][j].color)]++;
+      } 
     }
   }
-  console.log(state, allPicees);
-  console.log(stateMoves);
-  if(!state[0])
-    return isCheckmate("black");
-  else if(!state[1])
-    return isCheckmate("black");
-  else if(allPicees < 4){
-    return isNotEnoughPieces(state,allPicees)
+  //console.log(x)
+  console.log(allPicees)
+  console.log(flag)
+  if(!flag)
+     isCheckmate( turn? "black" : "white");
+  else if(allPicees[0] + allPicees[1] < 4){
+    //console.log(allPicees)
+    isNotEnoughPieces(allPicees[0], allPicees[1]);
   }
-    return null
+  return null
 }
 function isCheckmate(win){
+  console.log("from isCheckmate")
   gameOver=true;
   if(checked){
       alert(win+" is the winner");//declare win;
@@ -496,18 +504,29 @@ function stalemate() //to be called in the beginning of each players turn
     alert("the game is draw");////declare draw;
     return true;
 }
-function isNotEnoughPieces(state, allPicees) /// state is array index 0 for black and 1 for white
+function isNotEnoughPieces(whitePices, blackPices) /// state is array index 0 for black and 1 for white
 //to be called in the beginning of each players turn
 {
     //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
     //or W.pieces.length == 1 && B has only a knight/bishop
     //or the opposite  
-    if( allPicees == 2
-     || (state[1].bishop || state[1].knight) 
-     || (state[0].bishop || state[0].knight) ){
-        alert("the game is draw");////declare draw;
-        gameOver=true;
-        return true;
+    console.log(whitePices + blackPices)
+    if( whitePices == 1 && blackPices==1){
+      console.log("from isNotEnoughPieces")
+      stalemate();////declare draw;
+      return true;
+    }
+    var colorCheck = (whitePices == 1 )? blackPices:whitePices;
+    for(var i=0;i<helperObj.map.length;i++){
+      for(var j=0;j<helperObj.map[i].length;j++){
+        if(helperObj.map[i][j]?.color == colorCheck  ){           
+            if(helperObj.map[i][j].bishop || helperObj.map[i][j].knight){
+              console.log("from isNotEnoughPieces")
+              stalemate();////declare draw;
+              return true;
+            }
+          }
+      }
     }
     return false;
 }
@@ -520,7 +539,7 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
-    helperObj.checkPinning(this);
+    //helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
