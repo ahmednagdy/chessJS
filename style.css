@@ -28,8 +28,8 @@ svg {
   padding: 0.25em;
   text-align: center;
   font-size: 2rem;
-  font-family:roboto;
-  font-weight:bold;
+  font-family: roboto;
+  font-weight: bold;
 }
 .black {
   order: 1;
@@ -79,10 +79,10 @@ rect:hover {
   fill: lightgrey;
 }
 .highlight {
-  fill: #e3b6b5;
+  fill: #a3f7b5;
 }
 .highlightPiece {
-  fill: #e4324c;
+  fill: #aad8b4;
 }
 .highlight-move {
   stroke: orange;
