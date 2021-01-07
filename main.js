@@ -4,7 +4,7 @@ function handleClick(position) {
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
-  const Wpar = document.getElementsByTagName("p")[1];
+  const Wpar = document.getElementsByClassName("timer")[1];
   const WProgressBar = document.getElementsByClassName("progress")[1];
   const wdiv = document.getElementsByClassName("white")[0];
 
@@ -282,8 +282,8 @@ var helperObj = {
   },
 
   moveToMap_and_ui: function (piece, x, y) {
-    const Bpar = document.getElementsByTagName("p")[0];
-    const Wpar = document.getElementsByTagName("p")[1];
+    const Bpar = document.getElementsByClassName("timer")[0];
+    const Wpar = document.getElementsByClassName("time")[1];
     const BProgressBar = document.getElementsByClassName("progress")[0];
     const WProgressBar = document.getElementsByClassName("progress")[1];
     const Bdiv = document.getElementsByClassName("black")[0];
@@ -337,7 +337,7 @@ var helperObj = {
             alert("Draw");
             gameOver = true;
           } else {
-            alert("White wins by timeout");
+            showEndGameBox("white");
             gameOver = true;
           }
         }
@@ -361,7 +361,7 @@ var helperObj = {
             alert("Draw");
             gameOver = true;
           } else {
-            alert("Black wins by timeout");
+            showEndGameBox("black");
             gameOver = true;
           }
         }
