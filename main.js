@@ -1,4 +1,6 @@
 function handleClick(position) {
+  if(gameOver)
+    return;
   console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
@@ -14,7 +16,14 @@ function handleClick(position) {
       Wpar.textContent = helperObj.toShow(timer2);
       if (timer2 <= 0) {
         clearInterval(t2);
-        alert("time out");
+        if(isNotEnoughPieces(0)) //!turn //checks for black pieces if white time's up
+        {
+          alert("Draw"); gameOver = true;
+        }
+        else
+        {
+          alert("White wins by timeout"); gameOver = true;
+        }
       }
     }, 1000);
 
@@ -33,7 +42,7 @@ function handleClick(position) {
         helperObj.moveToMap_and_ui(selected, x, y); var color = selected.color;
         moveMap(x, y);  
         //move the rook next to it
-        console.log("Selected is " + selected);
+        //console.log("Selected is " + selected);
         helperObj.moveToMap_and_ui(helperObj.map[8][color?8:1], 6, color?8:1);
         selected = helperObj.map[8][color?8:1]; turn = !turn;
         moveMap(6, color?8:1);
@@ -119,22 +128,32 @@ var selected = null;
 var isSelected = false;
 var oldStates = [];
 var checked = false;
+var gameOver = false;
 let timer1 = 300 * 1000;
 let timer2 = 300 * 1000;
 let t1;
 let t2;
 let prevTurn = -1;
+var dor_count = 0;
 
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
+  dor_count++;
   var tX = selected.position.x;
-  var tY = selected.position.y;
-  var flag = false;
+  tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
-  if (selected.firstMove) selected.firstMove = false; // for handel first move of pawn
+  if (selected.firstMove != undefined) {
+    if(selected.firstMove){
+      selected.firstMove = false;
+      selected.passPsitionForOnpassWa(x,y);
+    }//else if(selected.position.y == y){
+      //selected.color == 0 ? y+=1 : y+=-1;
+      //console.log(y);
+    //}
+  } // for handel first move of pawn
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
     let anyQueen;
     if (selected.color == 0) {
@@ -147,7 +166,6 @@ function moveMap(x, y) {
 
     tPawn.innerHTML = anyQueen.innerHTML;
     selected = new queen(tX, tY, selected.color);
-    flag = true;
   }
   //Updating first move for king and rook
   if(selected.hasMoved == false) selected.hasMoved = true
@@ -160,7 +178,7 @@ function moveMap(x, y) {
   //now checking everything ==> to be optimized
   for (var i = 1; i <= 8; i++) {
     for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j] != null)// && helperObj.map[i][j].color==turn)
+      if (helperObj.map[i][j])// && helperObj.map[i][j].color==turn)
         helperObj.map[i][j].getAndFillAvailableMoves();
     }
   }
@@ -172,9 +190,8 @@ function moveMap(x, y) {
   //-------------------------------
   Deselect();
   turn = !turn;
-  setTimeout(function () {
-    if (flag) alert("Congratulation, Now Pawn become Queen");
-  }, 1000);
+  whichCannotMove();
+  isNotEnoughPieces();
 }
 function Deselect() {
   selected = null;
@@ -239,6 +256,13 @@ var helperObj = {
     this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
+    var x =0;
+    for(var i=0;i<9;i++)
+      for(var j=0;j<9;j++){
+        if(this.map[i][j])
+          x++;
+      }
+      //console.log(x)
   },
 
   moveToMap_and_ui: function (piece, x, y) {
@@ -276,7 +300,7 @@ var helperObj = {
     this.justHappenedMove.newY = y;
     oldSquare.classList.add("highlight-move");
     newSquar.classList.add("highlight-move");
-    console.log(newSquar.classList);
+    //console.log(newSquar.classList);
     let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
     if (this.map[x][y] != null) {
@@ -290,9 +314,17 @@ var helperObj = {
         helperObj.changeProgressBar(BProgressBar, 1);
         timer1 -= 1000;
         Bpar.textContent = helperObj.toShow(timer1);
-        if (timer1 <= 0) {
+        if (timer1 <= 0) 
+        {
           clearInterval(t1);
-          alert("time out");
+          if(isNotEnoughPieces(1)) //!turn //checks for black pieces if white time's up
+          {
+            alert("Draw"); gameOver = true;
+          }
+          else
+          {
+            alert("White wins by timeout"); gameOver = true;
+          }
         }
       }, 1000);
 
@@ -309,7 +341,14 @@ var helperObj = {
         Wpar.textContent = helperObj.toShow(timer2);
         if (timer2 <= 0) {
           clearInterval(t2);
-          alert("time out");
+          if(isNotEnoughPieces(0)) //!turn //checks for black pieces if white time's up
+          {
+            alert("Draw"); gameOver = true;
+          }
+          else
+          {
+            alert("Black wins by timeout"); gameOver = true;
+          }
         }
       }, 1000);
       Wpar.classList.toggle("running");
@@ -438,13 +477,22 @@ var helperObj = {
         P_to_K_Direction[0]=DeffX/Math.abs(DeffX);
       if(DeffY != 0)
         P_to_K_Direction[1]=DeffY/Math.abs(DeffY);
-      if(pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1])){// the pinner could move to the king direction
+      if(pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1]) &&(Math.abs(DeffX) == Math.abs(DeffY) || Math.abs(P_to_K_Direction[1] + P_to_K_Direction[0]) == 1) ){// the pinner could move to the king direction
         if(this.includesPosition(pinners[i].scope,piece.position)){
           let Tpos = Position(piece.position.x+P_to_K_Direction[0],piece.position.y+P_to_K_Direction[1])
           let exit = false
           while(this.InBound(Tpos) && !exit){
             if(Tpos.x == king.position.x&&Tpos.y == king.position.y){
-              piece.moves=[];
+              let pinnedMoves=[];
+              let temp_pos = Position(piece.position.x+ (P_to_K_Direction[0]*-1),piece.position.y+ (P_to_K_Direction[1]*-1))
+              
+              while(temp_pos.x!=pinners[i].position.x || temp_pos.y!=pinners[i].position.y ){
+                pinnedMoves.push(temp_pos);
+                temp_pos = Position(temp_pos.x+ (P_to_K_Direction[0]*-1),temp_pos.y+ (P_to_K_Direction[1]*-1))
+              } 
+              pinnedMoves.push(temp_pos);
+              piece.moves = this.intersection(pinnedMoves , piece.moves);
+              //piece.moves=[];
               exit=true;
             }
             else if(this.map[Tpos.x][Tpos.y]!=null  ){
@@ -467,6 +515,103 @@ function Position(_x, _y) {
   var p = { x: _x, y: _y };
   return p;
 }
+function whichCannotMove()
+{ 
+  //console.log("------------------------------------")
+  var flag=false;
+  //var allPicees=[0,0];
+  for(var i=1;i<9;i++){
+    for(var j=1;j<9;j++){
+      //console.log(helperObj.map[i][j])
+      //console.log("i: "+i+" j:"+ j)
+      if(helperObj.map[i][j])
+      {
+        //x++;
+        //console.log("Enter the if!")
+        if(!helperObj.map[i][j].isKing) helperObj.map[i][j].filterAvailables();
+        if(helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0)
+        {           
+          flag = true;
+          //console.log(helperObj.map[i][j]);
+          //break;
+        }  
+       // allPicees[parseInt(helperObj.map[i][j].color)]++;
+      } 
+    }
+  }
+  //console.log(x)
+  //console.log(allPicees)
+  //console.log(flag)
+  if(!flag)
+     isCheckmate( turn? "White" : "Black");
+  /*else if(allPicees[0] + allPicees[1] < 4){
+    //console.log(allPicees)
+    isNotEnoughPieces(allPicees[0], allPicees[1]);
+  }*/
+  return null
+}
+function isCheckmate(win){
+  //console.log("from isCheckmate")
+  gameOver=true;
+  if(checked){
+      setTimeout(
+    function() {alert("Checkmate! " + win + " wins :)");},500);//declare win;
+      //return true;
+  }else
+     stalemate();
+};
+
+function stalemate() //to be called in the beginning of each players turn
+{
+    //if all my pieces (including the king) availables = []
+    alert("Draw by Stalemate");////declare draw;
+    return true;
+}
+function isNotEnoughPieces(color) /// state is array index 0 for black and 1 for white
+//to be called in the beginning of each players turn
+{
+    //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
+    //or W.pieces.length == 1 && B has only a knight/bishop
+    //or the opposite  
+    var allPieces=[0,0];
+    var tmpWhitePiece= null;
+    var tmpBlackPiece= null;
+
+    for(var i=1;i<=8;i++){
+      for(var j=1;j<=8;j++){
+        if(helperObj.map[i][j]){
+          allPieces[helperObj.map[i][j].color]++;
+          if(!helperObj.map[i][j].isKing)
+          if(helperObj.map[i][j].color == 0)
+            tmpWhitePiece = helperObj.map[i][j];
+          else
+            tmpBlackPiece = helperObj.map[i][j];
+        }      
+      }
+    }
+    if(color!=undefined)
+    {
+      return allPieces[color] == 1;
+    }
+
+    if((allPieces[0] + allPieces[1]) > 3)
+      return false;
+
+    if( allPieces[0] == 1 && allPieces[1]==1){
+      console.log("from isNotEnoughPieces");
+      alert("Draw by Insufficient Material");////declare draw;
+      gameOver = true;
+      return true;
+    }
+    var pieceCheck =  (allPieces[0] == 1)? tmpBlackPiece:tmpWhitePiece;
+    if(pieceCheck.bishop || pieceCheck.knight){
+      console.log("from isNotEnoughPieces");
+      alert("Draw by Insufficient Material");////declare draw;
+      gameOver = true;
+      return true;
+    }
+    return false;
+}
 function piece(_x, _y, c) {
   this.position = Position(_x, _y);
   this.color = c;
@@ -476,7 +621,7 @@ function piece(_x, _y, c) {
   this.getAndFillAvailableMoves = function () {};
   this.filterAvailables = function () {
     helperObj.removeFriendIntersection(this);
-    //helperObj.checkPinning(this);
+    helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
@@ -486,7 +631,7 @@ piece.prototype.typeof=function(){
 
 function knight(_x, _y, c) {
   piece.call(this, _x, _y, c);
-
+  this.knight = true;
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     var t = this.position;
@@ -557,6 +702,7 @@ rook.prototype = Object.create(queen.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c) {
   queen.call(this, _x, _y, c);
+  this.bishop = true;
   this.directions=[[1,1],[-1,-1],[-1,1],[1,-1]];
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
@@ -618,6 +764,7 @@ function king(_x, _y, c) {
         this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
     }
+    //console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
     /////adding castling capabililty
@@ -682,12 +829,25 @@ var checkedPosition;
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
+
 function pawn(_x, _y, c) {
   piece.call(this, _x, _y, c);
 
   //this.moves
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
+  this.isOnpassWa = function(){
+    //console.log(dor_count , canOnPassWa);
+    //console.log(this.position.x, this.position.y)
+     return dor_count == canOnPassWa} ;
+  var canOnPassWa= -1;
+  this.passPsitionForOnpassWa = function (x, y){
+    if(x == _x && y == _y+2*increment){
+      //console.log("ppppppppppppppp")
+      canOnPassWa = dor_count ; 
+      //console.log(canOnPassWa)
+    }
+  }
   this.getAndFillAvailableMoves = function () {
     this.moves = [];
     this.scope = [];
@@ -742,6 +902,28 @@ function pawn(_x, _y, c) {
       )
         this.moves.push(tempPosition);
     }
+    
+    tempPosition = Position(
+      this.position.x-increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition)
+        && helperObj?.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj?.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x - increment, this.position.y));
+    }
+
+    tempPosition = Position(
+      this.position.x+increment,
+      this.position.y
+    );
+    if (helperObj.InBound(tempPosition) 
+      && helperObj?.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj?.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
+    {
+      this.moves.push(Position(this.position.x + increment, this.position.y));
+    }
     //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
@@ -753,3 +935,5 @@ pawn.prototype.constructor = pawn;
 var squares = document.getElementsByTagName("rect");
 for (var i = 0; i < squares.length; i++)
   squares[i].setAttribute("onclick", "handleClick(this)");
+
+  
