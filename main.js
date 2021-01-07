@@ -283,7 +283,7 @@ var helperObj = {
 
   moveToMap_and_ui: function (piece, x, y) {
     const Bpar = document.getElementsByClassName("timer")[0];
-    const Wpar = document.getElementsByClassName("time")[1];
+    const Wpar = document.getElementsByClassName("timer")[1];
     const BProgressBar = document.getElementsByClassName("progress")[0];
     const WProgressBar = document.getElementsByClassName("progress")[1];
     const Bdiv = document.getElementsByClassName("black")[0];
