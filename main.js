@@ -211,7 +211,6 @@ function Deselect() {
 var helperObj =
 {
   map: ([] = [[], [], [], [], [], [], [], [], []]),
-  Allpieces: [],
   justHappenedMove: {oldX: 0,oldY: 0,newX: 0,newY: 0,},
   getSquareByPosition: function (x, y)
   {
@@ -254,18 +253,6 @@ var helperObj =
     }
   },
   ResetGame: function () {
-    /*
-    for (var i= 0; i< this.Allpieces.length; i++) {
-
-      var current = this.Allpieces[i];
-       document.getElementsByTagName("svg")[0].innerHTML=originalUI;
-       var squares = document.getElementsByTagName("rect");
-       for (var j = 0; j < squares.length; j++)
-           squares[j].setAttribute("onclick", "handleClick(this)");
-
-      selected=current;
-      moveMap(current.initPos.x,current.initPos.y) ;
-    }*/
     this.Initialize();
     document.getElementsByTagName("svg")[0].innerHTML=originalUI;
     var squares = document.getElementsByTagName("rect");
@@ -294,15 +281,7 @@ var helperObj =
     Bdiv.classList.remove("borderTurn");
 
     gameOver = false;
-    // for (var i = 0; i<Allpieces.length; i++)
-    //{
-    //var current = Allpieces[i];
-    //console.log()
-    // this.moveToMap_and_ui(current,current.initPos.x,current.initPos.y);
-    //moveMap(current.initPos.x,current.initPos.y)
 
-    //}
-    //  console.log(Allpieces[0])
   },
 
   fillInitialize: function (_y1, _y2, c)
@@ -319,11 +298,6 @@ var helperObj =
       for (var j = 0; j <= 8; j++) {
         if (this.map[i][j]) x++;
       }
-    for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 8; j++) {
-        if (this.map[i][j] != null) this.Allpieces.push(this.map[i][j]);
-      }
-    }
   },
 
   moveUI: function (piece, x, y) {
@@ -665,7 +639,6 @@ function piece(_x, _y, c)
 function knight(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
@@ -682,7 +655,6 @@ knight.prototype.varructor = knight;
 function queen(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.pinner = true;
   this.directions = [[1, 1],[0, 1],[0, -1],[1, 0],[-1, 0],[-1, -1],[-1, 1],[1, -1]];
   this.getAndFillAvailableMoves = function ()
@@ -702,7 +674,6 @@ function rook(_x, _y, c)
 {
   this.hasMoved = false;
   queen.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.directions = [[0, 1],[0, -1],[1, 0],[-1, 0]];
   this.getAndFillAvailableMoves = function ()
   {
@@ -721,7 +692,6 @@ rook.prototype.varructor = rook;
 function bishop(_x, _y, c)
 {
   queen.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.directions = [[1, 1],[-1, -1],[-1, 1],[1, -1]];
   this.getAndFillAvailableMoves = function ()
   {
@@ -753,7 +723,6 @@ function king(_x, _y, c)
   this.hasMoved = false;
   this.castled = false;
   piece.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
@@ -827,7 +796,6 @@ king.prototype.varructor = king;
 function pawn(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
-  this.initPos = Position(_x, _y);
   this.canTakeEnPassant = null;
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
