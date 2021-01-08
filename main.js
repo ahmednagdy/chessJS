@@ -58,11 +58,11 @@ function handleClick(position) {
       }
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
-          helperObj.moveUI(selected.canTakeEnPassant,x,y);
+          helperObj.moveUI(selected.canTakeEnPassant,x,y); castling =-1;
           helperObj.map[x][y] = selected.canTakeEnPassant;
           helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
 
-          helperObj.moveTo(selected,x,y);
+          helperObj.moveTo(selected,x,y); castling=0;
       }
       else if (helperObj.includesPosition(selected.moves, Position(x, y)))
       {
