@@ -36,9 +36,11 @@ function handleClick(position) {
         //the boss  wants to castle king side
         var color = selected.color;
         helperObj.moveTo(selected, x, y);
+        castling =-1;
         //move the rook next to it
         selected = helperObj.map[8][color ? 8 : 1];
         helperObj.moveTo(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
+        castling=0;
         turn = !turn;
       }
       else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
@@ -47,9 +49,11 @@ function handleClick(position) {
         //the boss  wants to castle queen side
         var color = selected.color;
         helperObj.moveTo(selected, x, y);
+        castling =-1;
         //move the rook next to it
         selected = helperObj.map[8][color ? 8 : 1];
         helperObj.moveTo(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
+        castling=0;
         turn = !turn;
       }
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
@@ -134,6 +138,7 @@ var t2;
 var choosenTime;
 var prevTurn = -1;
 var turnCount = 0;
+var castling =0;
 var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 
 function Deselect() {
@@ -264,51 +269,59 @@ var helperObj =
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
-
-    if (!turn || prevTurn == 900)
-    {
-      t1 = setInterval(function () {
-        helperObj.changeProgressBar(blackOverBar, step);
-        timer1 -= 1000;
-        Bpar.textContent = helperObj.toShow(timer1);
-        if (timer1 <= 0) {
-          clearInterval(t1);
-          if (isNotEnoughPieces(0)) {
-            //!turn //checks for black pieces if white time's up
-            EndTheGame("Draw");
-          } else {
-            EndTheGame("white");
+    if(castling==0)
+    {if (!turn || prevTurn == 900)
+      {
+        t1 = setInterval(function () {
+          helperObj.changeProgressBar(blackOverBar, step);
+          timer1 -= 1000;
+          Bpar.textContent = helperObj.toShow(timer1);
+          if (timer1 <= 0) {
+            clearInterval(t1);
+            if (isNotEnoughPieces(0)) {
+              //!turn //checks for black pieces if white time's up
+              EndTheGame("Draw");
+            } else {
+              EndTheGame("white");
+            }
           }
-        }
-      }, 1000);
-
-      clearInterval(t2);
-      prevTurn = 50;
-      Bpar.classList.toggle("running");
-      Wpar.classList.toggle("running");
-      wdiv.classList.toggle("borderTurn");
-      Bdiv.classList.toggle("borderTurn");
-    } else {
-      t2 = setInterval(function () {
-        helperObj.changeProgressBar(whiteOverBar, step);
-        timer2 -= 1000;
-        Wpar.textContent = helperObj.toShow(timer2);
-        if (timer2 <= 0) {
-          clearInterval(t2);
-          if (isNotEnoughPieces(0)) {
-            //!turn //checks for black pieces if white time's up
-            EndTheGame("Draw");
-          } else {
-            EndTheGame("black");
+        }, 1000);
+  
+        clearInterval(t2);
+        prevTurn = 50;
+        Bpar.classList.toggle("running");
+        Wpar.classList.toggle("running");
+        wdiv.classList.toggle("borderTurn");
+        Bdiv.classList.toggle("borderTurn");
+      } else {
+        
+        t2 = setInterval(function () {
+          helperObj.changeProgressBar(whiteOverBar, step);
+          timer2 -= 1000;
+          Wpar.textContent = helperObj.toShow(timer2);
+          if (timer2 <= 0) {
+            clearInterval(t2);
+            if (isNotEnoughPieces(0)) {
+              //!turn //checks for black pieces if white time's up
+              EndTheGame("Draw");
+            } else {
+              EndTheGame("black");
+            }
           }
-        }
-      }, 1000);
-      Wpar.classList.toggle("running");
-      Bpar.classList.toggle("running");
-      wdiv.classList.toggle("borderTurn");
-      Bdiv.classList.toggle("borderTurn");
-      clearInterval(t1);
+        }, 1000);
+        Wpar.classList.toggle("running");
+        Bpar.classList.toggle("running");
+        wdiv.classList.toggle("borderTurn");
+        Bdiv.classList.toggle("borderTurn");
+        clearInterval(t1);
+      }
+
     }
+    
+  },
+  handleTimers :function(intrvl1,intrvl2,timer)
+  {
+
   },
   moveMap: function(x, y) {
     var tX = selected.position.x;
