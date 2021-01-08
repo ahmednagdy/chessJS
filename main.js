@@ -479,8 +479,8 @@ var helperObj =
             var lineToKing = getLineOfSquaresToFirstElement(piece, directions[0], directions[1]);
             if(lineToKing[lineToKing.length-1]?.x == myking.position.x && lineToKing[lineToKing.length-1].y == myking.position.y) //if the last item it got is my king then I am pinned
             {
-              var lineEnemyToPiece = getLineOfSquaresToFirstElement(enemy, directions[0], directions[1]);
-              piece.moves = this.intersection(piece.moves, lineToKing.concat(lineEnemyToPiece));
+              var linePieceToEnemy = getLineOfSquaresToFirstElement(piece, directions[0]*-1, directions[1]*-1);
+              piece.moves = this.intersection(piece.moves, lineToKing.concat(linePieceToEnemy));
             }
           }
       }
@@ -529,7 +529,7 @@ function EndTheGame(message)
 function stalemate() {
   //to be called in the beginning of each players turn
   //if all my pieces (including the king) availables = []
-  EndTheGame("draw by Stalemate");
+  EndTheGame("Draw by Stalemate");
   return true;
 }
 function isNotEnoughPieces(color)
@@ -555,13 +555,13 @@ function isNotEnoughPieces(color)
 
   if (allPieces[0] == 1 && allPieces[1] == 1)
   {
-    EndTheGame("draw by Insufficient Material");
+    EndTheGame("Draw by Insufficient Material");
     return true;
   }
   var pieceCheck = allPieces[0] == 1 ? tmpBlackPiece : tmpWhitePiece;
   if (pieceCheck instanceof bishop || pieceCheck instanceof knight)
   {
-    EndTheGame("draw by Insufficient Material");
+    EndTheGame("Draw by Insufficient Material");
     return true;
   }
   return false;
