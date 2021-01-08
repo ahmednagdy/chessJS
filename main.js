@@ -879,5 +879,19 @@ var resetBtn = document.getElementById("reset");
 resetBtn.addEventListener("click", function (){
   helperObj.ResetGame();
 });
-
+var newGame = document.getElementById("newGame"); 
+newGame.addEventListener("click",function(){
+  location.reload();
+});
+var Resignbtn = document.getElementById("Resign"); 
+Resignbtn.addEventListener("click",function(){
+  if(!turn){
+    showEndGameBox("black");
+   
+  }else 
+    {
+      showEndGameBox("white");
+    }
+gameOver = true;
+})
 helperObj.Initialize();
