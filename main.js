@@ -282,11 +282,11 @@ var helperObj =
 
   fillInitialize: function (_y1, _y2, c)
    {
-    for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+    //for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
 
-    this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
-    this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
-    this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
+    //this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
+    //this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
+    //this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x = 0;
@@ -555,7 +555,7 @@ function whichCannotMove()
     for (var j = 1; j <= 8; j++)
       if (helperObj.map[i][j])
       {
-        if (!helperObj.map[i][j] instanceof king) helperObj.map[i][j].filterAvailables();
+        if (!(helperObj.map[i][j] instanceof king)) helperObj.map[i][j].filterAvailables();
         if (helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0) flag = true;
       }
   if (!flag) isCheckmate(turn ? "White" : "Black");
@@ -590,7 +590,7 @@ function isNotEnoughPieces(color)
     for (var j = 1; j <= 8; j++) {
       if (helperObj.map[i][j]) {
         allPieces[helperObj.map[i][j].color]++;
-        if (!helperObj.map[i][j] instanceof king)
+        if (!(helperObj.map[i][j] instanceof king))
           if (helperObj.map[i][j].color == 0)
             tmpWhitePiece = helperObj.map[i][j];
           else tmpBlackPiece = helperObj.map[i][j];
