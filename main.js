@@ -23,7 +23,7 @@ function handleClick(position) {
           gameOver = true;
         }
       }
-    }, 10);
+    }, 1000);
 
     clearInterval(t1);
     prevTurn = 900;
