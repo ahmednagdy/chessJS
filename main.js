@@ -130,6 +130,7 @@ function handleClick(position) {
     }
   }
 }
+
 var turn = 0;
 var selected = null;
 var isSelected = false;
@@ -145,8 +146,6 @@ var choosenTime;
 var prevTurn = -1;
 var turnCount = 0;
 var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
-var W = { RemainingArrayOfPieces: [] };
-var B = { RemainingArrayOfPieces: [] };
 
 function moveMap(x, y) {
   var tX = selected.position.x;
@@ -558,27 +557,34 @@ function whichCannotMove()
         if (!(helperObj.map[i][j] instanceof king)) helperObj.map[i][j].filterAvailables();
         if (helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0) flag = true;
       }
-  if (!flag) isCheckmate(turn ? "White" : "Black");
+  if (!flag) isCheckmate(turn ? "white" : "black");
   return null;
 }
-function isCheckmate(win)
+function isCheckmate(winner)
 {
   gameOver = true;
   if (checked)
   {
     setTimeout(function () {
-      alert("Checkmate! " + win + " wins :)");
+      EndTheGame(winner);
     }, 500); //declare win;
     //return true;
   }
   else stalemate();
 }
 
+function EndTheGame(message)
+{
+  showEndGameBox(message);
+  gameOver = true;
+  clearInterval(t1);
+  clearInterval(t2);
+}
+
 function stalemate() {
   //to be called in the beginning of each players turn
   //if all my pieces (including the king) availables = []
-  showEndGameBox("draw by Stalemate");
-
+  EndTheGame("draw by Stalemate");
   return true;
 }
 function isNotEnoughPieces(color)
@@ -604,15 +610,13 @@ function isNotEnoughPieces(color)
 
   if (allPieces[0] == 1 && allPieces[1] == 1)
   {
-    showEndGameBox("draw by Insufficient Material");
-    gameOver = true;
+    EndTheGame("draw by Insufficient Material");
     return true;
   }
   var pieceCheck = allPieces[0] == 1 ? tmpBlackPiece : tmpWhitePiece;
   if (pieceCheck instanceof bishop || pieceCheck instanceof knight)
   {
-    showEndGameBox("draw by Insufficient Material");
-    gameOver = true;
+    EndTheGame("draw by Insufficient Material");
     return true;
   }
   return false;
@@ -882,12 +886,13 @@ newGame.addEventListener("click",function(){
 });
 var Resignbtn = document.getElementById("Resign");
 Resignbtn.addEventListener("click",function(){
-  if(!turn){
-    showEndGameBox("black");
-
-  }else
+  if(!turn)
+  {
+    EndTheGame("black");
+  }
+  else
     {
-      showEndGameBox("white");
+      EndTheGame("white");
     }
 gameOver = true;
 })
