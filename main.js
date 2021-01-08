@@ -54,11 +54,7 @@ function handleClick(position) {
         var color = selected.color;
         moveMap(x, y);
         //move the rook next to it
-        helperObj.moveUI(
-          helperObj.map[1][color ? 8 : 1],
-          4,
-          color ? 8 : 1
-        );
+        helperObj.moveUI(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(4, color ? 8 : 1);
