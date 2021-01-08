@@ -3,10 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
+      integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="stylepop.css" type="text/css" />
     <title>Chess</title>
   </head>
   <body>
+    <div class="popup-container">
+      <div class="pop-up">
+        <p class="starts">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i
+          ><i class="fas fa-star"></i>
+        </p>
+        <p class="message">
+          Congratulation <span class="win-name">white</span>
+          <span class="win-color-white"
+            ><i class="fas fa-chess-queen"></i
+          ></span>
+          has won
+        </p>
+        <div class="buttons-container">
+          <a class="btn2">Reset</a>
+          <a class="btn2">Keep me</a>
+        </div>
+      </div>
+    </div>
     <div class="main">
       <svg viewBox="100 100 800 800">
         <!-- Line One -->
@@ -1531,17 +1562,14 @@
         </div>
       </div>
       <div class="turn white">
-        <p class="timer">
-        
-          5:00
-        </p>
+        <p class="timer">5:00</p>
         <div class="progress-container">
           <div class="progress"></div>
         </div>
       </div>
     </div>
-    <!--script src="trial.js"></script-->
+
+    <script src="pop.js"></script>
     <script src="main.js"></script>
-    <!-- <script src="app.js"></script> -->
   </body>
 </html>
