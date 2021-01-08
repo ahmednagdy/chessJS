@@ -227,7 +227,7 @@ var helperObj =
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
   },
-  MoveTo: function(piece,x,y)
+  moveTo: function(piece,x,y)
   {
     helperObj.moveUI(piece,x,y);
     helperObj.moveMap(x,y);
