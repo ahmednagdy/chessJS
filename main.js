@@ -16,7 +16,7 @@ function handleClick(position) {
         clearInterval(t2);
         if (isNotEnoughPieces(0)) {
           //!turn //checks for black pieces if white time's up
-          alert("Draw");
+          showEndGameBox("draw");
           gameOver = true;
         } else {
           showEndGameBox("black");
@@ -339,7 +339,7 @@ var helperObj =
           clearInterval(t1);
           if (isNotEnoughPieces(1)) {
             //!turn //checks for black pieces if white time's up
-            alert("Draw");
+            showEndGameBox("draw");
             gameOver = true;
           } else {
             showEndGameBox("white");
@@ -363,7 +363,7 @@ var helperObj =
           clearInterval(t2);
           if (isNotEnoughPieces(0)) {
             //!turn //checks for black pieces if white time's up
-            alert("Draw");
+            showEndGameBox("draw");
             gameOver = true;
           } else {
             showEndGameBox("black");
@@ -577,7 +577,8 @@ function isCheckmate(win)
 function stalemate() {
   //to be called in the beginning of each players turn
   //if all my pieces (including the king) availables = []
-  alert("Draw by Stalemate"); ////declare draw;
+  showEndGameBox("draw by Stalemate");
+
   return true;
 }
 function isNotEnoughPieces(color)
@@ -603,14 +604,14 @@ function isNotEnoughPieces(color)
 
   if (allPieces[0] == 1 && allPieces[1] == 1)
   {
-    alert("Draw by Insufficient Material");
+    showEndGameBox("draw by Insufficient Material");
     gameOver = true;
     return true;
   }
   var pieceCheck = allPieces[0] == 1 ? tmpBlackPiece : tmpWhitePiece;
   if (pieceCheck instanceof bishop || pieceCheck instanceof knight)
   {
-    alert("Draw by Insufficient Material");
+    showEndGameBox("draw by Insufficient Material");
     gameOver = true;
     return true;
   }
@@ -875,16 +876,16 @@ var resetBtn = document.getElementById("reset");
 resetBtn.addEventListener("click", function (){
   helperObj.ResetGame();
 });
-var newGame = document.getElementById("newGame"); 
+var newGame = document.getElementById("newGame");
 newGame.addEventListener("click",function(){
   location.reload();
 });
-var Resignbtn = document.getElementById("Resign"); 
+var Resignbtn = document.getElementById("Resign");
 Resignbtn.addEventListener("click",function(){
   if(!turn){
     showEndGameBox("black");
-   
-  }else 
+
+  }else
     {
       showEndGameBox("white");
     }
