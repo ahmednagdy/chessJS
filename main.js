@@ -35,26 +35,22 @@ function handleClick(position) {
       {
         //the boss  wants to castle king side
         var color = selected.color;
-        helperObj.moveUI(selected, x, y);
-        moveMap(x, y);
+        helperObj.moveTo(selected, x, y);
         //move the rook next to it
-        helperObj.moveUI(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
         selected = helperObj.map[8][color ? 8 : 1];
+        helperObj.moveTo(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
         turn = !turn;
-        moveMap(6, color ? 8 : 1);
       }
       else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
         x == selected.position.x - 2)
         {
         //the boss  wants to castle queen side
-        helperObj.moveUI(selected, x, y);
         var color = selected.color;
-        moveMap(x, y);
+        helperObj.moveTo(selected, x, y);
         //move the rook next to it
-        helperObj.moveUI(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
         selected = helperObj.map[8][color ? 8 : 1];
+        helperObj.moveTo(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
         turn = !turn;
-        moveMap(4, color ? 8 : 1);
       }
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
@@ -62,26 +58,21 @@ function handleClick(position) {
           helperObj.map[x][y] = selected.canTakeEnPassant;
           helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
 
-          helperObj.moveUI(selected,x,y);
-          moveMap(x,y);
+          helperObj.moveTo(selected,x,y);
       }
       else if (helperObj.includesPosition(selected.moves, Position(x, y)))
       {
-        moveObj.MoveTo(selected,x,y);
+        helperObj.moveTo(selected,x,y);
       } 
       else Deselect();
     } else if (newSelection.color == turn) selected = newSelection;
     else {
-      if (
-        helperObj.includesPosition(
-          selected.moves,
-          Position(newSelection.position.x, newSelection.position.y)
-        )
-      ) {
+      if (helperObj.includesPosition(selected.moves,Position(newSelection.position.x, newSelection.position.y))) 
+      {
         //TAKE ////
-        helperObj.moveUI(selected, x, y); //deselect
-        moveMap(x, y);
-      } else Deselect();
+        helperObj.moveTo(selected, x, y);
+      } 
+      else Deselect();
     }
   } else {
     if (newSelection)
@@ -145,57 +136,6 @@ var prevTurn = -1;
 var turnCount = 0;
 var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 
-function moveMap(x, y) {
-  var tX = selected.position.x;
-  tY = selected.position.y;
-  helperObj.map[tX][tY] = null;
-
-  if (selected instanceof pawn)
-  {
-    if (selected.firstMove)
-    {
-      selected.firstMove = false;
-      selected.passPositionForEnPassant(x,y);
-    }
-  } // for handling the first move of pawns
-
-  if (selected.firstMove != undefined && (y == 8 || y == 1)) {
-    var anyQueen;
-    if (selected.color == 0)
-      anyQueen = document.getElementById("whiteQueen");
-    else
-      anyQueen = document.getElementById("blackQueen");
-
-
-    var tPawn = helperObj.getPieceByPosition(x, 9 - y);
-
-    tPawn.innerHTML = anyQueen.innerHTML;
-    selected = new queen(tX, tY, selected.color);
-  }
-  //Updating first move for king and rook
-  if (selected.hasMoved == false) selected.hasMoved = true;
-
-  helperObj.map[x][y] = selected;
-  helperObj.map[x][y].position = Position(x, y);
-
-  //-------------------updating availables turn's pieces to check for !turn king safety
-  //------not only the moved piece because it could be a discovered check
-  //now checking everything ==> to be optimized
-  for (var i = 1; i <= 8; i++) {
-    for (var j = 1; j <= 8; j++) {
-      if (helperObj.map[i][j])
-        // && helperObj.map[i][j].color==turn)
-        helperObj.map[i][j].getAndFillAvailableMoves();
-    }
-  }
-  helperObj.GetKing(!turn).getAndFillAvailableMoves();
-
-  Deselect();
-  turnCount++;
-  turn = !turn;
-  whichCannotMove();
-  isNotEnoughPieces();
-}
 function Deselect() {
   selected = null;
   isSelected = false;
@@ -286,13 +226,12 @@ var helperObj =
     this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
-    var x = 0;
-    for (var i = 0; i <= 8; i++)
-      for (var j = 0; j <= 8; j++) {
-        if (this.map[i][j]) x++;
-      }
   },
-
+  MoveTo: function(piece,x,y)
+  {
+    helperObj.moveUI(piece,x,y);
+    helperObj.moveMap(x,y);
+  },
   moveUI: function (piece, x, y) {
     var Bpar = document.getElementsByClassName("timer")[0];
     var Wpar = document.getElementsByClassName("timer")[1];
@@ -358,11 +297,9 @@ var helperObj =
           clearInterval(t2);
           if (isNotEnoughPieces(0)) {
             //!turn //checks for black pieces if white time's up
-            showEndGameBox("draw");
-            gameOver = true;
+            EndTheGame("Draw");
           } else {
-            showEndGameBox("black");
-            gameOver = true;
+            EndTheGame("black");
           }
         }
       }, 1000);
@@ -372,6 +309,57 @@ var helperObj =
       Bdiv.classList.toggle("borderTurn");
       clearInterval(t1);
     }
+  },
+  moveMap: function(x, y) {
+    var tX = selected.position.x;
+    tY = selected.position.y;
+    helperObj.map[tX][tY] = null;
+  
+    if (selected instanceof pawn)
+    {
+      if (selected.firstMove)
+      {
+        selected.firstMove = false;
+        selected.passPositionForEnPassant(x,y);
+      }
+    } // for handling the first move of pawns
+  
+    if (selected.firstMove != undefined && (y == 8 || y == 1)) {
+      var anyQueen;
+      if (selected.color == 0)
+        anyQueen = document.getElementById("whiteQueen");
+      else
+        anyQueen = document.getElementById("blackQueen");
+  
+  
+      var tPawn = helperObj.getPieceByPosition(x, 9 - y);
+  
+      tPawn.innerHTML = anyQueen.innerHTML;
+      selected = new queen(tX, tY, selected.color);
+    }
+    //Updating first move for king and rook
+    if (selected.hasMoved == false) selected.hasMoved = true;
+  
+    helperObj.map[x][y] = selected;
+    helperObj.map[x][y].position = Position(x, y);
+  
+    //-------------------updating availables turn's pieces to check for !turn king safety
+    //------not only the moved piece because it could be a discovered check
+    //now checking everything ==> to be optimized
+    for (var i = 1; i <= 8; i++) {
+      for (var j = 1; j <= 8; j++) {
+        if (helperObj.map[i][j])
+          // && helperObj.map[i][j].color==turn)
+          helperObj.map[i][j].getAndFillAvailableMoves();
+      }
+    }
+    helperObj.GetKing(!turn).getAndFillAvailableMoves();
+  
+    Deselect();
+    turnCount++;
+    turn = !turn;
+    whichCannotMove();
+    isNotEnoughPieces();
   },
 
   //three functions prototypes --implement removeFriendIntersection()
@@ -537,25 +525,6 @@ var helperObj =
     }
   },
 };
-
-var moveObj = 
-{
-  lastMove:{piece:null,from:null},
-  MoveTo: function(piece,x,y)
-  {
-    helperObj.moveUI(piece,x,y);
-    moveMap(x,y);
-    this.lastMove.piece = piece;
-    this.lastMove.from = Position(x,y);
-  },
-  Rollback: function()
-  {
-    selected = this.lastMove.piece;
-    helperObj.moveUI(selected,this.lastMove.from.x,this.lastMove.from.y);
-    moveMap(this.lastMove.from.x,this.lastMove.from.y);
-    turn = !turn;
-  }
-}
 
 function Position(_x, _y)
 {
