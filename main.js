@@ -4,9 +4,9 @@ function handleClick(position) {
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
-  const Wpar = document.getElementsByClassName("timer")[1];
-  const WProgressBar = document.getElementsByClassName("progress")[1];
-  const wdiv = document.getElementsByClassName("white")[0];
+  var Wpar = document.getElementsByClassName("timer")[1];
+  var WProgressBar = document.getElementsByClassName("progress")[1];
+  var wdiv = document.getElementsByClassName("white")[0];
 
   if (prevTurn == -1) {
     t2 = setInterval(function () {
@@ -37,12 +37,11 @@ function handleClick(position) {
       if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2)
       {
         //the boss  wants to castle king side
-        helperObj.moveToMap_and_ui(selected, x, y);
+        helperObj.moveUI(selected, x, y);
         var color = selected.color;
         moveMap(x, y);
         //move the rook next to it
-        //console.log("Selected is " + selected);
-        helperObj.moveToMap_and_ui(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
+        helperObj.moveUI(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(6, color ? 8 : 1);
@@ -51,11 +50,11 @@ function handleClick(position) {
         x == selected.position.x - 2)
         {
         //the boss  wants to castle queen side
-        helperObj.moveToMap_and_ui(selected, x, y);
+        helperObj.moveUI(selected, x, y);
         var color = selected.color;
         moveMap(x, y);
         //move the rook next to it
-        helperObj.moveToMap_and_ui(
+        helperObj.moveUI(
           helperObj.map[1][color ? 8 : 1],
           4,
           color ? 8 : 1
@@ -66,16 +65,16 @@ function handleClick(position) {
       } 
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
-          helperObj.moveToMap_and_ui(selected.canTakeEnPassant,x,y);
+          helperObj.moveUI(selected.canTakeEnPassant,x,y);
           helperObj.map[x][y] = selected.canTakeEnPassant;
           helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
         
-          helperObj.moveToMap_and_ui(selected,x,y);
+          helperObj.moveUI(selected,x,y);
           moveMap(x,y);
       }
       else if (helperObj.includesPosition(selected.moves, Position(x, y))) 
       {
-        helperObj.moveToMap_and_ui(selected, x, y);
+        helperObj.moveUI(selected, x, y);
         moveMap(x, y);
       } else Deselect();
     } else if (newSelection.color == turn) selected = newSelection;
@@ -87,7 +86,7 @@ function handleClick(position) {
         )
       ) {
         //TAKE ////
-        helperObj.moveToMap_and_ui(selected, x, y); //deselect
+        helperObj.moveUI(selected, x, y); //deselect
         moveMap(x, y);
       } else Deselect();
     }
@@ -98,9 +97,9 @@ function handleClick(position) {
         isSelected = true;
       }
   }
-  //-------------------------
+
   if (selected) {
-    if (selected.isKing) {
+    if (selected instanceof king) {
       for (var i = 1; i <= 8; i++) {
         for (var j = 1; j <= 8; j++) {
           if (
@@ -113,9 +112,8 @@ function handleClick(position) {
     }
     selected.getAndFillAvailableMoves();
   }
-  //--------------------------
-  //remove highlight by default
 
+  //remove highlight by default
   if (oldStates[0])
     document.getElementById(oldStates[0]).classList.remove("highlightPiece");
 
@@ -131,8 +129,7 @@ function handleClick(position) {
     oldStates.push(id);
     for (var i = 0; i < selected.moves.length; i++) {
       id = selected.moves[i];
-      id = id.x + "-" + id.y; //test
-      //console.log("id = " + id);
+      id = id.x + "-" + id.y; 
       oldStates.push(id);
       document.getElementById(id).classList.add("highlight"); //the available square
     }
@@ -144,13 +141,13 @@ var isSelected = false;
 var oldStates = [];
 var checked = false;
 var gameOver = false;
-let timer1 = 300 * 1000;
-let timer2 = 300 * 1000;
-let t1;
-let t2;
-let prevTurn = -1;
-var dor_count = 0;
-const originalUI = document.getElementsByTagName("svg")[0].innerHTML;
+var timer1 = 300 * 1000;
+var timer2 = 300 * 1000;
+var t1;
+var t2;
+var prevTurn = -1;
+var turnCount = 0;
+var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 var W = { RemainingArrayOfPieces: [] };
 var B = { RemainingArrayOfPieces: [] };
 
@@ -159,7 +156,7 @@ function moveMap(x, y) {
   tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
-  if (selected.firstMove != undefined) 
+  if (selected instanceof pawn) 
   {
     if (selected.firstMove) 
     {
@@ -169,14 +166,14 @@ function moveMap(x, y) {
   } // for handling the first move of pawns
 
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
-    let anyQueen;
-    if (selected.color == 0) {
+    var anyQueen;
+    if (selected.color == 0) 
       anyQueen = document.getElementById("whiteQueen");
-    } else {
+    else 
       anyQueen = document.getElementById("blackQueen");
-    }
+    
 
-    let tPawn = helperObj.getPieceByPosition(x, 9 - y);
+    var tPawn = helperObj.getPieceByPosition(x, 9 - y);
 
     tPawn.innerHTML = anyQueen.innerHTML;
     selected = new queen(tX, tY, selected.color);
@@ -197,13 +194,10 @@ function moveMap(x, y) {
         helperObj.map[i][j].getAndFillAvailableMoves();
     }
   }
-  //helperObj.GetKing(0).getAndFillAvailableMoves();
   helperObj.GetKing(!turn).getAndFillAvailableMoves();
-  //----------------------check king castling
 
-  //-------------------------------
   Deselect();
-  dor_count++;
+  turnCount++;
   turn = !turn;
   whichCannotMove();
   isNotEnoughPieces();
@@ -212,34 +206,33 @@ function Deselect() {
   selected = null;
   isSelected = false;
 }
-//-----------------------------------------------------------
 
-//-------------------------------------------
-var helperObj = {
+var helperObj = 
+{
   map: ([] = [[], [], [], [], [], [], [], [], []]),
   Allpieces: [],
-  justHappenedMove: {
-    oldX: 0,
-    oldY: 0,
-    newX: 0,
-    newY: 0,
+  justHappenedMove: {oldX: 0,oldY: 0,newX: 0,newY: 0,},
+  getSquareByPosition: function (x, y) 
+  {
+    return document.getElementById(x+"-"+y);
   },
-  getSquareByPosition: function (x, y) {
-    return document.getElementById(`${x}-${y}`);
-  },
+  /*getPieceByPosition: function (x, y) 
+  {
+    return document.getElementById(x+","+y);
+  },*/
   getPieceByPosition: function (posX, posY) {
-    let Allpieces = document.querySelectorAll(".black-piece, .white-piece");
+    var Allpieces = document.querySelectorAll(".black-piece, .white-piece");
     var Spos = `${posX * 100}px,${posY * 100}px`;
-    for (let i = 0; i < Allpieces.length; i++) {
+    for (var i = 0; i < Allpieces.length; i++) {
       if (Spos == this.grabPositionPiece(Allpieces[i])) {
         return Allpieces[i];
       }
     }
   },
   grabPositionPiece: function (pieceX) {
-    let Positions = pieceX.style.transform.match(/[0-9]{3}/g);
-    let posX = Positions[0];
-    let posY = Positions[1];
+    var Positions = pieceX.style.transform.match(/[0-9]{3}/g);
+    var posX = Positions[0];
+    var posY = Positions[1];
     return `${posX}px,${posY}px`;
   },
   Initialize: function () {
@@ -261,12 +254,12 @@ var helperObj = {
   },
   ResetGame: function () {
     /*
-    for (let i= 0; i< this.Allpieces.length; i++) {
+    for (var i= 0; i< this.Allpieces.length; i++) {
 
-      let current = this.Allpieces[i];
+      var current = this.Allpieces[i];
        document.getElementsByTagName("svg")[0].innerHTML=originalUI;
        var squares = document.getElementsByTagName("rect");
-       for (let j = 0; j < squares.length; j++)
+       for (var j = 0; j < squares.length; j++)
            squares[j].setAttribute("onclick", "handleClick(this)");
 
       selected=current;
@@ -279,7 +272,7 @@ var helperObj = {
          squares[i].setAttribute("onclick", "handleClick(this)");
     turn = 0;
 
-    // for (let i = 0; i<Allpieces.length; i++)
+    // for (var i = 0; i<Allpieces.length; i++)
     //{
     //var current = Allpieces[i];
     //console.log()
@@ -290,15 +283,13 @@ var helperObj = {
     //  console.log(Allpieces[0])
   },
 
-  fillInitialize: function (_y1, _y2, c) {
+  fillInitialize: function (_y1, _y2, c)
+   {
     for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
 
-    this.map[1][_y1] = new rook(1, _y1, c);
-    this.map[8][_y1] = new rook(8, _y1, c);
-    this.map[2][_y1] = new knight(2, _y1, c);
-    this.map[7][_y1] = new knight(7, _y1, c);
-    this.map[3][_y1] = new bishop(3, _y1, c);
-    this.map[6][_y1] = new bishop(6, _y1, c);
+    this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
+    this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
+    this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x = 0;
@@ -306,45 +297,42 @@ var helperObj = {
       for (var j = 0; j <= 8; j++) {
         if (this.map[i][j]) x++;
       }
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
+    for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < 8; j++) {
         if (this.map[i][j] != null) this.Allpieces.push(this.map[i][j]);
       }
     }
-
-    //console.log(x)
   },
 
-  moveToMap_and_ui: function (piece, x, y) {
-    const Bpar = document.getElementsByClassName("timer")[0];
-    const Wpar = document.getElementsByClassName("timer")[1];
-    const BProgressBar = document.getElementsByClassName("progress")[0];
-    const WProgressBar = document.getElementsByClassName("progress")[1];
-    const Bdiv = document.getElementsByClassName("black")[0];
-    const wdiv = document.getElementsByClassName("white")[0];
+  moveUI: function (piece, x, y) {
+    var Bpar = document.getElementsByClassName("timer")[0];
+    var Wpar = document.getElementsByClassName("timer")[1];
+    var BProgressBar = document.getElementsByClassName("progress")[0];
+    var WProgressBar = document.getElementsByClassName("progress")[1];
+    var Bdiv = document.getElementsByClassName("black")[0];
+    var wdiv = document.getElementsByClassName("white")[0];
 
-    let pieceUI = this.getPieceByPosition(piece.position.x, 9 - piece.position.y);
-    let oldSquare = this.getSquareByPosition(piece.position.x,piece.position.y);
+    var pieceUI = this.getPieceByPosition(piece.position.x, 9 - piece.position.y);
+    var oldSquare = this.getSquareByPosition(piece.position.x,piece.position.y);
     if (helperObj.justHappenedMove.oldX != 0)
     {
-      let oldPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.oldX,helperObj.justHappenedMove.oldY);
-      let newPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.newX,helperObj.justHappenedMove.newY);
+      var oldPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.oldX,helperObj.justHappenedMove.oldY);
+      var newPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.newX,helperObj.justHappenedMove.newY);
       oldPos.classList.remove("highlight-move");
       newPos.classList.remove("highlight-move");
     }
-    let newSquar = this.getSquareByPosition(x, y);
+    var newSquar = this.getSquareByPosition(x, y);
     this.justHappenedMove.oldX = piece.position.x;
     this.justHappenedMove.oldY = piece.position.y;
     this.justHappenedMove.newX = x;
     this.justHappenedMove.newY = y;
     oldSquare.classList.add("highlight-move");
     newSquar.classList.add("highlight-move");
-    //console.log(newSquar.classList);
-    let translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
+    var translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
 
     if (this.map[x][y] != null)
     {
-      let eatenPieceUI = this.getPieceByPosition(x, 9 - y);
+      var eatenPieceUI = this.getPieceByPosition(x, 9 - y);
       eatenPieceUI.style.transform = "translate(900px,900px)";
     }
     pieceUI.style.transform = translatePosition;
@@ -426,13 +414,8 @@ var helperObj = {
                 //then enemy is a checker
                 if (enemy.pinner) {
                   //if pinner then could block or take
-                  var Xdirection = 0;
-                  if (king.position.x > enemy.position.x) Xdirection = 1;
-                  else if (king.position.x < enemy.position.x) Xdirection = -1;
-                  var Ydirection = 0;
-                  if (king.position.y > enemy.position.y) Ydirection = 1;
-                  else if (king.position.y < enemy.position.y) Ydirection = -1;
-                  var line = getLineOfSquaresToFirstElement(enemy, Xdirection,Ydirection);
+                  var directionToTheKing = helperObj.GetDirections(king,enemy);
+                  var line = getLineOfSquaresToFirstElement(enemy, directionToTheKing[0],directionToTheKing[1]);
                   var oldmoves = piece.moves;
                   piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
                   piece.moves = piece.moves.concat(helperObj.intersection(oldmoves, line));
@@ -449,9 +432,19 @@ var helperObj = {
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
         if (helperObj.map[i][j] != null) {
-          if (helperObj.map[i][j].isKing && helperObj.map[i][j].color == color)
+          if (helperObj.map[i][j] instanceof king && helperObj.map[i][j].color == color)
             return helperObj.map[i][j];
         }
+  },
+  GetDirections: function (piece1, piece2)
+  {
+    var Xdirection = 0;
+    if (piece1.position.x > piece2.position.x) Xdirection = 1;
+    else if (piece1.position.x < piece2.position.x) Xdirection = -1;
+    var Ydirection = 0;
+    if (piece1.position.y > piece2.position.y) Ydirection = 1;
+    else if (piece1.position.y < piece2.position.y) Ydirection = -1;
+    return [Xdirection,Ydirection];
   },
   intersection: function (arr1, arr2)
   {
@@ -473,7 +466,7 @@ var helperObj = {
   },
   changeProgressBar: function (element, val)
   {
-    let widthVal = parseInt(getComputedStyle(element).width);
+    var widthVal = parseInt(getComputedStyle(element).width);
     widthVal -= val;
     element.style.width = widthVal + "px";
   },
@@ -485,7 +478,7 @@ var helperObj = {
   },
   findEnemyPinners: function (color)
   {
-    let Tpinners = [];
+    var Tpinners = [];
     for (var i = 1; i <= 8; i++)
     {
       for (var j = 1; j <= 8; j++)
@@ -498,14 +491,14 @@ var helperObj = {
   },
   checkPinning: function (piece) {
     //we could use W or B arrays but for now i 'll use map
-    let pinners = [];
+    var pinners = [];
     pinners = this.findEnemyPinners(piece.color);
-    let king = this.GetKing(piece.color);
-    let P_to_K_Direction = [];
-    for (let i = 0; i < pinners.length; i++)
+    var king = this.GetKing(piece.color);
+    var P_to_K_Direction = [];
+    for (var i = 0; i < pinners.length; i++)
     {
-      let DeffX = king.position.x - pinners[i].position.x;
-      let DeffY = king.position.y - pinners[i].position.y;
+      var DeffX = king.position.x - pinners[i].position.x;
+      var DeffY = king.position.y - pinners[i].position.y;
       P_to_K_Direction[0] = DeffX;
       P_to_K_Direction[1] = DeffY;
       if (DeffX != 0) P_to_K_Direction[0] = DeffX / Math.abs(DeffX);
@@ -519,15 +512,15 @@ var helperObj = {
       ) {
         // the pinner could move to the king direction
         if (this.includesPosition(pinners[i].scope, piece.position)) {
-          let Tpos = Position(
+          var Tpos = Position(
             piece.position.x + P_to_K_Direction[0],
             piece.position.y + P_to_K_Direction[1]
           );
-          let exit = false;
+          var exit = false;
           while (this.InBound(Tpos) && !exit) {
             if (Tpos.x == king.position.x && Tpos.y == king.position.y) {
-              let pinnedMoves = [];
-              let temp_pos = Position(
+              var pinnedMoves = [];
+              var temp_pos = Position(
                 piece.position.x + P_to_K_Direction[0] * -1,
                 piece.position.y + P_to_K_Direction[1] * -1
               );
@@ -557,55 +550,36 @@ var helperObj = {
     }
   },
 };
-//helperObj.Initialize();
 
-function Position(_x, _y) {
+function Position(_x, _y)
+{
   var p = { x: _x, y: _y };
   return p;
 }
-function whichCannotMove() {
-  //console.log("------------------------------------")
+function whichCannotMove() 
+{
   var flag = false;
-  //var allPicees=[0,0];
-  for (var i = 1; i <= 8; i++) {
-    for (var j = 1; j <= 8; j++) {
-      //console.log(helperObj.map[i][j])
-      //console.log("i: "+i+" j:"+ j)
-      if (helperObj.map[i][j]) {
-        //x++;
-        //console.log("Enter the if!")
-        if (!helperObj.map[i][j].isKing) helperObj.map[i][j].filterAvailables();
-        if (
-          helperObj.map[i][j].color == turn &&
-          helperObj.map[i][j].moves.length != 0
-        ) {
-          flag = true;
-          //console.log(helperObj.map[i][j]);
-          //break;
-        }
-        // allPicees[parseInt(helperObj.map[i][j].color)]++;
+  for (var i = 1; i <= 8; i++) 
+    for (var j = 1; j <= 8; j++) 
+      if (helperObj.map[i][j]) 
+      {
+        if (!helperObj.map[i][j] instanceof king) helperObj.map[i][j].filterAvailables();
+        if (helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0) flag = true;
       }
-    }
-  }
-  //console.log(x)
-  //console.log(allPicees)
-  //console.log(flag)
   if (!flag) isCheckmate(turn ? "White" : "Black");
-  /*else if(allPicees[0] + allPicees[1] < 4){
-    //console.log(allPicees)
-    isNotEnoughPieces(allPicees[0], allPicees[1]);
-  }*/
   return null;
 }
-function isCheckmate(win) {
-  //console.log("from isCheckmate")
+function isCheckmate(win) 
+{
   gameOver = true;
-  if (checked) {
+  if (checked) 
+  {
     setTimeout(function () {
       alert("Checkmate! " + win + " wins :)");
     }, 500); //declare win;
     //return true;
-  } else stalemate();
+  } 
+  else stalemate();
 }
 
 function stalemate() {
@@ -614,12 +588,8 @@ function stalemate() {
   alert("Draw by Stalemate"); ////declare draw;
   return true;
 }
-function isNotEnoughPieces(color) {
-  /// state is array index 0 for black and 1 for white
-  //to be called in the beginning of each players turn
-  //if W.pieces.length == 1 && B.pieces.length == 1 //only kings
-  //or W.pieces.length == 1 && B has only a knight/bishop
-  //or the opposite
+function isNotEnoughPieces(color) 
+{
   var allPieces = [0, 0];
   var tmpWhitePiece = null;
   var tmpBlackPiece = null;
@@ -628,284 +598,184 @@ function isNotEnoughPieces(color) {
     for (var j = 1; j <= 8; j++) {
       if (helperObj.map[i][j]) {
         allPieces[helperObj.map[i][j].color]++;
-        if (!helperObj.map[i][j].isKing)
+        if (!helperObj.map[i][j] instanceof king)
           if (helperObj.map[i][j].color == 0)
             tmpWhitePiece = helperObj.map[i][j];
           else tmpBlackPiece = helperObj.map[i][j];
       }
     }
   }
-  if (color != undefined) {
-    return allPieces[color] == 1;
-  }
+  if (color != undefined) return allPieces[color] == 1;
 
   if (allPieces[0] + allPieces[1] > 3) return false;
 
-  if (allPieces[0] == 1 && allPieces[1] == 1) {
-    console.log("from isNotEnoughPieces");
-    alert("Draw by Insufficient Material"); ////declare draw;
+  if (allPieces[0] == 1 && allPieces[1] == 1) 
+  {
+    alert("Draw by Insufficient Material"); 
     gameOver = true;
     return true;
   }
   var pieceCheck = allPieces[0] == 1 ? tmpBlackPiece : tmpWhitePiece;
-  if (pieceCheck.bishop || pieceCheck.knight) {
-    console.log("from isNotEnoughPieces");
-    alert("Draw by Insufficient Material"); ////declare draw;
+  if (pieceCheck instanceof bishop || pieceCheck instanceof knight) 
+  {
+    alert("Draw by Insufficient Material"); 
     gameOver = true;
     return true;
   }
   return false;
 }
-function piece(_x, _y, c) {
+function piece(_x, _y, c) 
+{
   this.position = Position(_x, _y);
   this.color = c;
   this.moves = [];
   this.scope = [];
 
   this.getAndFillAvailableMoves = function () {};
-  this.filterAvailables = function () {
+  this.filterAvailables = function () 
+  {
     helperObj.removeFriendIntersection(this);
     helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
-piece.prototype.typeof = function () {
-  return "piece";
-};
 
-function knight(_x, _y, c) {
+function knight(_x, _y, c) 
+{
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.knight = true;
-  this.getAndFillAvailableMoves = function () {
+  this.getAndFillAvailableMoves = function () 
+  {
     this.moves = [];
-    var t = this.position;
-    this.scope = [
-      Position(t.x + 2, t.y + 1),
-      Position(t.x + 1, t.y + 2),
-      Position(t.x - 1, t.y + 2),
-      Position(t.x - 2, t.y + 1),
-      Position(t.x + 2, t.y - 1),
-      Position(t.x + 1, t.y - 2),
-      Position(t.x - 1, t.y - 2),
-      Position(t.x - 2, t.y - 1),
-    ];
-
-    for (var i = 0; i < this.scope.length; i++) {
-      if (helperObj.InBound(this.scope[i])) this.moves.push(this.scope[i]);
-    }
+    this.scope = [[2,   1],[1,   2],[- 1,   2],[- 2,   1],[2,  - 1],[1,  - 2],[- 1,  - 2],[- 2,  - 1]];
+    for (var i = 0; i < this.scope.length; i++)
+      if (helperObj.InBound(Position(this.position.x + this.scope[i][0],this.position.y + this.scope[i][1]))) 
+      this.moves.push(Position(this.position.x + this.scope[i][0], this.position.y + this.scope[i][1]));
     this.filterAvailables();
   };
 }
 knight.prototype = Object.create(piece.prototype);
-knight.prototype.constructor = knight;
+knight.prototype.varructor = knight;
 
-function queen(_x, _y, c) {
+function queen(_x, _y, c) 
+{
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
   this.pinner = true;
-  this.directions = [
-    [1, 1],
-    [0, 1],
-    [0, -1],
-    [1, 0],
-    [-1, 0],
-    [-1, -1],
-    [-1, 1],
-    [1, -1],
-  ];
-  this.getAndFillAvailableMoves = function () {
+  this.directions = [[1, 1],[0, 1],[0, -1],[1, 0],[-1, 0],[-1, -1],[-1, 1],[1, -1]];
+  this.getAndFillAvailableMoves = function () 
+  {
     this.moves = [];
     this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
-    for (let i = 1; i < 8; i++) {
-      this.moves = this.moves.concat(
-        getLineOfSquaresToFirstElement(
-          this,
-          this.directions[i][0],
-          this.directions[i][1]
-        )
-      );
-    }
-    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1)); //down
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0)); //-->
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0)); //<--
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1)); // /down
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1)); // \up
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1)); // \down*/
+    for (var i = 1; i < 8; i++) 
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0],this.directions[i][1]));
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
 queen.prototype = Object.create(piece.prototype);
-queen.prototype.constructor = queen;
-function rook(_x, _y, c) {
+queen.prototype.varructor = queen;
+function rook(_x, _y, c) 
+{
   this.hasMoved = false;
   queen.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.directions = [
-    [0, 1],
-    [0, -1],
-    [1, 0],
-    [-1, 0],
-  ];
-  this.getAndFillAvailableMoves = function () {
+  this.directions = [[0, 1],[0, -1],[1, 0],[-1, 0]];
+  this.getAndFillAvailableMoves = function () 
+  {
     this.scope = [];
     this.moves = [];
     this.moves = getLineOfSquaresToFirstElement(this, 0, 1);
-    for (let i = 1; i < 4; i++) {
-      this.moves = this.moves.concat(
-        getLineOfSquaresToFirstElement(
-          this,
-          this.directions[i][0],
-          this.directions[i][1]
-        )
-      );
-    }
-    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 0, -1));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, 0));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 0));*/
+    for (var i = 1; i < 4; i++) 
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0],this.directions[i][1]));
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
-rook.prototype.typeof = function () {
-  return "rook";
-};
 
 rook.prototype = Object.create(queen.prototype);
-rook.prototype.constructor = rook;
-function bishop(_x, _y, c) {
+rook.prototype.varructor = rook;
+function bishop(_x, _y, c) 
+{
   queen.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.bishop = true;
-  this.directions = [
-    [1, 1],
-    [-1, -1],
-    [-1, 1],
-    [1, -1],
-  ];
-  this.getAndFillAvailableMoves = function () {
-    this.moves = [];
-    this.scope = [];
+  this.directions = [[1, 1],[-1, -1],[-1, 1],[1, -1]];
+  this.getAndFillAvailableMoves = function () 
+  {
+    this.moves = []; this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
-    for (let i = 1; i < 4; i++) {
-      this.moves = this.moves.concat(
-        getLineOfSquaresToFirstElement(
-          this,
-          this.directions[i][0],
-          this.directions[i][1]
-        )
-      );
-    }
-    /*this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, -1));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, -1, 1));
-    this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this, 1, -1));*/
+    for (var i = 1; i < 4; i++)
+      this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0],this.directions[i][1]));
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
   };
 }
 bishop.prototype = Object.create(queen.prototype);
-bishop.prototype.constructor = bishop;
-function getLineOfSquaresToFirstElement(
-  Piece,
-  Xdirection,
-  Ydirection,
-  isScope = false
-) {
-  var Tpos = Position(
-    Piece.position.x + Xdirection,
-    Piece.position.y + Ydirection
-  );
-  var posS = [];
-  var condition =
-    helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null;
-  if (isScope) condition = helperObj.InBound(Tpos);
-  while (helperObj.InBound(Tpos) && condition) {
-    posS.push(Position(Tpos.x, Tpos.y));
-    Tpos.x += Xdirection;
-    Tpos.y += Ydirection;
-    if (!isScope)
-      condition =
-        helperObj.InBound(Tpos) && helperObj.map[Tpos.x][Tpos.y] == null;
+bishop.prototype.varructor = bishop;
+function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) 
+{
+  var tmpPosition = Position(Piece.position.x + Xdirection,Piece.position.y + Ydirection);
+  var positions = [];
+  while (helperObj.InBound(tmpPosition) && helperObj.map[tmpPosition.x][tmpPosition.y] == null) 
+  {
+    positions.push(Position(tmpPosition.x, tmpPosition.y));
+    tmpPosition.x += Xdirection;
+    tmpPosition.y += Ydirection;
   }
-  if (
-    helperObj.InBound(Tpos) //&&
-    //helperObj.map[Tpos.x][Tpos.y].color != Piece.color
-  ) {
-    posS.push(Position(Tpos.x, Tpos.y));
-  }
-
-  return posS;
+  if (helperObj.InBound(tmpPosition)) positions.push(Position(tmpPosition.x, tmpPosition.y));
+  return positions;
 }
-
-//could think of a pinner class to implement those 3 pieces ...
-//myStepDirection.x,.y
-
-function king(_x, _y, c) {
+function king(_x, _y, c) 
+{
   this.hasMoved = false;
   this.castled = false;
-
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.isKing = true;
-  this.getAndFillAvailableMoves = function () {
+  this.getAndFillAvailableMoves = function () 
+  {
     this.moves = [];
     this.scope = [];
     var candidates = [0, 1, 0, -1, 1, 0, -1, 0, 1, -1, -1, 1, 1, 1, -1, -1];
-    for (var i = 0; i < candidates.length; i += 2) {
-      var candidatePosition = Position(
-        this.position.x + candidates[i],
-        this.position.y + candidates[i + 1]
-      );
-      if (helperObj.InBound(candidatePosition))
-        this.moves.push(candidatePosition);
+    for (var i = 0; i < candidates.length; i += 2) 
+    {
+      var candidatePosition = Position(this.position.x + candidates[i], this.position.y + candidates[i + 1]);
+      if (helperObj.InBound(candidatePosition)) this.moves.push(candidatePosition);
       this.scope.push(candidatePosition);
     }
-    //console.log(this.moves);
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
     /////adding castling capabililty
-    if (!checked) {
-      if (
-        !this.hasMoved &&
-        helperObj.map[8][turn ? 8 : 1] &&
-        !helperObj.map[8][turn ? 8 : 1].hasMoved
-      ) {
-        if (getLineOfSquaresToFirstElement(this, 1, 0).length == 3) {
-          if (
-            helperObj.includesPosition(
-              this.moves,
-              Position(this.position.x + 1, this.position.y)
-            )
-          )
+    if (!checked) 
+    {
+      if (!this.hasMoved && helperObj.map[8][turn ? 8 : 1] && !helperObj.map[8][turn ? 8 : 1].hasMoved) 
+        if (getLineOfSquaresToFirstElement(this, 1, 0).length == 3) 
+          if (helperObj.includesPosition(this.moves,Position(this.position.x + 1, this.position.y)))
             this.moves.push(Position(this.position.x + 2, this.position.y));
-        }
-      }
-      if (
-        !this.hasMoved &&
-        helperObj.map[1][turn ? 8 : 1] &&
-        !helperObj.map[1][turn ? 8 : 1].hasMoved
-      ) {
-        if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4) {
+
+      if (!this.hasMoved && helperObj.map[1][turn ? 8 : 1] && !helperObj.map[1][turn ? 8 : 1].hasMoved) 
+        if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4) 
           if (helperObj.includesPosition(this.moves,Position(this.position.x - 1, this.position.y)))
             this.moves.push(Position(this.position.x - 2, this.position.y));
-        }
-      }
       this.removeEnemyIntersection();
     }
   };
 
-  this.removeEnemyIntersection = function () {
+  this.removeEnemyIntersection = function () 
+  {
     checked = false;
-    for (var i = 1; i <= 8; i++) {
-      for (var j = 1; j <= 8; j++) {
-        if (helperObj.map[i][j] != null) {
+    for (var i = 1; i <= 8; i++)
+      for (var j = 1; j <= 8; j++) 
+      {
+        if (helperObj.map[i][j] != null) 
+        {
           var piece = helperObj.map[i][j];
-          if (piece.color != this.color) {
+          if (piece.color != this.color) 
+          {
             //then enemey piece
             this.moves = helperObj.difference(this.moves, piece.scope);
-            if (helperObj.includesPosition(piece.scope, this.position)) {
+            if (helperObj.includesPosition(piece.scope, this.position)) 
+            {
               checked = true; //Then the king is in CHECK!
               helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
               checkedPosition = this.position;
@@ -918,45 +788,38 @@ function king(_x, _y, c) {
                 var Ydirection = 0;
                 if (this.position.y > piece.position.y) Ydirection = 1;
                 else if (this.position.y < piece.position.y) Ydirection = -1;
-                this.moves = helperObj.difference(this.moves,getLineOfSquaresToFirstElement(piece,Xdirection, Ydirection,true));
+                this.moves = helperObj.difference(this.moves,[Position(this.position.x+Xdirection, this.position.y+Ydirection)]);
               }
             }
           }
         }
       }
-    }
     if (!checked && checkedPosition)
       document.getElementById(checkedPosition.x + "-" + checkedPosition.y).classList.remove("check");
   };
 }
 var checkedPosition;
 king.prototype = Object.create(piece.prototype);
-king.prototype.constructor = king;
+king.prototype.varructor = king;
 
-function pawn(_x, _y, c) {
+function pawn(_x, _y, c) 
+{
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  //this.moves
   this.canTakeEnPassant = null;
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
-  this.EnPassantIsAvailable = function () {
-    //console.log(dor_count , canOnPassWa);
-    //console.log(this.position.x, this.position.y)
-    return dor_count == canBeTakenEnPassant;
-  };
+  this.EnPassantIsAvailable = function () { return turnCount == canBeTakenEnPassant; };
   var canBeTakenEnPassant = -1;
-  this.passPositionForEnPassant = function (x, y) {
-    if (x == _x && y == _y + 2 * increment) {
-      //console.log("ppppppppppppppp")
-      canBeTakenEnPassant = dor_count+1 ; 
-      //console.log(canOnPassWa)
-    }
+  this.passPositionForEnPassant = function (x, y) 
+  {
+    if (x == _x && y == _y + 2 * increment) { canBeTakenEnPassant = turnCount+1; }
   };
   this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
     this.scope = []; this.canTakeEnPassant = null;
+    //var candidates = [[0,increment],[0,2*increment],[increment,increment],[-increment, increment]];
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
 
@@ -964,7 +827,7 @@ function pawn(_x, _y, c) {
       helperObj.InBound(tempPosition))
       this.moves.push(tempPosition);
 
-    //if (firstMove) allow y + 2; firstMove = false; //same above incrementondition
+    //if (firstMove) allow y + 2; firstMove = false; //same above increment condition
     tempPosition = Position(this.position.x, this.position.y + 2 * increment);
     if (helperObj.InBound(tempPosition))
       if (this.firstMove)
@@ -1000,10 +863,7 @@ function pawn(_x, _y, c) {
       this.canTakeEnPassant = helperObj.map[this.position.x-increment][this.position.y];
     }
 
-    tempPosition = Position(
-      this.position.x+increment,
-      this.position.y
-    );
+    tempPosition = Position(this.position.x+increment,this.position.y);
     if (helperObj.InBound(tempPosition)
       && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
     if( helperObj.map[this.position.x+increment][this.position.y]?.EnPassantIsAvailable()) // for en passant
@@ -1011,12 +871,11 @@ function pawn(_x, _y, c) {
       this.moves.push(Position(this.position.x + increment, this.position.y +increment));
       this.canTakeEnPassant = helperObj.map[this.position.x+increment][this.position.y];
     }
-    //implement promotion in move method ..... (if pawn & y = 8 -> queen) --level 2
     this.filterAvailables();
   };
 }
 pawn.prototype = Object.create(piece.prototype);
-pawn.prototype.constructor = pawn;
+pawn.prototype.varructor = pawn;
 
 //adding event listener on all squares on load
 var squares = document.getElementsByTagName("rect");
