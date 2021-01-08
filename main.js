@@ -150,9 +150,17 @@ function moveMap(x, y) {
       selected.passPsitionForOnpassWa(x,y);
     }else if(tY == y+1 ){
       if(helperObj.map[tX+1][tY]?.isOnpassWa()){
+        //  var r =helperObj.map[tX+1][tY];
+        //  setTimeout(function(){
+        //    helperObj.moveToMap_and_ui(r,x,y);
+        //  },2000)
         helperObj.moveToMap_and_ui(helperObj.map[tX+1][tY],x,y);
         helperObj.map[tX+1][tY] = null;
       }else if(helperObj.map[tX-1][tY]?.isOnpassWa()){
+        //  var r =helperObj.map[tX-1][tY];
+        //  setTimeout(function(){
+        //    helperObj.moveToMap_and_ui(r,x,y);
+        //  },2000)
         helperObj.moveToMap_and_ui(helperObj.map[tX-1][tY],x,y);
         helperObj.map[tX-1][tY] = null;
       }
@@ -921,8 +929,8 @@ function pawn(_x, _y, c) {
       this.position.y
     );
     if (helperObj.InBound(tempPosition)
-        && helperObj?.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
-    if( helperObj?.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
+        && helperObj.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj.map[this.position.x-increment][this.position.y]?.isOnpassWa() ) // for isPassWa
     {
       this.moves.push(Position(this.position.x - increment, this.position.y +increment));
     }
@@ -932,8 +940,8 @@ function pawn(_x, _y, c) {
       this.position.y
     );
     if (helperObj.InBound(tempPosition) 
-      && helperObj?.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
-    if( helperObj?.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
+      && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
+    if( helperObj.map[this.position.x+increment][this.position.y]?.isOnpassWa()) // for isPassWa
     {
       this.moves.push(Position(this.position.x + increment, this.position.y +increment));
     }
