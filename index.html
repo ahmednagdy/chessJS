@@ -1574,23 +1574,28 @@
         </g>
       </svg>
       <div class="turn black">
-        <p class="timer">5:00</p>
+        <p class="timer">Black Timer</p>
         <div class="progress-container">
-          <div class="progress"></div>
+          <div class="progress">
+            <div class="timeout"></div>
+          </div>
         </div>
       </div>
       <div class="turn white">
-        <p class="timer">5:00</p>
+        <p class="timer">White Timer</p>
         <div class="progress-container">
-          <div class="progress"></div>
+          <div class="progress">
+            <div class="timeout"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="control-buttons">
       <a id="reset" href="#" class="myButton">Reset</a>
-      <a href="#" class="myButton">New Game</a>
-      <a href="#" class="myButton">Resign</a>
+      <a id="newGame" href="#" class="myButton">New Game</a>
+      <a  id="Resign" href="#" class="myButton">Resign</a>
+      <a  id="TakeBack" href="#" class="myButton"><i class="fas fa-undo-alt"></i></a>
     </div>
 
     <script src="pop.js"></script>
