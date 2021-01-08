@@ -464,7 +464,7 @@ var helperObj =
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   },
-  checkPinningBETA: function(piece)
+  checkPinning: function(piece)
   {
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
@@ -485,67 +485,6 @@ var helperObj =
           }
       }
   }
-  ,
-  findEnemyPinners: function (color)
-  {
-    var Tpinners = [];
-    for (var i = 1; i <= 8; i++)
-    {
-      for (var j = 1; j <= 8; j++)
-      {
-        if (helperObj.map[j][i] != null && helperObj.map[j][i].pinner && helperObj.map[j][i].color != color)
-          Tpinners.push(helperObj.map[j][i]);
-      }
-    }
-    return Tpinners;
-  },
-  checkPinning: function (piece) 
-  {
-    //we could use W or B arrays but for now i 'll use map
-    var pinners = [];
-    pinners = this.findEnemyPinners(piece.color);
-    var king = this.GetKing(piece.color);
-    var P_to_K_Direction = [];
-    for (var i = 0; i < pinners.length; i++)
-    {
-      var DeffX = king.position.x - pinners[i].position.x;
-      var DeffY = king.position.y - pinners[i].position.y;
-      P_to_K_Direction[0] = DeffX;
-      P_to_K_Direction[1] = DeffY;
-      if (DeffX != 0) P_to_K_Direction[0] = DeffX / Math.abs(DeffX);
-      if (DeffY != 0) P_to_K_Direction[1] = DeffY / Math.abs(DeffY);
-      if (pinners[i].directions.some((d) => d[0] == P_to_K_Direction[0] && d[1] == P_to_K_Direction[1]) &&
-        (Math.abs(DeffX) == Math.abs(DeffY) || Math.abs(P_to_K_Direction[1] + P_to_K_Direction[0]) == 1)) 
-        {
-        // the pinner could move to the king direction
-        if (this.includesPosition(pinners[i].scope, piece.position)) 
-        {
-          var Tpos = Position(piece.position.x + P_to_K_Direction[0],piece.position.y + P_to_K_Direction[1]);
-          var exit = false;
-          while (this.InBound(Tpos) && !exit) 
-          {
-            if (Tpos.x == king.position.x && Tpos.y == king.position.y) 
-            {
-              var pinnedMoves = [];
-              var temp_pos = Position(piece.position.x + P_to_K_Direction[0] * -1,piece.position.y + P_to_K_Direction[1] * -1);
-              while (temp_pos.x != pinners[i].position.x || temp_pos.y != pinners[i].position.y) 
-              {
-                pinnedMoves.push(temp_pos);
-                temp_pos = Position(temp_pos.x + P_to_K_Direction[0] * -1,temp_pos.y + P_to_K_Direction[1] * -1);
-              }
-              pinnedMoves.push(temp_pos);
-              piece.moves = this.intersection(pinnedMoves, piece.moves);
-              //piece.moves=[];
-              exit = true;
-            } 
-            else if (this.map[Tpos.x][Tpos.y] != null) exit = true;
-            Tpos.x += P_to_K_Direction[0];
-            Tpos.y += P_to_K_Direction[1];
-          }
-        }
-      }
-    }
-  },
 };
 
 function Position(_x, _y)
@@ -638,8 +577,7 @@ function piece(_x, _y, c)
   this.filterAvailables = function ()
   {
     helperObj.removeFriendIntersection(this);
-    //helperObj.checkPinning(this);
-    helperObj.checkPinningBETA(this);
+    helperObj.checkPinning(this);
     helperObj.isKingInCheck(this);
   };
 }
