@@ -5,12 +5,11 @@ function handleClick(position) {
   var y = parseInt(position.id.split("-")[1]);
   var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
   var Wpar = document.getElementsByClassName("timer")[1];
-  var WProgressBar = document.getElementsByClassName("progress")[1];
+  var whiteOverBar = document.getElementsByClassName("timeout")[1];
   var wdiv = document.getElementsByClassName("white")[0];
-
   if (prevTurn == -1) {
     t2 = setInterval(function () {
-      helperObj.changeProgressBar(WProgressBar, 1);
+      helperObj.changeProgressBar(whiteOverBar, step);
       timer2 -= 1000;
       Wpar.textContent = helperObj.toShow(timer2);
       if (timer2 <= 0) {
@@ -24,7 +23,7 @@ function handleClick(position) {
           gameOver = true;
         }
       }
-    }, 1000);
+    }, 10);
 
     clearInterval(t1);
     prevTurn = 900;
@@ -62,17 +61,17 @@ function handleClick(position) {
         selected = helperObj.map[8][color ? 8 : 1];
         turn = !turn;
         moveMap(4, color ? 8 : 1);
-      } 
+      }
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
           helperObj.moveUI(selected.canTakeEnPassant,x,y);
           helperObj.map[x][y] = selected.canTakeEnPassant;
           helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
-        
+
           helperObj.moveUI(selected,x,y);
           moveMap(x,y);
       }
-      else if (helperObj.includesPosition(selected.moves, Position(x, y))) 
+      else if (helperObj.includesPosition(selected.moves, Position(x, y)))
       {
         helperObj.moveUI(selected, x, y);
         moveMap(x, y);
@@ -129,7 +128,7 @@ function handleClick(position) {
     oldStates.push(id);
     for (var i = 0; i < selected.moves.length; i++) {
       id = selected.moves[i];
-      id = id.x + "-" + id.y; 
+      id = id.x + "-" + id.y;
       oldStates.push(id);
       document.getElementById(id).classList.add("highlight"); //the available square
     }
@@ -143,8 +142,10 @@ var checked = false;
 var gameOver = false;
 var timer1 = 300 * 1000;
 var timer2 = 300 * 1000;
+var step = 1;
 var t1;
 var t2;
+var choosenTime;
 var prevTurn = -1;
 var turnCount = 0;
 var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
@@ -156,9 +157,9 @@ function moveMap(x, y) {
   tY = selected.position.y;
   helperObj.map[tX][tY] = null;
 
-  if (selected instanceof pawn) 
+  if (selected instanceof pawn)
   {
-    if (selected.firstMove) 
+    if (selected.firstMove)
     {
       selected.firstMove = false;
       selected.passPositionForEnPassant(x,y);
@@ -167,11 +168,11 @@ function moveMap(x, y) {
 
   if (selected.firstMove != undefined && (y == 8 || y == 1)) {
     var anyQueen;
-    if (selected.color == 0) 
+    if (selected.color == 0)
       anyQueen = document.getElementById("whiteQueen");
-    else 
+    else
       anyQueen = document.getElementById("blackQueen");
-    
+
 
     var tPawn = helperObj.getPieceByPosition(x, 9 - y);
 
@@ -207,16 +208,16 @@ function Deselect() {
   isSelected = false;
 }
 
-var helperObj = 
+var helperObj =
 {
   map: ([] = [[], [], [], [], [], [], [], [], []]),
   Allpieces: [],
   justHappenedMove: {oldX: 0,oldY: 0,newX: 0,newY: 0,},
-  getSquareByPosition: function (x, y) 
+  getSquareByPosition: function (x, y)
   {
     return document.getElementById(x+"-"+y);
   },
-  /*getPieceByPosition: function (x, y) 
+  /*getPieceByPosition: function (x, y)
   {
     return document.getElementById(x+","+y);
   },*/
@@ -272,6 +273,27 @@ var helperObj =
          squares[i].setAttribute("onclick", "handleClick(this)");
     turn = 0;
 
+    var timers = document.getElementsByClassName("timer");
+    clearInterval(t1);
+    clearInterval(t2)
+    timers[0].textContent = timers[1].textContent = this.toShow(choosenTime);
+    var blackOverBar = document.getElementsByClassName("timeout")[0];
+    var whiteOverBar = document.getElementsByClassName("timeout")[1];
+    blackOverBar.style.width = whiteOverBar.style.width = "0px";
+    prevTurn = -1;
+    timer1 = choosenTime;
+    timer2 = choosenTime;
+
+    var wdiv = document.getElementsByClassName("white")[0];
+    var Wpar = document.getElementsByClassName("timer")[1];
+    var Bdiv = document.getElementsByClassName("black")[0];
+    var Bpar = document.getElementsByClassName("timer")[0];
+    Wpar.classList.remove("running");
+    wdiv.classList.remove("borderTurn");
+    Bpar.classList.remove("running");
+    Bdiv.classList.remove("borderTurn");
+
+    gameOver = false;
     // for (var i = 0; i<Allpieces.length; i++)
     //{
     //var current = Allpieces[i];
@@ -307,8 +329,8 @@ var helperObj =
   moveUI: function (piece, x, y) {
     var Bpar = document.getElementsByClassName("timer")[0];
     var Wpar = document.getElementsByClassName("timer")[1];
-    var BProgressBar = document.getElementsByClassName("progress")[0];
-    var WProgressBar = document.getElementsByClassName("progress")[1];
+    var blackOverBar = document.getElementsByClassName("timeout")[0];
+    var whiteOverBar = document.getElementsByClassName("timeout")[1];
     var Bdiv = document.getElementsByClassName("black")[0];
     var wdiv = document.getElementsByClassName("white")[0];
 
@@ -340,7 +362,7 @@ var helperObj =
     if (!turn || prevTurn == 900)
     {
       t1 = setInterval(function () {
-        helperObj.changeProgressBar(BProgressBar, 1);
+        helperObj.changeProgressBar(blackOverBar, step);
         timer1 -= 1000;
         Bpar.textContent = helperObj.toShow(timer1);
         if (timer1 <= 0) {
@@ -364,7 +386,7 @@ var helperObj =
       Bdiv.classList.toggle("borderTurn");
     } else {
       t2 = setInterval(function () {
-        helperObj.changeProgressBar(WProgressBar, 1);
+        helperObj.changeProgressBar(whiteOverBar, step);
         timer2 -= 1000;
         Wpar.textContent = helperObj.toShow(timer2);
         if (timer2 <= 0) {
@@ -466,8 +488,8 @@ var helperObj =
   },
   changeProgressBar: function (element, val)
   {
-    var widthVal = parseInt(getComputedStyle(element).width);
-    widthVal -= val;
+    var widthVal = parseFloat(getComputedStyle(element).width);
+    widthVal += val;
     element.style.width = widthVal + "px";
   },
   toShow: function (millis)
@@ -556,12 +578,12 @@ function Position(_x, _y)
   var p = { x: _x, y: _y };
   return p;
 }
-function whichCannotMove() 
+function whichCannotMove()
 {
   var flag = false;
-  for (var i = 1; i <= 8; i++) 
-    for (var j = 1; j <= 8; j++) 
-      if (helperObj.map[i][j]) 
+  for (var i = 1; i <= 8; i++)
+    for (var j = 1; j <= 8; j++)
+      if (helperObj.map[i][j])
       {
         if (!helperObj.map[i][j] instanceof king) helperObj.map[i][j].filterAvailables();
         if (helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0) flag = true;
@@ -569,16 +591,16 @@ function whichCannotMove()
   if (!flag) isCheckmate(turn ? "White" : "Black");
   return null;
 }
-function isCheckmate(win) 
+function isCheckmate(win)
 {
   gameOver = true;
-  if (checked) 
+  if (checked)
   {
     setTimeout(function () {
       alert("Checkmate! " + win + " wins :)");
     }, 500); //declare win;
     //return true;
-  } 
+  }
   else stalemate();
 }
 
@@ -588,7 +610,7 @@ function stalemate() {
   alert("Draw by Stalemate"); ////declare draw;
   return true;
 }
-function isNotEnoughPieces(color) 
+function isNotEnoughPieces(color)
 {
   var allPieces = [0, 0];
   var tmpWhitePiece = null;
@@ -609,22 +631,22 @@ function isNotEnoughPieces(color)
 
   if (allPieces[0] + allPieces[1] > 3) return false;
 
-  if (allPieces[0] == 1 && allPieces[1] == 1) 
+  if (allPieces[0] == 1 && allPieces[1] == 1)
   {
-    alert("Draw by Insufficient Material"); 
+    alert("Draw by Insufficient Material");
     gameOver = true;
     return true;
   }
   var pieceCheck = allPieces[0] == 1 ? tmpBlackPiece : tmpWhitePiece;
-  if (pieceCheck instanceof bishop || pieceCheck instanceof knight) 
+  if (pieceCheck instanceof bishop || pieceCheck instanceof knight)
   {
-    alert("Draw by Insufficient Material"); 
+    alert("Draw by Insufficient Material");
     gameOver = true;
     return true;
   }
   return false;
 }
-function piece(_x, _y, c) 
+function piece(_x, _y, c)
 {
   this.position = Position(_x, _y);
   this.color = c;
@@ -632,7 +654,7 @@ function piece(_x, _y, c)
   this.scope = [];
 
   this.getAndFillAvailableMoves = function () {};
-  this.filterAvailables = function () 
+  this.filterAvailables = function ()
   {
     helperObj.removeFriendIntersection(this);
     helperObj.checkPinning(this);
@@ -640,16 +662,16 @@ function piece(_x, _y, c)
   };
 }
 
-function knight(_x, _y, c) 
+function knight(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
     this.scope = [[2,   1],[1,   2],[- 1,   2],[- 2,   1],[2,  - 1],[1,  - 2],[- 1,  - 2],[- 2,  - 1]];
     for (var i = 0; i < this.scope.length; i++)
-      if (helperObj.InBound(Position(this.position.x + this.scope[i][0],this.position.y + this.scope[i][1]))) 
+      if (helperObj.InBound(Position(this.position.x + this.scope[i][0],this.position.y + this.scope[i][1])))
       this.moves.push(Position(this.position.x + this.scope[i][0], this.position.y + this.scope[i][1]));
     this.filterAvailables();
   };
@@ -657,18 +679,18 @@ function knight(_x, _y, c)
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.varructor = knight;
 
-function queen(_x, _y, c) 
+function queen(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
   this.pinner = true;
   this.directions = [[1, 1],[0, 1],[0, -1],[1, 0],[-1, 0],[-1, -1],[-1, 1],[1, -1]];
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
     this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
-    for (var i = 1; i < 8; i++) 
+    for (var i = 1; i < 8; i++)
       this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0],this.directions[i][1]));
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
@@ -676,18 +698,18 @@ function queen(_x, _y, c)
 }
 queen.prototype = Object.create(piece.prototype);
 queen.prototype.varructor = queen;
-function rook(_x, _y, c) 
+function rook(_x, _y, c)
 {
   this.hasMoved = false;
   queen.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
   this.directions = [[0, 1],[0, -1],[1, 0],[-1, 0]];
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.scope = [];
     this.moves = [];
     this.moves = getLineOfSquaresToFirstElement(this, 0, 1);
-    for (var i = 1; i < 4; i++) 
+    for (var i = 1; i < 4; i++)
       this.moves = this.moves.concat(getLineOfSquaresToFirstElement(this,this.directions[i][0],this.directions[i][1]));
     this.scope = this.scope.concat(this.moves);
     this.filterAvailables();
@@ -696,12 +718,12 @@ function rook(_x, _y, c)
 
 rook.prototype = Object.create(queen.prototype);
 rook.prototype.varructor = rook;
-function bishop(_x, _y, c) 
+function bishop(_x, _y, c)
 {
   queen.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
   this.directions = [[1, 1],[-1, -1],[-1, 1],[1, -1]];
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.moves = []; this.scope = [];
     this.moves = getLineOfSquaresToFirstElement(this, 1, 1);
@@ -713,11 +735,11 @@ function bishop(_x, _y, c)
 }
 bishop.prototype = Object.create(queen.prototype);
 bishop.prototype.varructor = bishop;
-function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection) 
+function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection)
 {
   var tmpPosition = Position(Piece.position.x + Xdirection,Piece.position.y + Ydirection);
   var positions = [];
-  while (helperObj.InBound(tmpPosition) && helperObj.map[tmpPosition.x][tmpPosition.y] == null) 
+  while (helperObj.InBound(tmpPosition) && helperObj.map[tmpPosition.x][tmpPosition.y] == null)
   {
     positions.push(Position(tmpPosition.x, tmpPosition.y));
     tmpPosition.x += Xdirection;
@@ -726,18 +748,18 @@ function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection)
   if (helperObj.InBound(tmpPosition)) positions.push(Position(tmpPosition.x, tmpPosition.y));
   return positions;
 }
-function king(_x, _y, c) 
+function king(_x, _y, c)
 {
   this.hasMoved = false;
   this.castled = false;
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
-  this.getAndFillAvailableMoves = function () 
+  this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
     this.scope = [];
     var candidates = [0, 1, 0, -1, 1, 0, -1, 0, 1, -1, -1, 1, 1, 1, -1, -1];
-    for (var i = 0; i < candidates.length; i += 2) 
+    for (var i = 0; i < candidates.length; i += 2)
     {
       var candidatePosition = Position(this.position.x + candidates[i], this.position.y + candidates[i + 1]);
       if (helperObj.InBound(candidatePosition)) this.moves.push(candidatePosition);
@@ -746,35 +768,35 @@ function king(_x, _y, c)
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
     /////adding castling capabililty
-    if (!checked) 
+    if (!checked)
     {
-      if (!this.hasMoved && helperObj.map[8][turn ? 8 : 1] && !helperObj.map[8][turn ? 8 : 1].hasMoved) 
-        if (getLineOfSquaresToFirstElement(this, 1, 0).length == 3) 
+      if (!this.hasMoved && helperObj.map[8][turn ? 8 : 1] && !helperObj.map[8][turn ? 8 : 1].hasMoved)
+        if (getLineOfSquaresToFirstElement(this, 1, 0).length == 3)
           if (helperObj.includesPosition(this.moves,Position(this.position.x + 1, this.position.y)))
             this.moves.push(Position(this.position.x + 2, this.position.y));
 
-      if (!this.hasMoved && helperObj.map[1][turn ? 8 : 1] && !helperObj.map[1][turn ? 8 : 1].hasMoved) 
-        if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4) 
+      if (!this.hasMoved && helperObj.map[1][turn ? 8 : 1] && !helperObj.map[1][turn ? 8 : 1].hasMoved)
+        if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4)
           if (helperObj.includesPosition(this.moves,Position(this.position.x - 1, this.position.y)))
             this.moves.push(Position(this.position.x - 2, this.position.y));
       this.removeEnemyIntersection();
     }
   };
 
-  this.removeEnemyIntersection = function () 
+  this.removeEnemyIntersection = function ()
   {
     checked = false;
     for (var i = 1; i <= 8; i++)
-      for (var j = 1; j <= 8; j++) 
+      for (var j = 1; j <= 8; j++)
       {
-        if (helperObj.map[i][j] != null) 
+        if (helperObj.map[i][j] != null)
         {
           var piece = helperObj.map[i][j];
-          if (piece.color != this.color) 
+          if (piece.color != this.color)
           {
             //then enemey piece
             this.moves = helperObj.difference(this.moves, piece.scope);
-            if (helperObj.includesPosition(piece.scope, this.position)) 
+            if (helperObj.includesPosition(piece.scope, this.position))
             {
               checked = true; //Then the king is in CHECK!
               helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
@@ -802,7 +824,7 @@ var checkedPosition;
 king.prototype = Object.create(piece.prototype);
 king.prototype.varructor = king;
 
-function pawn(_x, _y, c) 
+function pawn(_x, _y, c)
 {
   piece.call(this, _x, _y, c);
   this.initPos = Position(_x, _y);
@@ -811,7 +833,7 @@ function pawn(_x, _y, c)
   this.firstMove = true;
   this.EnPassantIsAvailable = function () { return turnCount == canBeTakenEnPassant; };
   var canBeTakenEnPassant = -1;
-  this.passPositionForEnPassant = function (x, y) 
+  this.passPositionForEnPassant = function (x, y)
   {
     if (x == _x && y == _y + 2 * increment) { canBeTakenEnPassant = turnCount+1; }
   };
@@ -853,7 +875,7 @@ function pawn(_x, _y, c)
       if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
         this.moves.push(tempPosition);
     }
-    
+
     tempPosition = Position(this.position.x-increment,this.position.y);
     if (helperObj.InBound(tempPosition)
         && helperObj.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)

@@ -51,6 +51,16 @@ svg {
   background: #1e9600;
   background: linear-gradient(to right, #ff0000, #fff200, #1e9600);
 }
+.timeout {
+  display: block;
+  margin-left: auto;
+  height: 100%;
+  width: 0px;
+  background-color: #fbf0f0;
+  top: -19px;
+  z-index: 10;
+}
+
 .running {
   background-color: #00917c;
   color: #dfe0df;

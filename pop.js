@@ -23,15 +23,31 @@ function hideEndGameBox() {
   popup.style.marginTop = "-750px";
 }
 
-function setTimeToStartGame (){
+function setTimeToStartGame() {
+  var timers = document.getElementsByClassName("timer");
   var value = Number(document.getElementsByClassName("time-select")[0].value);
   var popup = document.getElementsByClassName("popup-container-ng")[0];
+  var WProgressBar = document.getElementsByClassName("progress")[1];
+  var initialWidth = parseInt(getComputedStyle(WProgressBar).width);
+  timers[0].textContent = timers[1].textContent = helperObj.toShow(value);
+  choosenTime = value;
   popup.style.display = "none";
   timer1 = timer2 = value;
-  step = 1000*300/value
+  step = (1000 * initialWidth) / value;
 }
-const keepButton = document.querySelectorAll(".btn2")[1];
-const playButton = document.querySelectorAll(".btn2")[2];
+const keepButton = document.querySelectorAll(".btn2")[2];
+const playButton = document.querySelectorAll(".btn2")[1];
 
 keepButton.addEventListener("click", hideEndGameBox);
-playButton.addEventListener("click", hideEndGameBox);
+playButton.addEventListener("click", function () {
+  hideEndGameBox();
+  console.log(helperObj.ResetGame);
+  helperObj.ResetGame();
+});
+
+var allAnchors = document.getElementsByTagName("a");
+for (var counter = 0; counter < allAnchors.length; counter++) {
+  allAnchors[counter].addEventListener("click", function (e) {
+    e.preventDefault();
+  });
+}
