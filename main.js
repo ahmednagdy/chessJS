@@ -14,13 +14,11 @@ function handleClick(position) {
       Wpar.textContent = helperObj.toShow(timer2);
       if (timer2 <= 0) {
         clearInterval(t2);
-        if (isNotEnoughPieces(0)) {
+        if (isNotEnoughPieces(1)) {
           //!turn //checks for black pieces if white time's up
-          showEndGameBox("draw");
-          gameOver = true;
+          EndTheGame("Draw");
         } else {
-          showEndGameBox("black");
-          gameOver = true;
+          EndTheGame("black");
         }
       }
     }, 1000);
@@ -36,8 +34,8 @@ function handleClick(position) {
       if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2)
       {
         //the boss  wants to castle king side
-        helperObj.moveUI(selected, x, y);
         var color = selected.color;
+        helperObj.moveUI(selected, x, y);
         moveMap(x, y);
         //move the rook next to it
         helperObj.moveUI(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
@@ -69,9 +67,9 @@ function handleClick(position) {
       }
       else if (helperObj.includesPosition(selected.moves, Position(x, y)))
       {
-        helperObj.moveUI(selected, x, y);
-        moveMap(x, y);
-      } else Deselect();
+        moveObj.MoveTo(selected,x,y);
+      } 
+      else Deselect();
     } else if (newSelection.color == turn) selected = newSelection;
     else {
       if (
@@ -281,11 +279,11 @@ var helperObj =
 
   fillInitialize: function (_y1, _y2, c)
    {
-    //for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+    for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
 
-    //this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
-    //this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
-    //this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
+    this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
+    this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
+    this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
     this.map[4][_y1] = new queen(4, _y1, c);
     this.map[5][_y1] = new king(5, _y1, c);
     var x = 0;
@@ -336,13 +334,11 @@ var helperObj =
         Bpar.textContent = helperObj.toShow(timer1);
         if (timer1 <= 0) {
           clearInterval(t1);
-          if (isNotEnoughPieces(1)) {
+          if (isNotEnoughPieces(0)) {
             //!turn //checks for black pieces if white time's up
-            showEndGameBox("draw");
-            gameOver = true;
+            EndTheGame("Draw");
           } else {
-            showEndGameBox("white");
-            gameOver = true;
+            EndTheGame("white");
           }
         }
       }, 1000);
@@ -541,6 +537,25 @@ var helperObj =
     }
   },
 };
+
+var moveObj = 
+{
+  lastMove:{piece:null,from:null},
+  MoveTo: function(piece,x,y)
+  {
+    helperObj.moveUI(piece,x,y);
+    moveMap(x,y);
+    this.lastMove.piece = piece;
+    this.lastMove.from = Position(x,y);
+  },
+  Rollback: function()
+  {
+    selected = this.lastMove.piece;
+    helperObj.moveUI(selected,this.lastMove.from.x,this.lastMove.from.y);
+    moveMap(this.lastMove.from.x,this.lastMove.from.y);
+    turn = !turn;
+  }
+}
 
 function Position(_x, _y)
 {
@@ -894,6 +909,9 @@ Resignbtn.addEventListener("click",function(){
     {
       EndTheGame("white");
     }
-gameOver = true;
 })
+var takeBack = document.getElementById("TakeBack");
+takeBack.addEventListener("click",function(){
+  moveObj.Rollback();
+});
 helperObj.Initialize();
