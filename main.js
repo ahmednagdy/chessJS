@@ -646,7 +646,7 @@ function knight(_x, _y, c)
   };
 }
 knight.prototype = Object.create(piece.prototype);
-knight.prototype.varructor = knight;
+knight.prototype.constructor = knight;
 
 function queen(_x, _y, c)
 {
@@ -665,7 +665,7 @@ function queen(_x, _y, c)
   };
 }
 queen.prototype = Object.create(piece.prototype);
-queen.prototype.varructor = queen;
+queen.prototype.constructor = queen;
 function rook(_x, _y, c)
 {
   this.hasMoved = false;
@@ -684,7 +684,7 @@ function rook(_x, _y, c)
 }
 
 rook.prototype = Object.create(queen.prototype);
-rook.prototype.varructor = rook;
+rook.prototype.constructor = rook;
 function bishop(_x, _y, c)
 {
   queen.call(this, _x, _y, c);
@@ -700,7 +700,7 @@ function bishop(_x, _y, c)
   };
 }
 bishop.prototype = Object.create(queen.prototype);
-bishop.prototype.varructor = bishop;
+bishop.prototype.constructor = bishop;
 function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection)
 {
   var tmpPosition = Position(Piece.position.x + Xdirection,Piece.position.y + Ydirection);
@@ -787,7 +787,7 @@ function king(_x, _y, c)
 }
 var checkedPosition;
 king.prototype = Object.create(piece.prototype);
-king.prototype.varructor = king;
+king.prototype.constructor = king;
 
 function pawn(_x, _y, c)
 {
@@ -861,7 +861,7 @@ function pawn(_x, _y, c)
   };
 }
 pawn.prototype = Object.create(piece.prototype);
-pawn.prototype.varructor = pawn;
+pawn.prototype.constructor = pawn;
 
 //adding event listener on all squares on load
 var squares = document.getElementsByTagName("rect");
