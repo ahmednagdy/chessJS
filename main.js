@@ -3,7 +3,7 @@ function handleClick(position) {
   console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
-  var newSelection = helperObj.map[x][y]; //could think of a map(position) as a getter function from map
+  var newSelection = helperObj.map[x][y]; 
   var Wpar = document.getElementsByClassName("timer")[1];
   var whiteOverBar = document.getElementsByClassName("timeout")[1];
   var wdiv = document.getElementsByClassName("white")[0];
@@ -15,7 +15,7 @@ function handleClick(position) {
       if (timer2 <= 0) {
         clearInterval(t2);
         if (isNotEnoughPieces(1)) {
-          //!turn //checks for black pieces if white time's up
+          //checks for black pieces if white time's up
           EndTheGame("Draw");
         } else {
           EndTheGame("black");
@@ -73,7 +73,7 @@ function handleClick(position) {
     else {
       if (helperObj.includesPosition(selected.moves,Position(newSelection.position.x, newSelection.position.y))) 
       {
-        //TAKE ////
+        //TAKE 
         helperObj.moveTo(selected, x, y);
       } 
       else Deselect();
@@ -154,10 +154,6 @@ var helperObj =
   {
     return document.getElementById(x+"-"+y);
   },
-  /*getPieceByPosition: function (x, y)
-  {
-    return document.getElementById(x+","+y);
-  },*/
   getPieceByPosition: function (posX, posY) {
     var Allpieces = document.querySelectorAll(".black-piece, .white-piece");
     var Spos = `${posX * 100}px,${posY * 100}px`;
@@ -174,9 +170,7 @@ var helperObj =
     return `${posX}px,${posY}px`;
   },
   Initialize: function () {
-    //this.map = [];
     for (var i = 0; i <= 8; i++) {
-      //this.map[i] = [];
       for (var j = 0; j <= 8; j++) {
         this.map[i][j] = null;
       }
@@ -279,7 +273,7 @@ var helperObj =
           if (timer1 <= 0) {
             clearInterval(t1);
             if (isNotEnoughPieces(0)) {
-              //!turn //checks for black pieces if white time's up
+              //checks for black pieces if white time's up
               EndTheGame("Draw");
             } else {
               EndTheGame("white");
@@ -302,7 +296,7 @@ var helperObj =
           if (timer2 <= 0) {
             clearInterval(t2);
             if (isNotEnoughPieces(0)) {
-              //!turn //checks for black pieces if white time's up
+              //checks for black pieces if white time's up
               EndTheGame("Draw");
             } else {
               EndTheGame("black");
@@ -337,7 +331,7 @@ var helperObj =
       }
     } // for handling the first move of pawns
   
-    if (selected.firstMove != undefined && (y == 8 || y == 1)) {
+    if (selected instanceof pawn && (y == 8 || y == 1)) {
       var anyQueen;
       if (selected.color == 0)
         anyQueen = document.getElementById("whiteQueen");
@@ -356,13 +350,11 @@ var helperObj =
     helperObj.map[x][y] = selected;
     helperObj.map[x][y].position = Position(x, y);
   
-    //-------------------updating availables turn's pieces to check for !turn king safety
-    //------not only the moved piece because it could be a discovered check
-    //now checking everything ==> to be optimized
+    //updating availables turn's pieces to check for !turn king safety
+    //not only the moved piece because it could be a discovered check
     for (var i = 1; i <= 8; i++) {
       for (var j = 1; j <= 8; j++) {
-        if (helperObj.map[i][j])
-          // && helperObj.map[i][j].color==turn)
+        if (helperObj.map[i][j] && helperObj.map[i][j].color==turn)
           helperObj.map[i][j].getAndFillAvailableMoves();
       }
     }
@@ -375,11 +367,10 @@ var helperObj =
     isNotEnoughPieces();
   },
 
-  //three functions prototypes --implement removeFriendIntersection()
   removeFriendIntersection: function (piece) {
     var arr = piece.moves;
     for (var i = 0; i < arr.length; i++) {
-      if (this.map[arr[i].x][arr[i].y] != null) {
+      if (this.map[arr[i].x][arr[i].y]) {
         if (this.map[arr[i].x][arr[i].y].color == piece.color) {
           arr.splice(i, 1);
           i--;
@@ -390,10 +381,9 @@ var helperObj =
   isKingInCheck: function (piece) {
     if (checked) {
       //if the king in check => filter my available moves
-      //var MultiCheck = 0;
       for (var i = 1; i <= 8; i++)
         for (var j = 1; j <= 8; j++)
-          if (helperObj.map[i][j] != null)
+          if (helperObj.map[i][j])
             if (helperObj.map[i][j].color != piece.color) {
               //enemy
               var enemy = helperObj.map[i][j];
@@ -407,7 +397,6 @@ var helperObj =
                   var oldmoves = piece.moves;
                   piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
                   piece.moves = piece.moves.concat(helperObj.intersection(oldmoves, line));
-                  //multi check condition to be made at the king's removeEnemyIntersectionFunction
                 }
                 else
                   piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
@@ -419,7 +408,7 @@ var helperObj =
   {
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
-        if (helperObj.map[i][j] != null) {
+        if (helperObj.map[i][j]) {
           if (helperObj.map[i][j] instanceof king && helperObj.map[i][j].color == color)
             return helperObj.map[i][j];
         }
@@ -444,7 +433,7 @@ var helperObj =
     var arr = arr1.filter((x) => !helperObj.includesPosition(arr2, x));
     return arr;
   },
-  includesPosition: function (arr,pos) //could try to bind these to Array / Position
+  includesPosition: function (arr,pos)
   {
     return arr.some((p) => p.x == pos.x && p.y == pos.y);
   },
@@ -513,7 +502,7 @@ function isCheckmate(winner)
     setTimeout(function () {
       EndTheGame(winner);
     }, 500); //declare win;
-    //return true;
+    return true;
   }
   else stalemate();
 }
@@ -527,7 +516,6 @@ function EndTheGame(message)
 }
 
 function stalemate() {
-  //to be called in the beginning of each players turn
   //if all my pieces (including the king) availables = []
   EndTheGame("Draw by Stalemate");
   return true;
@@ -599,7 +587,7 @@ function knight(_x, _y, c)
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
 
-function pinner(_x,_y_c)
+function pinner(_x,_y,c)
 {
   piece.call(this, _x, _y, c);
 }
@@ -688,7 +676,7 @@ function king(_x, _y, c)
     }
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
-    /////adding castling capabililty
+    //adding castling capabililty
     if (!checked)
     {
       if (!this.hasMoved && helperObj.map[8][turn ? 8 : 1] && !helperObj.map[8][turn ? 8 : 1].hasMoved)
@@ -761,7 +749,7 @@ function pawn(_x, _y, c)
   {
     this.moves = [];
     this.scope = []; this.canTakeEnPassant = null;
-    //var candidates = [[0,increment],[0,2*increment],[increment,increment],[-increment, increment]];
+  
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
 
