@@ -400,7 +400,7 @@ var helperObj =
               var king = this.GetKing(piece.color);
               if (helperObj.includesPosition(enemy.scope, king.position)) {
                 //then enemy is a checker
-                if (enemy.pinner) {
+                if (enemy instanceof pinner) {
                   //if pinner then could block or take
                   var directionToTheKing = helperObj.GetDirections(king,enemy);
                   var line = getLineOfSquaresToFirstElement(enemy, directionToTheKing[0],directionToTheKing[1]);
@@ -470,7 +470,7 @@ var helperObj =
       for (var j = 1; j <= 8; j++)
       {
         var enemy = helperObj.map[i][j];
-        if(enemy && enemy.pinner && enemy.color != piece.color) //then enemy pinner
+        if(enemy && enemy instanceof pinner && enemy.color != piece.color) //then enemy pinner
           if(this.includesPosition(enemy.scope, piece.position))
           {
             //then the first condition is fulfilled => check the line with the king
@@ -599,10 +599,15 @@ function knight(_x, _y, c)
 knight.prototype = Object.create(piece.prototype);
 knight.prototype.constructor = knight;
 
-function queen(_x, _y, c)
+function pinner(_x,_y_c)
 {
   piece.call(this, _x, _y, c);
-  this.pinner = true;
+}
+pinner.prototype = Object.create(piece.prototype);
+pinner.prototype.constructor = pinner;
+function queen(_x, _y, c)
+{
+  pinner.call(this, _x, _y, c);
   this.directions = [[1, 1],[0, 1],[0, -1],[1, 0],[-1, 0],[-1, -1],[-1, 1],[1, -1]];
   this.getAndFillAvailableMoves = function ()
   {
@@ -615,12 +620,12 @@ function queen(_x, _y, c)
     this.filterAvailables();
   };
 }
-queen.prototype = Object.create(piece.prototype);
+queen.prototype = Object.create(pinner.prototype);
 queen.prototype.constructor = queen;
 function rook(_x, _y, c)
 {
   this.hasMoved = false;
-  queen.call(this, _x, _y, c);
+  pinner.call(this, _x, _y, c);
   this.directions = [[0, 1],[0, -1],[1, 0],[-1, 0]];
   this.getAndFillAvailableMoves = function ()
   {
@@ -634,11 +639,11 @@ function rook(_x, _y, c)
   };
 }
 
-rook.prototype = Object.create(queen.prototype);
+rook.prototype = Object.create(pinner.prototype);
 rook.prototype.constructor = rook;
 function bishop(_x, _y, c)
 {
-  queen.call(this, _x, _y, c);
+  pinner.call(this, _x, _y, c);
   this.directions = [[1, 1],[-1, -1],[-1, 1],[1, -1]];
   this.getAndFillAvailableMoves = function ()
   {
@@ -650,7 +655,7 @@ function bishop(_x, _y, c)
     this.filterAvailables();
   };
 }
-bishop.prototype = Object.create(queen.prototype);
+bishop.prototype = Object.create(pinner.prototype);
 bishop.prototype.constructor = bishop;
 function getLineOfSquaresToFirstElement(Piece, Xdirection, Ydirection)
 {
@@ -717,7 +722,7 @@ function king(_x, _y, c)
               checked = true; //Then the king is in CHECK!
               helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
               checkedPosition = this.position;
-              if (piece.pinner) //to be implemented as (piece instanceof pinner)
+              if (piece instanceof pinner) //to be implemented as (piece instanceof pinner)
               {
                 //remove its long scope beyond the king
                 var Xdirection = 0;
