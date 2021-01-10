@@ -124,6 +124,7 @@ function handleClick(position) {
   }
 }
 
+var checkedPosition;
 var turn = 0;
 var selected = null;
 var isSelected = false;
@@ -710,16 +711,11 @@ function king(_x, _y, c)
               checked = true; //Then the king is in CHECK!
               helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
               checkedPosition = this.position;
-              if (piece instanceof pinner) //to be implemented as (piece instanceof pinner)
+              if (piece instanceof pinner) 
               {
                 //remove its long scope beyond the king
-                var Xdirection = 0;
-                if (this.position.x > piece.position.x) Xdirection = 1;
-                else if (this.position.x < piece.position.x) Xdirection = -1;
-                var Ydirection = 0;
-                if (this.position.y > piece.position.y) Ydirection = 1;
-                else if (this.position.y < piece.position.y) Ydirection = -1;
-                this.moves = helperObj.difference(this.moves,[Position(this.position.x+Xdirection, this.position.y+Ydirection)]);
+                var directions = helperObj.GetDirections(this,piece); //to the king
+                this.moves = helperObj.difference(this.moves,[Position(this.position.x+directions[0], this.position.y+directions[1])]);
               }
             }
           }
@@ -729,7 +725,7 @@ function king(_x, _y, c)
       document.getElementById(checkedPosition.x + "-" + checkedPosition.y).classList.remove("check");
   };
 }
-var checkedPosition;
+
 king.prototype = Object.create(piece.prototype);
 king.prototype.constructor = king;
 
@@ -817,23 +813,22 @@ var startGame = document.getElementById("start-game");
 startGame.addEventListener("click", setTimeToStartGame);
 
 var resetBtn = document.getElementById("reset");
-resetBtn.addEventListener("click", function (){
+resetBtn.addEventListener("click", function ()
+{
   helperObj.ResetGame();
 });
 var newGame = document.getElementById("newGame");
-newGame.addEventListener("click",function(){
+newGame.addEventListener("click",function()
+{
   location.reload();
 });
 var Resignbtn = document.getElementById("Resign");
-Resignbtn.addEventListener("click",function(){
-  if(!turn)
-  {
-    EndTheGame("black");
-  }
+Resignbtn.addEventListener("click",function()
+{
+  if(!turn) 
+      EndTheGame("black");
   else
-    {
       EndTheGame("white");
-    }
 })
 
 helperObj.Initialize();
