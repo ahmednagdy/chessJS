@@ -171,19 +171,17 @@ var helperObj =
     return `${posX}px,${posY}px`;
   },
   Initialize: function () {
-    for (var i = 0; i <= 8; i++) {
-      for (var j = 0; j <= 8; j++) {
+    for (var i = 0; i <= 8; i++) 
+      for (var j = 0; j <= 8; j++) 
         this.map[i][j] = null;
-      }
-    }
+
     this.fillInitialize(1, 2, 0);
     this.fillInitialize(8, 7, 1);
-    for (var i = 1; i <= 8; i++) {
-      for (var j = 1; j <= 8; j++) {
-        if (helperObj.map[i][j] != null)
-          helperObj.map[i][j].getAndFillAvailableMoves();
-      }
-    }
+    for (var i = 1; i <= 8; i++) 
+      for (var j = 1; j <= 8; j++) 
+        if (helperObj.map[i][j])
+          helperObj.map[i][j].getAndFillAvailableMoves();  
+    
   },
   ResetGame: function () {
     this.Initialize();
