@@ -748,7 +748,8 @@ function pawn(_x, _y, c)
   this.getAndFillAvailableMoves = function ()
   {
     this.moves = [];
-    this.scope = []; this.canTakeEnPassant = null;
+    this.scope = []; 
+    this.canTakeEnPassant = null;
   
     //normal: y + 1 //handle straight can't take (if x, y+1) not null don't push
     var tempPosition = Position(this.position.x, this.position.y + increment);
@@ -757,7 +758,7 @@ function pawn(_x, _y, c)
       helperObj.InBound(tempPosition))
       this.moves.push(tempPosition);
 
-    //if (firstMove) allow y + 2; firstMove = false; //same above increment condition
+    //if (firstMove) allow y + 2; instanceof pawn //same above increment condition
     tempPosition = Position(this.position.x, this.position.y + 2 * increment);
     if (helperObj.InBound(tempPosition))
       if (this.firstMove)
@@ -771,7 +772,7 @@ function pawn(_x, _y, c)
     if (helperObj.InBound(tempPosition))
     {
       this.scope.push(tempPosition);
-      if (helperObj.map[this.position.x + increment][this.position.y + increment] != null)
+      if (helperObj.map[this.position.x + increment][this.position.y + increment])
         this.moves.push(tempPosition);
     }
     //if (map[x - 1][y + 1] is enemy) allow x - 1, y + 1
@@ -780,13 +781,13 @@ function pawn(_x, _y, c)
     if (helperObj.InBound(tempPosition))
     {
       this.scope.push(tempPosition);
-      if (helperObj.map[this.position.x - increment][this.position.y + increment] != null)
+      if (helperObj.map[this.position.x - increment][this.position.y + increment])
         this.moves.push(tempPosition);
     }
 
     tempPosition = Position(this.position.x-increment,this.position.y);
     if (helperObj.InBound(tempPosition)
-        && helperObj.map[this.position.x-increment][this.position.y]?.firstMove !=undefined)
+        && helperObj.map[this.position.x-increment][this.position.y] instanceof pawn)
     if( helperObj.map[this.position.x-increment][this.position.y]?.EnPassantIsAvailable() ) // for en passant
     {
       this.moves.push(Position(this.position.x - increment, this.position.y +increment));
@@ -795,7 +796,7 @@ function pawn(_x, _y, c)
 
     tempPosition = Position(this.position.x+increment,this.position.y);
     if (helperObj.InBound(tempPosition)
-      && helperObj.map[this.position.x+increment][this.position.y]?.firstMove !=undefined)
+      && helperObj.map[this.position.x+increment][this.position.y] instanceof pawn)
     if( helperObj.map[this.position.x+increment][this.position.y]?.EnPassantIsAvailable()) // for en passant
     {
       this.moves.push(Position(this.position.x + increment, this.position.y +increment));
