@@ -34,12 +34,12 @@ function handleClick(position) {
       if (game.selected instanceof king && helperObj.includesPosition(game.selected.moves,Position(game.selected.position.x + 2, game.selected.position.y)) && x == game.selected.position.x + 2)
       {
         //the boss  wants to castle king side
-        var color = game.selected.color;
+        var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
         //move the rook next to it
-        game.selected = helperObj.map[8][color ? 8 : 1];
-        helperObj.moveTo(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
+        game.selected = helperObj.map[8][rank];
+        helperObj.moveTo(game.selected, 6, rank);
         game.castling=0;
         game.turn = !game.turn;
       }
@@ -47,12 +47,12 @@ function handleClick(position) {
         x == game.selected.position.x - 2)
         {
         //the boss  wants to castle queen side
-        var color = game.selected.color;
+        var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
         //move the rook next to it
-        game.selected = helperObj.map[8][color ? 8 : 1];
-        helperObj.moveTo(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
+        game.selected = helperObj.map[1][rank];
+        helperObj.moveTo(game.selected, 4, rank);
         game.castling=0;
         game.turn = !game.turn;
       }
