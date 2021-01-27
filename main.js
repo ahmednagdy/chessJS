@@ -1,5 +1,5 @@
 function handleClick(position) {
-  if (game.gameOver) return;
+  if (gameOver) return;
   console.log(position.id);
   var x = parseInt(position.id.split("-")[0]);
   var y = parseInt(position.id.split("-")[1]);
@@ -7,13 +7,13 @@ function handleClick(position) {
   var Wpar = document.getElementsByClassName("timer")[1];
   var whiteOverBar = document.getElementsByClassName("timeout")[1];
   var wdiv = document.getElementsByClassName("white")[0];
-  if (game.prevTurn == -1) {
-    game.t2 = setInterval(function () {
-      helperObj.changeProgressBar(whiteOverBar, game.step);
-      game.timer2 -= 1000;
-      Wpar.textContent = helperObj.toShow(game.timer2);
-      if (game.timer2 <= 0) {
-        clearInterval(game.t2);
+  if (prevTurn == -1) {
+    t2 = setInterval(function () {
+      helperObj.changeProgressBar(whiteOverBar, step);
+      timer2 -= 1000;
+      Wpar.textContent = helperObj.toShow(timer2);
+      if (timer2 <= 0) {
+        clearInterval(t2);
         if (isNotEnoughPieces(1)) {
           //checks for black pieces if white time's up
           EndTheGame("Draw");
@@ -23,17 +23,18 @@ function handleClick(position) {
       }
     }, 1000);
 
-    clearInterval(game.t1);
-    game.prevTurn = 900;
+    clearInterval(t1);
+    prevTurn = 900;
     Wpar.classList.add("running");
     wdiv.classList.add("borderTurn");
   }
-  if (game.isSelected) {
-    if (newSelection === game.selected) Deselect();
+  if (isSelected) {
+    if (newSelection === selected) Deselect();
     else if (newSelection == null) {
-      if (game.selected instanceof king && helperObj.includesPosition(game.selected.moves,Position(game.selected.position.x + 2, game.selected.position.y)) && x == game.selected.position.x + 2)
+      if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2)
       {
         //the boss  wants to castle king side
+<<<<<<< HEAD
         var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
@@ -42,11 +43,22 @@ function handleClick(position) {
         helperObj.moveTo(game.selected, 6, rank);
         game.castling=0;
         game.turn = !game.turn;
+=======
+        var color = selected.color;
+        helperObj.moveTo(selected, x, y);
+        castling =-1;
+        //move the rook next to it
+        selected = helperObj.map[8][color ? 8 : 1];
+        helperObj.moveTo(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
+        castling=0;
+        turn = !turn;
+>>>>>>> parent of ef49fba... final commit (code refactoring)
       }
-      else if (game.selected instanceof king && helperObj.includesPosition(game.selected.moves,Position(game.selected.position.x - 2, game.selected.position.y)) &&
-        x == game.selected.position.x - 2)
+      else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
+        x == selected.position.x - 2)
         {
         //the boss  wants to castle queen side
+<<<<<<< HEAD
         var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
@@ -55,100 +67,435 @@ function handleClick(position) {
         helperObj.moveTo(game.selected, 4, rank);
         game.castling=0;
         game.turn = !game.turn;
+=======
+        var color = selected.color;
+        helperObj.moveTo(selected, x, y);
+        castling =-1;
+        //move the rook next to it
+        selected = helperObj.map[8][color ? 8 : 1];
+        helperObj.moveTo(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
+        castling=0;
+        turn = !turn;
+>>>>>>> parent of ef49fba... final commit (code refactoring)
       }
-      else if (game.selected instanceof pawn && game.selected.canTakeEnPassant && (x==game.selected.position.x+1 ||x==game.selected.position.x-1)) //en passant case
+      else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
-          helperObj.moveUI(game.selected.canTakeEnPassant,x,y); game.castling =-1;
-          helperObj.map[x][y] = game.selected.canTakeEnPassant;
-          helperObj.map[game.selected.canTakeEnPassant.position.x][game.selected.canTakeEnPassant.position.y] = null;
+          helperObj.moveUI(selected.canTakeEnPassant,x,y); castling =-1;
+          helperObj.map[x][y] = selected.canTakeEnPassant;
+          helperObj.map[selected.canTakeEnPassant.position.x][selected.canTakeEnPassant.position.y] = null;
 
-          helperObj.moveTo(game.selected,x,y); game.castling=0;
+          helperObj.moveTo(selected,x,y); castling=0;
       }
-      else if (helperObj.includesPosition(game.selected.moves, Position(x, y)))
+      else if (helperObj.includesPosition(selected.moves, Position(x, y)))
       {
-        helperObj.moveTo(game.selected,x,y);
+        helperObj.moveTo(selected,x,y);
       } 
       else Deselect();
-    } else if (newSelection.color == game.turn) game.selected = newSelection;
+    } else if (newSelection.color == turn) selected = newSelection;
     else {
-      if (helperObj.includesPosition(game.selected.moves,Position(newSelection.position.x, newSelection.position.y))) 
+      if (helperObj.includesPosition(selected.moves,Position(newSelection.position.x, newSelection.position.y))) 
       {
         //TAKE 
-        helperObj.moveTo(game.selected, x, y);
+        helperObj.moveTo(selected, x, y);
       } 
       else Deselect();
     }
   } else {
     if (newSelection)
-      if (newSelection.color == game.turn) {
-        game.selected = newSelection;
-        game.isSelected = true;
+      if (newSelection.color == turn) {
+        selected = newSelection;
+        isSelected = true;
       }
   }
 
-  if (game.selected) {
-    if (game.selected instanceof king) {
+  if (selected) {
+    if (selected instanceof king) {
       for (var i = 1; i <= 8; i++) {
         for (var j = 1; j <= 8; j++) {
           if (
             helperObj.map[i][j] != null &&
-            helperObj.map[i][j].color != game.selected.color
+            helperObj.map[i][j].color != selected.color
           )
             helperObj.map[i][j].getAndFillAvailableMoves();
         }
       }
     }
-    game.selected.getAndFillAvailableMoves();
+    selected.getAndFillAvailableMoves();
   }
 
   //remove highlight by default
-  if (game.oldStates[0])
-    document.getElementById(game.oldStates[0]).classList.remove("highlightPiece");
+  if (oldStates[0])
+    document.getElementById(oldStates[0]).classList.remove("highlightPiece");
 
-  for (var i = 1; i < game.oldStates.length; i++) {
-    document.getElementById(game.oldStates[i]).classList.remove("highlight"); //reset highlighted square
+  for (var i = 1; i < oldStates.length; i++) {
+    document.getElementById(oldStates[i]).classList.remove("highlight"); //reset highlighted square
   }
-  if (game.isSelected) {
+  if (isSelected) {
     //highlight the piece and the moves
-    var id = game.selected.position;
+    var id = selected.position;
     id = id.x + "-" + id.y;
     document.getElementById(id).classList.toggle("highlightPiece");
-    game.oldStates = [];
-    game.oldStates.push(id);
-    for (var i = 0; i < game.selected.moves.length; i++) {
-      id = game.selected.moves[i];
+    oldStates = [];
+    oldStates.push(id);
+    for (var i = 0; i < selected.moves.length; i++) {
+      id = selected.moves[i];
       id = id.x + "-" + id.y;
-      game.oldStates.push(id);
+      oldStates.push(id);
       document.getElementById(id).classList.add("highlight"); //the available square
     }
   }
 }
 
-var game =
-{
-checkedPosition:null,
-turn:0,
-selected:null,
-isSelected:false,
-oldStates:[],
-checked:false,
-gameOver:false,
-timer1:300 * 1000,
-timer2:300 * 1000,
-step:1,
-t1:null,
-t2:null,
-choosenTime:null,
-prevTurn : -1,
-turnCount : 0,
-castling :0,
-originalUI : document.getElementsByTagName("svg")[0].innerHTML
-}
+var checkedPosition;
+var turn = 0;
+var selected = null;
+var isSelected = false;
+var oldStates = [];
+var checked = false;
+var gameOver = false;
+var timer1 = 300 * 1000;
+var timer2 = 300 * 1000;
+var step = 1;
+var t1;
+var t2;
+var choosenTime;
+var prevTurn = -1;
+var turnCount = 0;
+var castling =0;
+var originalUI = document.getElementsByTagName("svg")[0].innerHTML;
 
 function Deselect() {
-  game.selected = null;
-  game.isSelected = false;
+  selected = null;
+  isSelected = false;
 }
+
+var helperObj =
+{
+  map: ([] = [[], [], [], [], [], [], [], [], []]),
+  justHappenedMove: {oldX: 0,oldY: 0,newX: 0,newY: 0,},
+  getSquareByPosition: function (x, y)
+  {
+    return document.getElementById(x+"-"+y);
+  },
+  getPieceByPosition: function (posX, posY) {
+    var Allpieces = document.querySelectorAll(".black-piece, .white-piece");
+    var Spos = `${posX * 100}px,${posY * 100}px`;
+    for (var i = 0; i < Allpieces.length; i++) {
+      if (Spos == this.grabPositionPiece(Allpieces[i])) {
+        return Allpieces[i];
+      }
+    }
+  },
+  grabPositionPiece: function (pieceX) {
+    var Positions = pieceX.style.transform.match(/[0-9]{3}/g);
+    var posX = Positions[0];
+    var posY = Positions[1];
+    return `${posX}px,${posY}px`;
+  },
+  Initialize: function () {
+    for (var i = 0; i <= 8; i++) 
+      for (var j = 0; j <= 8; j++) 
+        this.map[i][j] = null;
+
+    this.fillInitialize(1, 2, 0);
+    this.fillInitialize(8, 7, 1);
+    for (var i = 1; i <= 8; i++) 
+      for (var j = 1; j <= 8; j++) 
+        if (helperObj.map[i][j])
+          helperObj.map[i][j].getAndFillAvailableMoves();  
+    
+  },
+  ResetGame: function () {
+    this.Initialize();
+    document.getElementsByTagName("svg")[0].innerHTML=originalUI;
+    var squares = document.getElementsByTagName("rect");
+    for (var i = 0; i < squares.length; i++)
+         squares[i].setAttribute("onclick", "handleClick(this)");
+    turn = 0;
+
+    var timers = document.getElementsByClassName("timer");
+    clearInterval(t1);
+    clearInterval(t2)
+    timers[0].textContent = timers[1].textContent = this.toShow(choosenTime);
+    var blackOverBar = document.getElementsByClassName("timeout")[0];
+    var whiteOverBar = document.getElementsByClassName("timeout")[1];
+    blackOverBar.style.width = whiteOverBar.style.width = "0px";
+    prevTurn = -1;
+    timer1 = choosenTime;
+    timer2 = choosenTime;
+
+    var wdiv = document.getElementsByClassName("white")[0];
+    var Wpar = document.getElementsByClassName("timer")[1];
+    var Bdiv = document.getElementsByClassName("black")[0];
+    var Bpar = document.getElementsByClassName("timer")[0];
+    Wpar.classList.remove("running");
+    wdiv.classList.remove("borderTurn");
+    Bpar.classList.remove("running");
+    Bdiv.classList.remove("borderTurn");
+
+    gameOver = false;
+
+  },
+
+  fillInitialize: function (_y1, _y2, c)
+   {
+    for (var i = 1; i <= 8; i++) this.map[i][_y2] = new pawn(i, _y2, c);
+
+    this.map[1][_y1] = new rook(1, _y1, c);    this.map[8][_y1] = new rook(8, _y1, c);
+    this.map[2][_y1] = new knight(2, _y1, c);  this.map[7][_y1] = new knight(7, _y1, c);
+    this.map[3][_y1] = new bishop(3, _y1, c);  this.map[6][_y1] = new bishop(6, _y1, c);
+    this.map[4][_y1] = new queen(4, _y1, c);
+    this.map[5][_y1] = new king(5, _y1, c);
+  },
+  moveTo: function(piece,x,y)
+  {
+    helperObj.moveUI(piece,x,y);
+    helperObj.moveMap(x,y);
+  },
+  moveUI: function (piece, x, y) {
+    var Bpar = document.getElementsByClassName("timer")[0];
+    var Wpar = document.getElementsByClassName("timer")[1];
+    var blackOverBar = document.getElementsByClassName("timeout")[0];
+    var whiteOverBar = document.getElementsByClassName("timeout")[1];
+    var Bdiv = document.getElementsByClassName("black")[0];
+    var wdiv = document.getElementsByClassName("white")[0];
+
+    var pieceUI = this.getPieceByPosition(piece.position.x, 9 - piece.position.y);
+    var oldSquare = this.getSquareByPosition(piece.position.x,piece.position.y);
+    if (helperObj.justHappenedMove.oldX != 0)
+    {
+      var oldPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.oldX,helperObj.justHappenedMove.oldY);
+      var newPos = helperObj.getSquareByPosition(helperObj.justHappenedMove.newX,helperObj.justHappenedMove.newY);
+      oldPos.classList.remove("highlight-move");
+      newPos.classList.remove("highlight-move");
+    }
+    var newSquar = this.getSquareByPosition(x, y);
+    this.justHappenedMove.oldX = piece.position.x;
+    this.justHappenedMove.oldY = piece.position.y;
+    this.justHappenedMove.newX = x;
+    this.justHappenedMove.newY = y;
+    oldSquare.classList.add("highlight-move");
+    newSquar.classList.add("highlight-move");
+    var translatePosition = `translate(${x * 100}px, ${(9 - y) * 100}px)`;
+
+    if (this.map[x][y] != null)
+    {
+      var eatenPieceUI = this.getPieceByPosition(x, 9 - y);
+      eatenPieceUI.style.transform = "translate(900px,900px)";
+    }
+    pieceUI.style.transform = translatePosition;
+    if(castling==0)
+    {if (!turn || prevTurn == 900)
+      {
+        t1 = setInterval(function () {
+          helperObj.changeProgressBar(blackOverBar, step);
+          timer1 -= 1000;
+          Bpar.textContent = helperObj.toShow(timer1);
+          if (timer1 <= 0) {
+            clearInterval(t1);
+            if (isNotEnoughPieces(0)) {
+              //checks for black pieces if white time's up
+              EndTheGame("Draw");
+            } else {
+              EndTheGame("white");
+            }
+          }
+        }, 1000);
+  
+        clearInterval(t2);
+        prevTurn = 50;
+        Bpar.classList.toggle("running");
+        Wpar.classList.toggle("running");
+        wdiv.classList.toggle("borderTurn");
+        Bdiv.classList.toggle("borderTurn");
+      } else {
+        
+        t2 = setInterval(function () {
+          helperObj.changeProgressBar(whiteOverBar, step);
+          timer2 -= 1000;
+          Wpar.textContent = helperObj.toShow(timer2);
+          if (timer2 <= 0) {
+            clearInterval(t2);
+            if (isNotEnoughPieces(0)) {
+              //checks for black pieces if white time's up
+              EndTheGame("Draw");
+            } else {
+              EndTheGame("black");
+            }
+          }
+        }, 1000);
+        Wpar.classList.toggle("running");
+        Bpar.classList.toggle("running");
+        wdiv.classList.toggle("borderTurn");
+        Bdiv.classList.toggle("borderTurn");
+        clearInterval(t1);
+      }
+
+    }
+    
+  },
+  handleTimers :function(intrvl1,intrvl2,timer)
+  {
+
+  },
+  moveMap: function(x, y) {
+    var tX = selected.position.x;
+    tY = selected.position.y;
+    helperObj.map[tX][tY] = null;
+  
+    if (selected instanceof pawn)
+    {
+      if (selected.firstMove)
+      {
+        selected.firstMove = false;
+        selected.passPositionForEnPassant(x,y);
+      }
+    } // for handling the first move of pawns
+  
+    if (selected instanceof pawn && (y == 8 || y == 1)) {
+      var anyQueen;
+      if (selected.color == 0)
+        anyQueen = document.getElementById("whiteQueen");
+      else
+        anyQueen = document.getElementById("blackQueen");
+  
+  
+      var tPawn = helperObj.getPieceByPosition(x, 9 - y);
+  
+      tPawn.innerHTML = anyQueen.innerHTML;
+      selected = new queen(tX, tY, selected.color);
+    }
+    //Updating first move for king and rook
+    if (selected.hasMoved == false) selected.hasMoved = true;
+  
+    helperObj.map[x][y] = selected;
+    helperObj.map[x][y].position = Position(x, y);
+  
+    //updating availables turn's pieces to check for !turn king safety
+    //not only the moved piece because it could be a discovered check
+    for (var i = 1; i <= 8; i++) {
+      for (var j = 1; j <= 8; j++) {
+        if (helperObj.map[i][j] && helperObj.map[i][j].color==turn)
+          helperObj.map[i][j].getAndFillAvailableMoves();
+      }
+    }
+    helperObj.GetKing(!turn).getAndFillAvailableMoves();
+  
+    Deselect();
+    turnCount++;
+    turn = !turn;
+    whichCannotMove();
+    isNotEnoughPieces();
+  },
+
+  removeFriendIntersection: function (piece) {
+    var arr = piece.moves;
+    for (var i = 0; i < arr.length; i++) {
+      if (this.map[arr[i].x][arr[i].y]) {
+        if (this.map[arr[i].x][arr[i].y].color == piece.color) {
+          arr.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  },
+  isKingInCheck: function (piece) {
+    if (checked) {
+      //if the king in check => filter my available moves
+      for (var i = 1; i <= 8; i++)
+        for (var j = 1; j <= 8; j++)
+          if (helperObj.map[i][j])
+            if (helperObj.map[i][j].color != piece.color) {
+              //enemy
+              var enemy = helperObj.map[i][j];
+              var king = this.GetKing(piece.color);
+              if (helperObj.includesPosition(enemy.scope, king.position)) {
+                //then enemy is a checker
+                if (enemy instanceof pinner) {
+                  //if pinner then could block or take
+                  var directionToTheKing = helperObj.GetDirections(king,enemy);
+                  var line = getLineOfSquaresToFirstElement(enemy, directionToTheKing[0],directionToTheKing[1]);
+                  var oldmoves = piece.moves;
+                  piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
+                  piece.moves = piece.moves.concat(helperObj.intersection(oldmoves, line));
+                }
+                else
+                  piece.moves = helperObj.intersection(piece.moves, [enemy.position]);
+              }
+            }
+    }
+  },
+  GetKing: function (color)
+  {
+    for (var i = 1; i <= 8; i++)
+      for (var j = 1; j <= 8; j++)
+        if (helperObj.map[i][j]) {
+          if (helperObj.map[i][j] instanceof king && helperObj.map[i][j].color == color)
+            return helperObj.map[i][j];
+        }
+  },
+  GetDirections: function (piece1, piece2)
+  {
+    var Xdirection = 0;
+    if (piece1.position.x > piece2.position.x) Xdirection = 1;
+    else if (piece1.position.x < piece2.position.x) Xdirection = -1;
+    var Ydirection = 0;
+    if (piece1.position.y > piece2.position.y) Ydirection = 1;
+    else if (piece1.position.y < piece2.position.y) Ydirection = -1;
+    return [Xdirection,Ydirection];
+  },
+  intersection: function (arr1, arr2)
+  {
+    var arr = arr1.filter((x) => helperObj.includesPosition(arr2, x));
+    return arr;
+  },
+  difference: function (arr1, arr2)
+  {
+    var arr = arr1.filter((x) => !helperObj.includesPosition(arr2, x));
+    return arr;
+  },
+  includesPosition: function (arr,pos)
+  {
+    return arr.some((p) => p.x == pos.x && p.y == pos.y);
+  },
+  InBound: function (position)
+  {
+    return !(position.x > 8 || position.x < 1 ||  position.y > 8 || position.y < 1);
+  },
+  changeProgressBar: function (element, val)
+  {
+    var widthVal = parseFloat(getComputedStyle(element).width);
+    widthVal += val;
+    element.style.width = widthVal + "px";
+  },
+  toShow: function (millis)
+  {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  },
+  checkPinning: function(piece)
+  {
+    for (var i = 1; i <= 8; i++)
+      for (var j = 1; j <= 8; j++)
+      {
+        var enemy = helperObj.map[i][j];
+        if(enemy && enemy instanceof pinner && enemy.color != piece.color) //then enemy pinner
+          if(this.includesPosition(enemy.scope, piece.position))
+          {
+            //then the first condition is fulfilled => check the line with the king
+            var myking = this.GetKing(piece.color);
+            var directions = this.GetDirections(piece, enemy); //direction from pinner to me
+            var lineToKing = getLineOfSquaresToFirstElement(piece, directions[0], directions[1]);
+            if(lineToKing[lineToKing.length-1]?.x == myking.position.x && lineToKing[lineToKing.length-1].y == myking.position.y) //if the last item it got is my king then I am pinned
+            {
+              var linePieceToEnemy = getLineOfSquaresToFirstElement(piece, directions[0]*-1, directions[1]*-1);
+              piece.moves = this.intersection(piece.moves, lineToKing.concat(linePieceToEnemy));
+            }
+          }
+      }
+  }
+};
 
 function Position(_x, _y)
 {
@@ -163,15 +510,15 @@ function whichCannotMove()
       if (helperObj.map[i][j])
       {
         if (!(helperObj.map[i][j] instanceof king)) helperObj.map[i][j].filterAvailables();
-        if (helperObj.map[i][j].color == game.turn && helperObj.map[i][j].moves.length != 0) flag = true;
+        if (helperObj.map[i][j].color == turn && helperObj.map[i][j].moves.length != 0) flag = true;
       }
-  if (!flag) isCheckmate(game.turn ? "white" : "black");
+  if (!flag) isCheckmate(turn ? "white" : "black");
   return null;
 }
 function isCheckmate(winner)
 {
-  game.gameOver = true;
-  if (game.checked)
+  gameOver = true;
+  if (checked)
   {
     setTimeout(function () {
       EndTheGame(winner);
@@ -184,9 +531,9 @@ function isCheckmate(winner)
 function EndTheGame(message)
 {
   showEndGameBox(message);
-  game.gameOver = true;
-  clearInterval(game.t1);
-  clearInterval(game.t2);
+  gameOver = true;
+  clearInterval(t1);
+  clearInterval(t2);
 }
 
 function stalemate() {
@@ -351,14 +698,14 @@ function king(_x, _y, c)
     helperObj.removeFriendIntersection(this);
     this.removeEnemyIntersection();
     //adding castling capabililty
-    if (!game.checked)
+    if (!checked)
     {
-      if (!this.hasMoved && helperObj.map[8][game.turn ? 8 : 1] && !helperObj.map[8][game.turn ? 8 : 1].hasMoved)
+      if (!this.hasMoved && helperObj.map[8][turn ? 8 : 1] && !helperObj.map[8][turn ? 8 : 1].hasMoved)
         if (getLineOfSquaresToFirstElement(this, 1, 0).length == 3)
           if (helperObj.includesPosition(this.moves,Position(this.position.x + 1, this.position.y)))
             this.moves.push(Position(this.position.x + 2, this.position.y));
 
-      if (!this.hasMoved && helperObj.map[1][game.turn ? 8 : 1] && !helperObj.map[1][game.turn ? 8 : 1].hasMoved)
+      if (!this.hasMoved && helperObj.map[1][turn ? 8 : 1] && !helperObj.map[1][turn ? 8 : 1].hasMoved)
         if (getLineOfSquaresToFirstElement(this, -1, 0).length == 4)
           if (helperObj.includesPosition(this.moves,Position(this.position.x - 1, this.position.y)))
             this.moves.push(Position(this.position.x - 2, this.position.y));
@@ -368,7 +715,7 @@ function king(_x, _y, c)
 
   this.removeEnemyIntersection = function ()
   {
-    game.checked = false;
+    checked = false;
     for (var i = 1; i <= 8; i++)
       for (var j = 1; j <= 8; j++)
       {
@@ -381,9 +728,9 @@ function king(_x, _y, c)
             this.moves = helperObj.difference(this.moves, piece.scope);
             if (helperObj.includesPosition(piece.scope, this.position))
             {
-              game.checked = true; //Then the king is in CHECK!
+              checked = true; //Then the king is in CHECK!
               helperObj.getSquareByPosition(this.position.x,this.position.y).classList.add("check");
-              game.checkedPosition = this.position;
+              checkedPosition = this.position;
               if (piece instanceof pinner) 
               {
                 //remove its long scope beyond the king
@@ -394,8 +741,8 @@ function king(_x, _y, c)
           }
         }
       }
-    if (!game.checked && game.checkedPosition)
-      document.getElementById(game.checkedPosition.x + "-" + game.checkedPosition.y).classList.remove("check");
+    if (!checked && checkedPosition)
+      document.getElementById(checkedPosition.x + "-" + checkedPosition.y).classList.remove("check");
   };
 }
 
@@ -408,11 +755,11 @@ function pawn(_x, _y, c)
   this.canTakeEnPassant = null;
   var increment = c == 0 ? 1 : -1;
   this.firstMove = true;
-  this.EnPassantIsAvailable = function () { return game.turnCount == canBeTakenEnPassant; };
+  this.EnPassantIsAvailable = function () { return turnCount == canBeTakenEnPassant; };
   var canBeTakenEnPassant = -1;
   this.passPositionForEnPassant = function (x, y)
   {
-    if (x == _x && y == _y + 2 * increment) { canBeTakenEnPassant = game.turnCount+1; }
+    if (x == _x && y == _y + 2 * increment) { canBeTakenEnPassant = turnCount+1; }
   };
   this.getAndFillAvailableMoves = function ()
   {
@@ -498,7 +845,7 @@ newGame.addEventListener("click",function()
 var Resignbtn = document.getElementById("Resign");
 Resignbtn.addEventListener("click",function()
 {
-  if(!game.turn) 
+  if(!turn) 
       EndTheGame("black");
   else
       EndTheGame("white");

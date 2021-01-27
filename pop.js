@@ -1,6 +1,6 @@
 function showEndGameBox(winnerName) {
-  var winnerSpan = document.querySelectorAll(".message span")[0];
-  var symbolSpan = document.querySelectorAll(".message span")[1];
+  const winnerSpan = document.querySelectorAll(".message span")[0];
+  const symbolSpan = document.querySelectorAll(".message span")[1];
   if (winnerName == "white") {
     winnerSpan.textContent = "white";
     symbolSpan.classList.replace("win-color-black", "win-color-white");
@@ -8,14 +8,14 @@ function showEndGameBox(winnerName) {
     winnerSpan.textContent = "black";
     symbolSpan.classList.replace("win-color-white", "win-color-black");
   } else {
-    var pMessage = document.getElementsByClassName("message")[0];
+    const pMessage = document.getElementsByClassName("message")[0];
     pMessage.innerHTML = "Good luck! It's a " + winnerName;
   }
-  var popupContainer = document.getElementsByClassName("popup-container")[0];
-  var popup = document.getElementsByClassName("pop-up")[0];
+  const popupContainer = document.getElementsByClassName("popup-container")[0];
+  const popup = document.getElementsByClassName("pop-up")[0];
   popupContainer.style.display = "flex";
-  var playButton = document.querySelectorAll(".btn2")[1];
-  var keepButton = document.querySelectorAll(".btn2")[2];
+  const playButton = document.querySelectorAll(".btn2")[1];
+  const keepButton = document.querySelectorAll(".btn2")[2];
   keepButton.addEventListener("click", hideEndGameBox);
   playButton.addEventListener("click", resetFromPopUp);
   setTimeout(function () {
@@ -24,8 +24,8 @@ function showEndGameBox(winnerName) {
 }
 
 function hideEndGameBox() {
-  var popupContainer = document.getElementsByClassName("popup-container")[0];
-  var popup = document.getElementsByClassName("pop-up")[0];
+  const popupContainer = document.getElementsByClassName("popup-container")[0];
+  const popup = document.getElementsByClassName("pop-up")[0];
   popupContainer.style.display = "none";
   popup.style.marginTop = "-750px";
 }
@@ -37,20 +37,20 @@ function setTimeToStartGame() {
   var WProgressBar = document.getElementsByClassName("progress")[1];
   var initialWidth = parseInt(getComputedStyle(WProgressBar).width);
   timers[0].textContent = timers[1].textContent = helperObj.toShow(value);
-  game.choosenTime = value;
+  choosenTime = value;
   popup.style.display = "none";
-  game.timer1 = game.timer2 = value;
-  game.step = (1000 * initialWidth) / value;
+  timer1 = timer2 = value;
+  step = (1000 * initialWidth) / value;
 }
-// var keepButton = document.querySelectorAll(".btn2")[2];
-// //var playButton = document.querySelectorAll(".btn2")[1];
+// const keepButton = document.querySelectorAll(".btn2")[2];
+// //const playButton = document.querySelectorAll(".btn2")[1];
 
 // keepButton.addEventListener("click", hideEndGameBox);
 //playButton.addEventListener("click", resetFromPopUp);
 
 function resetFromPopUp() {
   hideEndGameBox();
-  //console.log(helperObj.ResetGame);
+  console.log(helperObj.ResetGame);
   helperObj.ResetGame();
 }
 
