@@ -34,7 +34,6 @@ function handleClick(position) {
       if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x + 2, selected.position.y)) && x == selected.position.x + 2)
       {
         //the boss  wants to castle king side
-<<<<<<< HEAD
         var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
@@ -43,22 +42,11 @@ function handleClick(position) {
         helperObj.moveTo(game.selected, 6, rank);
         game.castling=0;
         game.turn = !game.turn;
-=======
-        var color = selected.color;
-        helperObj.moveTo(selected, x, y);
-        castling =-1;
-        //move the rook next to it
-        selected = helperObj.map[8][color ? 8 : 1];
-        helperObj.moveTo(helperObj.map[8][color ? 8 : 1], 6, color ? 8 : 1);
-        castling=0;
-        turn = !turn;
->>>>>>> parent of ef49fba... final commit (code refactoring)
       }
       else if (selected instanceof king && helperObj.includesPosition(selected.moves,Position(selected.position.x - 2, selected.position.y)) &&
         x == selected.position.x - 2)
         {
         //the boss  wants to castle queen side
-<<<<<<< HEAD
         var rank = game.selected.color?8:1;
         helperObj.moveTo(game.selected, x, y);
         game.castling =-1;
@@ -67,16 +55,6 @@ function handleClick(position) {
         helperObj.moveTo(game.selected, 4, rank);
         game.castling=0;
         game.turn = !game.turn;
-=======
-        var color = selected.color;
-        helperObj.moveTo(selected, x, y);
-        castling =-1;
-        //move the rook next to it
-        selected = helperObj.map[8][color ? 8 : 1];
-        helperObj.moveTo(helperObj.map[1][color ? 8 : 1], 4, color ? 8 : 1);
-        castling=0;
-        turn = !turn;
->>>>>>> parent of ef49fba... final commit (code refactoring)
       }
       else if (selected instanceof pawn && selected.canTakeEnPassant && (x==selected.position.x+1 ||x==selected.position.x-1)) //en passant case
       {
